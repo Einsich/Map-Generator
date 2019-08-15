@@ -1,0 +1,174 @@
+fileFormatVersion: 2
+guid: 7b1ef0685199f20468fc7f0e10fe011f
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: Armature
+    100002: Camera
+    100004: cannon_01
+    100006: cannon_01_end
+    100008: cannon_02
+    100010: cannon_02_end
+    100012: cannon_03
+    100014: cannon_03_end
+    100016: cannons_04
+    100018: cannons_04_end
+    100020: flag_middle_end
+    100022: flag_middle_middle
+    100024: flag_middle_tip
+    100026: flag_middle_tip_end
+    100028: mesh-0
+    100030: mesh-1
+    100032: Root
+    100034: sails_back_bottom
+    100036: sails_back_bottom_end
+    100038: sails_back_middle
+    100040: sails_back_middle_end
+    100042: sails_back_top
+    100044: sails_back_top_end
+    100046: sails_front_bottom
+    100048: sails_front_bottom_end
+    100050: sails_front_middle
+    100052: sails_front_middle_end
+    100054: sails_front_top
+    100056: sails_front_top_end
+    100058: sails_middle__bottom
+    100060: sails_middle__bottom_end
+    100062: sails_middle_middle
+    100064: sails_middle_middle_end
+    100066: sails_middle_top
+    100068: sails_middle_top_end
+    100070: sails_small_back
+    100072: sails_small_back_end
+    100074: sails_small_front
+    100076: sails_small_front_end
+    100078: //RootNode
+    400000: Armature
+    400002: Camera
+    400004: cannon_01
+    400006: cannon_01_end
+    400008: cannon_02
+    400010: cannon_02_end
+    400012: cannon_03
+    400014: cannon_03_end
+    400016: cannons_04
+    400018: cannons_04_end
+    400020: flag_middle_end
+    400022: flag_middle_middle
+    400024: flag_middle_tip
+    400026: flag_middle_tip_end
+    400028: mesh-0
+    400030: mesh-1
+    400032: Root
+    400034: sails_back_bottom
+    400036: sails_back_bottom_end
+    400038: sails_back_middle
+    400040: sails_back_middle_end
+    400042: sails_back_top
+    400044: sails_back_top_end
+    400046: sails_front_bottom
+    400048: sails_front_bottom_end
+    400050: sails_front_middle
+    400052: sails_front_middle_end
+    400054: sails_front_top
+    400056: sails_front_top_end
+    400058: sails_middle__bottom
+    400060: sails_middle__bottom_end
+    400062: sails_middle_middle
+    400064: sails_middle_middle_end
+    400066: sails_middle_top
+    400068: sails_middle_top_end
+    400070: sails_small_back
+    400072: sails_small_back_end
+    400074: sails_small_front
+    400076: sails_small_front_end
+    400078: //RootNode
+    2000000: Camera
+    2100000: mesh-1-material-1.005
+    2100002: mesh-0-material-0.017
+    4300000: mesh-1
+    4300002: mesh-0
+    9500000: //RootNode
+    13700000: mesh-0
+    13700002: mesh-1
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
