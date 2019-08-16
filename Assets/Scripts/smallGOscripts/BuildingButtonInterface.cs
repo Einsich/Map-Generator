@@ -49,7 +49,7 @@ public class BuildingButtonInterface : MonoBehaviour {
         {
             button.interactable = true;
             image.color = Color.white;
-            state.sprite = ProvinceMenu.that.buildState[(int)st - 1];
+            state.sprite = ProvinceMenu.instance.buildState[(int)st - 1];
             isBuild = st == BuildState.isBuilding;
             
         }
@@ -57,7 +57,7 @@ public class BuildingButtonInterface : MonoBehaviour {
     public void PressButton()
     {
         ProvinceMenu.current.data.ClickBuilding(ind);
-        ProvinceMenu.that.ShowProvinceMenu(null);
+        ProvinceMenu.instance.ShowProvinceMenu(null);
     }
 
 }

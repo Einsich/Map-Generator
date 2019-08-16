@@ -4,7 +4,7 @@ using UnityEngine;
 using System.IO;
 public class SaveLoad : MonoBehaviour {
 
-	public static void Save(byte SeaLevel, Texture2D[] landTex,Texture2D[] landNorm,byte[]terrain,byte[] HeightArr,int[,]provArr,List<Region> reg,List<State>st,string path)
+	public static void Save(byte SeaLevel, Texture2D[] landTex,Texture2D[] landNorm,byte[]terrain,byte[] HeightArr,int[,]provArr,List<Region> regions,List<State>st,string path)
     {
         using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
         {
@@ -36,37 +36,37 @@ public class SaveLoad : MonoBehaviour {
                 }
             writer.Write(IdArr);
 
-            writer.Write((short)reg.Count);
-            for (int i = 0; i < reg.Count; i++)
+            writer.Write((short)regions.Count);
+            for (int i = 0; i < regions.Count; i++)
             {
-                writer.Write(reg[i].name);
-                writer.Write((short)reg[i].Capital.x);
-                writer.Write((short)reg[i].Capital.y);
-                writer.Write(reg[i].iswater);
-                writer.Write((short)reg[i].portIdto);
+                writer.Write(regions[i].name);
+                writer.Write((short)regions[i].Capital.x);
+                writer.Write((short)regions[i].Capital.y);
+                writer.Write(regions[i].iswater);
+                writer.Write((short)regions[i].portIdto);
 
-                writer.Write((byte)reg[i].neib.Length);
-                foreach (Region x in reg[i].neib)
+                writer.Write((byte)regions[i].neib.Length);
+                foreach (Region x in regions[i].neib)
                     writer.Write((short)x.id);
             }
             writer.Write((short)st.Count);
             for (int i = 0; i < st.Count; i++)
             {
                 //writer.Write((short)st[i].originalId);
-                writer.Write((short)st[i].reg[0].id);
+                writer.Write((short)st[i].regions[0].id);
                 writer.Write((byte)st[i].fraction);
-                writer.Write((short)st[i].reg.Count);
-                foreach (Region x in st[i].reg)
+                writer.Write((short)st[i].regions.Count);
+                foreach (Region x in st[i].regions)
                     writer.Write((short)x.id);
             }
 
-            for(int i=0;i<reg.Count;i++)
+            for(int i=0;i<regions.Count;i++)
             {
-                reg[i].data.Save(writer);
+                regions[i].data.Save(writer);
             }
         }
     }
-    public static void Load(out byte SeaLevel,out Texture2D[] landTex,out Texture2D[] landNorm,out byte[]terrain,out byte[] HeightArr, out int[,] provArr, out List<Region> reg, out List<State> states,string path)
+    public static void Load(out byte SeaLevel,out Texture2D[] landTex,out Texture2D[] landNorm,out byte[]terrain,out byte[] HeightArr, out int[,] provArr, out List<Region> regions, out List<State> states,string path)
     {
         using (BinaryReader reader = new BinaryReader(File.OpenRead(path)))
         {
@@ -96,25 +96,25 @@ public class SaveLoad : MonoBehaviour {
                 for (int j = 0; j < w; j++)
                     provArr[i, j] = (topr[(i * w + j) * 2] << 8) + topr[(i * w + j) * 2 + 1];
 
-            reg = new List<Region>();
+            regions = new List<Region>();
             int regcount = reader.ReadInt16();
             for (int i = 0; i < regcount; i++)
-                reg.Add(new Region());
-            for (int i = 0; i < reg.Count; i++)
+                regions.Add(new Region());
+            for (int i = 0; i < regions.Count; i++)
             {
-                reg[i].id = i;
-                reg[i].name = reader.ReadString();
-                reg[i].Capital= new Vector2Int( reader.ReadInt16(), reader.ReadInt16());
-                reg[i].iswater = reader.ReadBoolean();
-                reg[i].portIdto = reader.ReadInt16();
+                regions[i].id = i;
+                regions[i].name = reader.ReadString();
+                regions[i].Capital= new Vector2Int( reader.ReadInt16(), reader.ReadInt16());
+                regions[i].iswater = reader.ReadBoolean();
+                regions[i].portIdto = reader.ReadInt16();
                 int l = reader.ReadByte();
-                reg[i].neib = new Region[l];
-                //reg[i].border = new List<GameObject>[l];
-                //reg[i].arrow = new GameObject[l];
+                regions[i].neib = new Region[l];
+                //regions[i].border = new List<GameObject>[l];
+                //regions[i].arrow = new GameObject[l];
                 for (int j = 0; j < l; j++)
                 {
                     int k = reader.ReadInt16();
-                    reg[i].neib[j] = reg[k];
+                    regions[i].neib[j] = regions[k];
                 }
             }
             Texture2D colors = new Texture2D(32, 32);
@@ -137,23 +137,23 @@ public class SaveLoad : MonoBehaviour {
                 states[i].flag = new Texture2D(128, 128);
                 states[i].flag.LoadImage(File.ReadAllBytes("Assets/Texture/flags/(" + a0 + ").png"));              
 
-                states[i].Capital = reg[reader.ReadInt16()];
+                states[i].Capital = regions[reader.ReadInt16()];
                 states[i].fraction = (FractionName)reader.ReadByte();
 
                 int l = reader.ReadInt16();
                 for (int j = 0; j < l; j++)
                 {
                     int k = reader.ReadInt16();
-                    states[i].reg.Add(reg[k]);
-                    reg[k].owner = states[i];
+                    states[i].regions.Add(regions[k]);
+                    regions[k].owner = states[i];
                 }
             }
 
-            for(int i=0;i<reg.Count;i++)
+            for(int i=0;i<regions.Count;i++)
             {
-                FractionName frac = reg[i].owner.fraction;
-                reg[i].data = new ProvinceData(frac,reg[i]);
-                reg[i].data.Load(reader);
+                FractionName frac = regions[i].owner.fraction;
+                regions[i].data = new ProvinceData(frac,regions[i]);
+                regions[i].data.Load(reader);
             }
 
         }

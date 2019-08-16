@@ -7,7 +7,7 @@ public class ProvinceMenu : MonoBehaviour {
 
     public Text Name;
     public Text gold, manPower, wood, iron, science;
-    public static ProvinceMenu that;
+    public static ProvinceMenu instance;
     public static Region current;
     public Texture2D[] build;
     public Sprite[] buildState;
@@ -25,7 +25,7 @@ public class ProvinceMenu : MonoBehaviour {
     static int[] dx = { 0, 1, 2, 4, 5, 7, 11, 13, 14, 15, 16, 12 };
     private void Awake()
     {
-        that = this;
+        instance = this;
     }
     private void Start()
     {
@@ -134,7 +134,7 @@ public class ProvinceMenu : MonoBehaviour {
         recruitMenu.gameObject.SetActive(show);
         if (!show)
             return;
-        recruitMenu.ShowRecruitMenu(Player.selected);
+        recruitMenu.ShowRecruitMenu(Player.curRegion);
     }
     public void ShowNavy(bool show)
     {

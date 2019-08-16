@@ -17,7 +17,7 @@ public class MainMenu : MonoBehaviour {
     public Image preGenMap;
      static bool background;
     static int sealvl, h, w, seed;
-    public static MainMenu that;
+    public static MainMenu instance;
     public bool saveMode;
     public bool SaveMode
     { get { return saveMode; } set { saveMode = value; } }
@@ -29,18 +29,18 @@ public class MainMenu : MonoBehaviour {
             background = value;
             if (value)
             {
-                that.backGround.transform.GetChild(0).gameObject.SetActive(!Player.play);
-                that.backGround.transform.GetChild(1).gameObject.SetActive(Player.play);
+                instance.backGround.transform.GetChild(0).gameObject.SetActive(!Player.play);
+                instance.backGround.transform.GetChild(1).gameObject.SetActive(Player.play);
             }else
             {
-                that.backGround.transform.GetChild(0).gameObject.SetActive(false);
-                that.backGround.transform.GetChild(1).gameObject.SetActive(false);
+                instance.backGround.transform.GetChild(0).gameObject.SetActive(false);
+                instance.backGround.transform.GetChild(1).gameObject.SetActive(false);
             }
         }
     }
     void Awake()
     {
-        that = this;
+        instance = this;
         Vector2 resolution = new Vector2(Screen.currentResolution.width, Screen.currentResolution.height);
         backGround.transform.GetChild(0).GetComponent<RectTransform>().sizeDelta = resolution;
         backGround.transform.GetChild(1).GetComponent<RectTransform>().sizeDelta = resolution;
@@ -59,7 +59,7 @@ public class MainMenu : MonoBehaviour {
     }
     public static void ShowGeneratorMenu()
     {
-        that.GeneratorPanel.SetActive(true);
+        instance.GeneratorPanel.SetActive(true);
     }
     public void ExitFromGame()
     {
@@ -83,7 +83,7 @@ public class MainMenu : MonoBehaviour {
         GameMenuPanel.SetActive(false);
         foreach (GameObject go in GameMenu)
             go.SetActive(false);
-        Date.that.Pause();
+        Date.instance.Pause();
         GeneratorPanel.SetActive(true);
     }
     public void BackForSV(GameObject prev)

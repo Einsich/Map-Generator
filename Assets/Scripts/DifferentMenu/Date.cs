@@ -9,11 +9,11 @@ public class Date : MonoBehaviour {
     [SerializeField] Image indicator;
     public Texture2D ind;
     public static bool cheat = false;
-    public static Date that;
+    public static Date instance;
     public static PriorityQueue<Action> actionQueue = new PriorityQueue<Action>();
     private void Awake()
     {
-        that = this;
+        instance = this;
     }
     float t;
 	void Update () {
@@ -48,10 +48,10 @@ public class Date : MonoBehaviour {
         cd = d-1;cm = m-1;cy = y;
         totalM = 0;
         speed  = 0;
-        that.AddSpeed(12);
-        that.datetext.text = string.Format("{0}-ого {1} {2}", cd + 1, nday[cm], cy);
+        instance.AddSpeed(12);
+        instance.datetext.text = string.Format("{0}-ого {1} {2}", cd + 1, nday[cm], cy);
 
-        foreach (var x in Main.reg)
+        foreach (var x in Main.regions)
             x.data?.CalculateIncome();
     }
     static int DateToDay(int d,int m,int y)
@@ -130,7 +130,7 @@ public class Date : MonoBehaviour {
     public static void MonthUpdate()
     {
         totalM++;
-        for (int i = 0; i < Main.reg.Count; i++)
-            Main.reg[i].MonthUpdate(totalM);
+        for (int i = 0; i < Main.regions.Count; i++)
+            Main.regions[i].MonthUpdate(totalM);
     }
 }

@@ -14633,8 +14633,8 @@ MonoBehaviour:
   - {fileID: 1177154998678224, guid: 4ddbc96701922c445bf84ab171744328, type: 3}
   ChunkPref: {fileID: 114374172924723902, guid: 38892d747b60d9c498db634071de8620,
     type: 3}
-  forland: {fileID: 2100000, guid: ae6e4d60cd441254ab04e30170b29782, type: 2}
-  Rivermat: {fileID: 2100000, guid: 8fed615237db11a4f96b86fcc3ff462a, type: 2}
+  terrainMat: {fileID: 2100000, guid: ae6e4d60cd441254ab04e30170b29782, type: 2}
+  riverMat: {fileID: 2100000, guid: 8fed615237db11a4f96b86fcc3ff462a, type: 2}
   MiniMap: {fileID: 1389016934}
   noiseSorse: {fileID: 2800000, guid: 104702d2e482c394690f657498ba11e3, type: 3}
   mainCanvas: {fileID: 262899497}

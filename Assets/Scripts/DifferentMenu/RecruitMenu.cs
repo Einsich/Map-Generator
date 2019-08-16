@@ -9,7 +9,7 @@ public class RecruitMenu : MonoBehaviour
 
     public void UpdateGarnison()
     {
-        var list = Player.selected.data.garnison;
+        var list = Player.curRegion.data.garnison;
         toGarnison.UpdateList(list.ConvertAll(x=>(object)x));
     }
 
@@ -24,21 +24,21 @@ public class RecruitMenu : MonoBehaviour
     }
     void UpdateQueue()
     {
-        var list = Player.selected.data.recruitQueue;
+        var list = Player.curRegion.data.recruitQueue;
         toQueue.UpdateList(list.ConvertAll(x => (object)x));
     }
 
     public void AddToQueue(BaseRegiment regiment)
     {
-        RecruitAction act = new RecruitAction(Player.selected.data, regiment, regiment.time);
-        Player.selected.data.AddRecruit(act);
+        RecruitAction act = new RecruitAction(Player.curRegion.data, regiment, regiment.time);
+        Player.curRegion.data.AddRecruit(act);
         UpdateQueue();
     }
 
     public void RemoveFromQueue(RecruitAction act)
     {
         act.actually = false;
-        Player.selected.data.RemoveRecruit(act);
+        Player.curRegion.data.RemoveRecruit(act);
         UpdateQueue();
     }
 }

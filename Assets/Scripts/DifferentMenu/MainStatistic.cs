@@ -5,13 +5,13 @@ using UnityEngine.UI;
 
 public class MainStatistic : MonoBehaviour {
 
-    public static MainStatistic that;
+    public static MainStatistic instance;
     public SpriteRenderer flagbut;
     public Text gold, manPower,wood,iron,science;
     public GameObject panel;
     private void Awake()
     {
-        that = this;
+        instance = this;
     }
 	public void SetState(State state)
     {

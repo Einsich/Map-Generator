@@ -5,7 +5,7 @@ using UnityEngine;
 public class CameraController : MonoBehaviour {
 
     public static List<State> state;
-    public static List<Region> reg;
+    public static List<Region> regions;
     public static bool locked;
     public static float minh = 5;
     public static float maxh = 150;
@@ -26,7 +26,7 @@ public class CameraController : MonoBehaviour {
     public static void ChangeShowState()
     {
 
-        Main.that.forland.SetFloat("_BorderMod", showstate?1:0);
+        Main.instance.terrainMat.SetFloat("_BorderMod", showstate?1:0);
         for (int i = 1; i < state.Count; i++)
         {
             state[i].SetNameStatus(!showstate);
@@ -34,9 +34,9 @@ public class CameraController : MonoBehaviour {
                 if(!army.Fogged)
                 army.Active = !showstate;
         }
-        for (int i = 0; i < reg.Count; i++)
-            reg[i].StateBorder = showstate;
-        if (Main.currentmapmod == MapMode.Terrain)
+        for (int i = 0; i < regions.Count; i++)
+            regions[i].StateBorder = showstate;
+        if (Main.mapMode == MapMode.Terrain)
             if (showstate)
                 foreach (Chunk ch in Main.Chunks)
                     ch.Trees.gameObject.SetActive(false);
@@ -82,8 +82,8 @@ public class CameraController : MonoBehaviour {
         {
             showstate = transform.position.y > Hshowstate;
             ChangeShowState();
-            if (Player.selected != null)
-                Player.selected.Selected = true;
+            if (Player.curRegion != null)
+                Player.curRegion.Selected = true;
         }
     }
     Vector3 ClampV3(Vector3 v)

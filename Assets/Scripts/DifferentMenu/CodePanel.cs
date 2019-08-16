@@ -6,11 +6,11 @@ using UnityEngine.UI;
 public class CodePanel : MonoBehaviour {
 
     public InputField cdpanel;
-    public static CodePanel that;
+    public static CodePanel instance;
     public static List<State> state;
     void Awake()
     {
-        that = this;
+        instance = this;
     }
     void Start()
     {
@@ -80,9 +80,9 @@ public class CodePanel : MonoBehaviour {
                     else Player.SetState(state[j]);
                     break;
                 case "захват":
-                    if (int.TryParse(t[1], out j) && j <= Player.reg.Count&& !Player.reg[j].iswater)
+                    if (int.TryParse(t[1], out j) && j <= Player.regions.Count&& !Player.regions[j].iswater)
                     {
-                        Player.that.Occupated(Player.reg[j], Player.curPlayer);
+                        Player.instance.Occupated(Player.regions[j], Player.curPlayer);
                     }
                     else Error();
                     break;

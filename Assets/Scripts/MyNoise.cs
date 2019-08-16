@@ -7,55 +7,33 @@ public enum NoiseType
     ContinentAlgorithm,
     SquareAndDiamond
 }
-public class MyNoise :MonoBehaviour {
+static class MyNoise {
 
-    public static byte[] GetMap(int height,int widht,int seed, float watering,NoiseType type)
+    static int seed;//семя для рандома
+    public static byte[] GetMap(int height,int widht,int seed, float water,NoiseType type)
     {
         byte[] r;
-        water = watering;
-        MyNoise.seed = seed;
         switch (type)
         {
-            case NoiseType.ContinentAlgorithm: r = GetHeightArray(height, widht); break;
-            case NoiseType.SquareAndDiamond: r = FractalNoise(height, widht); break;
-            default: r = GetNoise(height, widht,seed);break;
+            case NoiseType.ContinentAlgorithm: r = GetContinentAlgorithm(height, widht,water,seed); break;
+            case NoiseType.SquareAndDiamond: r = GetSquareAndDiamond(height, widht,seed); break;
+            default: r = GetNoisePerlin(height, widht,seed);break;
         }
         return r;
     }
-   static int seed;
+    //Perlin Noise
+    #region
+    static Vector2[] perlinNormal = { new Vector2(1, 0), new Vector2(0, 1) , new Vector2(-1, 0) , new Vector2(0, -1) , new Vector2(0.7f, 0.7f) , new Vector2(0.7f, -0.7f) ,
+   new Vector2(-0.7f, 0.7f),new Vector2(-0.7f, -0.7f),new Vector2(0.86f, 0.5f),new Vector2(0.86f,-0.5f),new Vector2(-0.86f, 0.5f),new Vector2(-0.86f, -0.5f),
+    new Vector2(0.5f, 0.86f), new Vector2(0.5f, -0.86f), new Vector2(-0.5f, 0.86f),new Vector2(-0.5f, -0.86f)};
    static Vector2 GetNorm(float x,float y)
     {
         int v = (int)((((int)x * (1836311903 + seed)) ^ ((int)y * (2971215073 + seed)) + 4807526976))%113;
-        v = v & 15;
-
-        switch (v)
-        {
-            case 0: return new Vector2 ( 1, 0 );
-            case 1: return new Vector2(0, 1);
-            case 2: return new Vector2(-1, 0);
-            case 3: return new Vector2(0, -1);
-            case 4: return new Vector2(0.7f, 0.7f);
-            case 5: return new Vector2(0.7f, -0.7f);
-            case 6: return new Vector2(-0.7f, 0.7f);
-            case 7: return new Vector2(-0.7f, -0.7f);
-            case 8: return new Vector2(0.86f, 0.5f);
-            case 9: return new Vector2(0.86f,-0.5f);
-            case 10: return new Vector2(-0.86f, 0.5f);
-            case 11: return new Vector2(-0.86f, -0.5f);
-            case 12: return new Vector2(0.5f, 0.86f);
-            case 13: return new Vector2(0.5f, -0.86f);
-            case 14: return new Vector2(-0.5f, 0.86f);
-            default: return new Vector2(-0.5f, -0.86f);
-        }
+        return perlinNormal[v & 15];
     }
     static float Curve(float t)
     {
         return t * t * t * (t * (t * 6 - 15) + 10);
-    }
-
-    static float Lerp(float a, float b, float t)
-    {
-        return a + (b - a) * t;
     }
     static float GetNoiseIn(float x0,float y0)
     {
@@ -73,15 +51,15 @@ public class MyNoise :MonoBehaviour {
 
         x = Curve(x); y = Curve(y);
         
-        float tx = Lerp(tx1, tx2, x);
-        float bx = Lerp(bx1, bx2, x);
-        float tb = Lerp(tx, bx, y);
+        float tx = Mathf.Lerp(tx1, tx2, x);
+        float bx = Mathf.Lerp(bx1, bx2, x);
+        float tb = Mathf.Lerp(tx, bx, y);
 
         return tb;
     }
-    public static byte[] GetNoise(int n, int m,int seed)
+    public static byte[] GetNoisePerlin(int n, int m,int seed)
     {
-        MyNoise.seed = seed;
+        Random.InitState(seed);
         float x, y;
        int  oct = 6;
         byte[] r = new byte[n * m];
@@ -111,8 +89,79 @@ public class MyNoise :MonoBehaviour {
         
         return r;
     }
+    #endregion
+    
+    //Continent Algorithm
+    #region
+    class Cell
+    {
+        public Plate plate;
+        public List<Cell> neibor = new List<Cell>(4);
+        public float t = 1, targethei;
+        public bool useinmount;
+        public bool BorderCell()
+        {
+            foreach (var x in neibor)
+                if (x.plate != plate)
+                    return true;
+            return false;
+        }
+    }
+    class Plate
+    {
+        public List<Cell> cells;
+        public byte hei { get; private set; }
+        public bool ocean;
+        public float height => hei / 255f;
+        public float addhei(Plate other)
+        {
+            int hash = cells.Count + other.cells.Count;
+            hash &= 7;
+            if (other.ocean && ocean && hash >= 3)
+                hash -= 3;
+            return (hash - 3) * 0.1f;
+        }
+        public void SetWaterLevel(bool ocean)
+        {
+            this.ocean = ocean;
+            float d = ocean ? -0.01f : 0.01f;
+            hei = (byte)((Random.value * d + 0.5f) * 255f);
+            foreach (var x in cells)
+                x.targethei = height;
+        }
+        public List<Cell> CalculateBorder()
+        {
+            List<Cell> ans = new List<Cell>();
+            foreach (var cell in cells)
+                if (cell.BorderCell())
+                {
+                    float st = 0;
+                    bool hit = false;
+                    foreach (Cell neib in cell.neibor)
+                        if (neib.plate != cell.plate)
+                        {
+                            cell.useinmount = true;
+                            hit = true;
+                            st += cell.plate.addhei(neib.plate);
+                        }
+                    if (hit)
+                    {
+                        cell.targethei = Mathf.Clamp01(cell.targethei + st);
+                        cell.t = 1;
+                        ans.Add(cell);
+                    }
+                }
+            return ans;
+        }
+    }
+    static Cell[] cells;
+    static List<Plate> plates;
+
     static void SmoothWater(byte[] r,int n,int m,byte sea)
     {
+        Vector2Int[] D = {new Vector2Int(0,1), new Vector2Int(1, 0), new Vector2Int(0, -1), new Vector2Int(-1,0),
+        new Vector2Int(1, 1),new Vector2Int(1,-1),new Vector2Int(-1,1),new Vector2Int(-1,-1) };
+
         Vector2Int p = Vector2Int.zero,pd;
         for (p.y = 0; p.y < n; p.y++)
             for (p.x = 0; p.x < m; p.x++)
@@ -127,16 +176,15 @@ public class MyNoise :MonoBehaviour {
                         }
                     }
     }
-    static Cell[] cells;
-    static List<Plate> plates;
-    static float water;
-    public static byte[] GetHeightArray(int n, int m)
+    public static byte[] GetContinentAlgorithm(int n, int m,float water,int seed)
     {
         Random.InitState(seed);
         int k = n * m;
         cells = new Cell[k];
         for (int i = 0; i < k; i++)
             cells[i] = new Cell();
+        int[] dx = { 0, 1, 0, -1 };
+        int[] dy = { 1, 0, -1, 0 };
         for (int i = 0; i < n; i++)
             for (int j = 0; j < m; j++)
                 for (int d = 0; d < 4; d++)
@@ -249,73 +297,11 @@ public class MyNoise :MonoBehaviour {
         foreach (var x in cells)
             x.targethei = Mathf.Lerp(x.plate.height, x.targethei, x.t);
     }
-    static float f(float x) => ((-5.33333f * x + 13.3333f) * x - 9.66667f) * x + 2.66667f * x;
-    static int[] dx = { 0, 1, 0, -1 };
-    static int[] dy = { 1, 0, -1, 0 };
-    static Vector2Int[] D = {new Vector2Int(0,1), new Vector2Int(1, 0), new Vector2Int(0, -1), new Vector2Int(-1,0),
-        new Vector2Int(1, 1),new Vector2Int(1,-1),new Vector2Int(-1,1),new Vector2Int(-1,-1) };
-    class Cell
-    {
-        public Plate plate;
-        public List<Cell> neibor = new List<Cell>(4);
-        public float t = 1,targethei;
-        public bool useinmount;
-        public bool BorderCell()
-        {
-            foreach (var x in neibor)
-                if (x.plate != plate)
-                    return true;
-            return false;
-        }
-    }
-    class Plate
-    {
-        public List<Cell> cells;
-        public byte hei { get; private set; }
-        public bool ocean;
-        public float height => hei / 255f;
-        public float addhei(Plate other)
-        {
-            int hash = cells.Count + other.cells.Count;
-            hash &= 7;
-            if (other.ocean && ocean && hash >= 3)
-                hash -= 3;
-            return (hash - 3) * 0.1f;
-        }
-        public void SetWaterLevel(bool ocean)
-        {
-            this.ocean = ocean;
-            float d = ocean ? -0.01f : 0.01f;
-            hei = (byte)((Random.value * d + 0.5f) * 255f);
-            foreach (var x in cells)
-                x.targethei = height;
-        }
-        public List<Cell> CalculateBorder()
-        {
-            List<Cell> ans = new List<Cell>();
-            foreach(var cell in cells)
-                if(cell.BorderCell())
-                {
-                    float st = 0;
-                    bool hit = false;
-                    foreach (Cell neib in cell.neibor)
-                        if (neib.plate != cell.plate)
-                        {
-                            cell.useinmount = true;
-                            hit = true;
-                            st += cell.plate.addhei(neib.plate);
-                        }
-                    if (hit)
-                    {
-                        cell.targethei = Mathf.Clamp01(cell.targethei +  st);
-                        cell.t = 1;
-                        ans.Add(cell);
-                    }
-                }
-            return ans;
-        }
-    }
-    static float R,maxH=1f;
+    #endregion
+
+    //Square And Diamond
+    #region 
+    static float randomFactor,maxH=1f;
     static void For(float[,]hm,int L,int l,int d,int y0,int x0,int[]dx,int[]dy)
     {
         for (int i = 0, y; (y = y0 + i * d) < L; i++)
@@ -328,17 +314,18 @@ public class MyNoise :MonoBehaviour {
                     Y = y + dy[k] * l;
                     h += 0 <= X && X < L && 0 <= Y && Y < L ? hm[Y, X] : 0.5f;
                 }
-                h = 0.25f * h + l * R * (Random.value-0.5f);
+                h = 0.25f * h + l * randomFactor * (Random.value-0.5f);
                 hm[y, x] = h ;
                 maxH = Mathf.Max(hm[y, x], maxH);
             }
     }
-    static byte[]FractalNoise(int n,int m)
+    static byte[] GetSquareAndDiamond(int n,int m,int seed)
     {
+        Random.InitState(seed);
         int L = 2;
         while (L < Mathf.Max(n, m))
             L = L * 2 - 1;
-        R = 32f / L;
+        randomFactor = 32f / L;
         float[,] hm = new float[L, L];
         hm[0, 0] = hm[0, L - 1] = hm[L - 1, 0] = hm[L - 1, L - 1] = 0.5f;
         int l = L / 2, d = L - 1 ;
@@ -361,5 +348,6 @@ public class MyNoise :MonoBehaviour {
         
         return ans;
     }
+    #endregion
 }
 
