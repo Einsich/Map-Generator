@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 static class Creator {
 
@@ -548,14 +549,12 @@ static class Creator {
                 ListPool<int>.Add(l);
             }
         }
-
-        Texture2D colors = Resources.Load<Texture2D>("Terrain/StateColor");
         string[] names = Resources.Load<TextAsset>("Textes/States").text.Split('\n');
+        string[] colors = Resources.Load<TextAsset>("Textes/StateColor").text.Split(' ');
         List<Color> normcolor = new List<Color>();
-        for (int i = 0; i < 20; i++)
-            for (int j = 0; j < 32; j++)
-                if (!normcolor.Contains(colors.GetPixel(j, i)))
-                    normcolor.Add(colors.GetPixel(j, i));
+        for (int i = 0; i+2 < colors.Length; i += 3)
+            normcolor.Add(new Color(float.Parse(colors[i]), float.Parse(colors[i+1]), float.Parse(colors[i+2])));
+
         int n = normcolor.Count;
         int[] idstate = new int[n];
         for (int i = 0; i < n; i++) idstate[i] = i;
