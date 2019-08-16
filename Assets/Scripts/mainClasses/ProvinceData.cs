@@ -39,6 +39,13 @@ public class ProvinceData {
     }
     static int Time(Building type, int lvl)
     {
+        /*
+        я уверен в том что эта функция не доделана,
+        но я не понимаю что она делает....
+        
+        а или она доделана, но тогда я не вижу смылсл в параметре lvl и код можно написать так:
+        return ((int)type)<6?200:600;
+        */
         int t = 600;
         switch (type)
         {
