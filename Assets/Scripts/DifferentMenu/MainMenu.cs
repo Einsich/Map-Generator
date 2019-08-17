@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 
+using static StaticFunction.staticFunc;
 public class MainMenu : MonoBehaviour {
 
     public GameObject backGround, MainPanel, GeneratorPanel, SaveLoadPanel,GameMenuPanel;
@@ -240,6 +241,8 @@ public class MainMenu : MonoBehaviour {
         hm = MyNoise.GetMap(h, w, seed, Sea.value / Sea.maxValue, noiseType);
         ShowHeightMap();
     }
+
+     
     public void ShowHeightMap()
     {
         if (noiseType == NoiseType.ContinentAlgorithm)
@@ -250,14 +253,41 @@ public class MainMenu : MonoBehaviour {
             default: sealvl = (byte)(255 * Sea.value / Sea.maxValue); break;
         }
         
-        Color g1 = new Color(0, 0.4f, 0, 0.8f), g0 = new Color(0, 0.8f, 0, 0.8f);
-        Color b1 = new Color(0, 0, 1, 0.8f), b0 = new Color(0, 0.8f, 1, 0.8f);
-        for (int i = 0; i < h; i++)
-            for (int j = 0; j < w; j++)
-                colors[i*w+j] = hm[i * w + j] > sealvl ? Color.Lerp(g0, g1, 1f * hm[i * w + j] / (255 - sealvl)) : Color.Lerp(b0, b1, (255f - hm[i * w + j]) / sealvl);
-        map.SetPixels(colors);
-        map.Apply();
-        preGenMap.sprite = Sprite.Create(map, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f));
+        preGenMap.sprite = CreateMiniMap(seaH:(byte)(sealvl),mapH:hm,w:w,h:h);
     }
+
+    public Sprite CreateMiniMap(byte seaH,byte[] mapH,int w, int h)
+      {
+      /*
+      сделал отдельной функцией т.к. : Сделать метод, который по входному byte[], размерам и уровню воды, делал миникарту.  
+      */
+      byte skyH=(byte)(255-seaH);
+      Color[] ColorPoint=new Color[]  {rgb(80,140,160),rgb(180,215,200),rgb(220,225,200),rgb(150,180,130)     ,rgb(190,185,115)     ,rgb(220,175,130)};
+      byte[] ColorHightLine=new byte[]{0              ,(byte)(seaH*0.7),seaH            ,(byte)(seaH+skyH*0.1),(byte)(seaH+skyH*0.7),255             }; /*not HotLine*/
+
+      for(int i=0; i<h; i++)
+      for(int j=0; j<w; j++)
+        {
+        colors[i*w+j]=Color.red;
+        byte nowH=mapH[i*w+j];
+        for(byte line=0,h1=ColorHightLine[line],h2=ColorHightLine[line+1]; line<ColorPoint.Length-1; line++,h1=h2,h2=ColorHightLine[line+1])
+          {
+          if(nowH<=h2)
+            {
+            float deltaH=h2-h1; 
+            if(deltaH==0)continue;//deltaH+=1;
+            float proc=(nowH-h1)/deltaH;
+            colors[i*w+j]=Color.Lerp(ColorPoint[line],ColorPoint[line+1],proc);
+            break;
+            }
+          }
+
+        }
+
+      //TODO?:
+      map.SetPixels(colors);
+      map.Apply();
+      return Sprite.Create(map,new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f));
+      }
 
 }
