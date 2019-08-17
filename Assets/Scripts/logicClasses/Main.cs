@@ -118,30 +118,8 @@ public class Main : MonoBehaviour
 
     void CreateMiniMap()
     {
-        int a = 100, b = 265;
-        float k;
-        if (a * w > b * h) k = 1f * b / w;
-        else k = 1f * a / h;
-        Texture2D t = new Texture2D(b, a);
-        int xp, yp, i, j;
-        for (i = 0; i < a; i++)
-            for (j = 0; j < b; j++)
-                t.SetPixel(j, i, new Color(0, 0, 0, 0));
-        int x0 = (int)(w * k / 2);
-        int y0 = (int)(h * k / 2);
 
-        Color wt = Color.blue, gr = Color.green;
-        for (int x = -x0; x <= x0; x++)
-            for (int y = -y0; y <= y0; y++)
-            {
-                xp = Mathf.Clamp((int)(x / k + w * 0.5f), 0, w - 1);
-                yp = Mathf.Clamp((int)(y / k + h * 0.5f), 0, h - 1);
-                j = Mathf.Clamp((int)(x + b * 0.5f), 0, b - 1);
-                i = Mathf.Clamp((int)(y + a * 0.5f), 0, a - 1);
-                t.SetPixel(j, i, (MapMetrics.Height(new Vector2(xp,yp)) > MapMetrics.SeaLevel ? gr : wt));
-            }
-        t.Apply();
-        MiniMap.sprite = Sprite.Create(t, new Rect(0, 0, b, a), new Vector2(0.5f, 0.5f));
+        MiniMap.sprite = MainMenu.MiniMap;
     }
 
   

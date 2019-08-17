@@ -103,15 +103,12 @@ public class MainMenu : MonoBehaviour {
         GetSettings();
         Creator.Create(h, w, seed, (byte)sealvl, hm);
     }
-    Texture2D map;
-    Color[] colors;
     void GetSettings()
     {
         seed = (int)See.value;
         h = MapMetrics.Tile * (int)Hei.value;
         w = MapMetrics.Tile * (int)Wei.value;
-        map = new Texture2D(w, h);
-        colors = new Color[h * w];
+        
     }
 
     public void Action()
@@ -255,15 +252,15 @@ public class MainMenu : MonoBehaviour {
         
         preGenMap.sprite = CreateMiniMap(seaH:(byte)(sealvl),mapH:hm,w:w,h:h);
     }
-
-    public Sprite CreateMiniMap(byte seaH,byte[] mapH,int w, int h)
+    public static Sprite MiniMap;
+    public static Sprite CreateMiniMap(byte seaH,byte[] mapH,int w, int h)
       {
-      /*
-      сделал отдельной функцией т.к. : Сделать метод, который по входному byte[], размерам и уровню воды, делал миникарту.  
-      */
-      byte skyH=(byte)(255-seaH);
-      Color[] ColorPoint=new Color[]  {rgb(80,140,160),rgb(180,215,200),rgb(220,225,200),rgb(150,180,130)     ,rgb(190,185,115)     ,rgb(220,175,130)};
-      byte[] ColorHightLine=new byte[]{0              ,(byte)(seaH*0.7),seaH            ,(byte)(seaH+skyH*0.1),(byte)(seaH+skyH*0.7),255             }; /*not HotLine*/
+
+        Texture2D minimap = new Texture2D(w, h);
+        Color[] colors = new Color[h * w];
+        byte skyH=(byte)(255-seaH);
+      Color[] ColorPoint=new Color[]  {rgb(55, 133, 255),rgb(95, 165, 255),rgb(148, 192, 255), rgb(150, 180, 130),rgb(150, 180, 130), rgb(187, 166, 40)     ,rgb(187, 138, 95) };
+      byte[] ColorHightLine=new byte[]{0              ,(byte)(seaH*0.7),seaH            ,(byte)(seaH + 1) ,(byte)(seaH+skyH*0.1),(byte)(seaH+skyH*0.7),255             }; /*not HotLine*/
 
       for(int i=0; i<h; i++)
       for(int j=0; j<w; j++)
@@ -285,9 +282,9 @@ public class MainMenu : MonoBehaviour {
         }
 
       //TODO?:
-      map.SetPixels(colors);
-      map.Apply();
-      return Sprite.Create(map,new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f));
+      minimap.SetPixels(colors);
+      minimap.Apply();
+      return MiniMap = Sprite.Create(minimap,new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f));
       }
 
 }
