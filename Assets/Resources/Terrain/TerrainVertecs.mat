@@ -146,7 +146,7 @@ Material:
     - _SpecularHighlights: 1
     - _Speed: 0.3
     - _SrcBlend: 1
-    - _TerrainMode: 0
+    - _TerrainMode: 1
     - _Tiling: 1
     - _UJump: 0.25
     - _UVSec: 0

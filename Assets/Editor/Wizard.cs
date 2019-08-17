@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Runtime.Serialization;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -56,39 +57,26 @@ public class Wizard : ScriptableWizard
 }
 public class WizardFlag : ScriptableWizard
 {
+    public Texture2D colors;
     void OnWizardCreate()
     {
         string path = EditorUtility.SaveFilePanelInProject(
             "Save Flag", "Flag", "asset", "Save Flag"
         );
-        if (path.Length == 0)
+        if (path.Length == 0 || colors == null)
         {
             return;
         }
-        float h = 1f, w = 1.4f;
-        int n = 2;
-        Mesh mesh = new Mesh();
-        List<Vector3> ver = new List<Vector3>();
-        List<Vector2> uv = new List<Vector2>();
-        List<int> tri = new List<int>();
-        for (int i = 0; i <= n; i++)
-            for (int j = 0; j <= n; j++)
-            {
-                ver.Add(new Vector3(j * w / n, i * h / n));
-                uv.Add(new Vector2(j * 1f / n, i * 1f / n));
-            }
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
-            {
-                int k = i * (n+1) + j;
-                tri.Add(k);  tri.Add(k+1+n+1);tri.Add(k+1); 
-                tri.Add(k);  tri.Add(k+1+n);tri.Add(k+1+n+1); 
-            }
-        mesh.SetVertices(ver);
-        mesh.SetUVs(0,uv);
-        mesh.SetTriangles(tri,0);
-        mesh.RecalculateNormals();
-        AssetDatabase.CreateAsset(mesh, path);
+        List<Color> normcolor = new List<Color>();
+        for (int i = 0; i < 25; i++)
+            for (int j = 0; j < 32; j++)
+                if (!normcolor.Contains(colors.GetPixel(j, i)))
+                    normcolor.Add(colors.GetPixel(j, i));
+        string s = "";
+        foreach (var x in normcolor)
+            s += $"{x.r} {x.g} {x.b} ";
+        TextAsset asset = new TextAsset(s);
+        AssetDatabase.CreateAsset(asset, path);
     }
     [MenuItem("Assets/Create Flag")]
     static void CreateWizard()
