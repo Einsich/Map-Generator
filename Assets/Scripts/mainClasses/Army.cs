@@ -11,7 +11,7 @@ public class Army:MonoBehaviour
     public GameObject selectia;
     public ArmyBar bar;
     public Region curReg => MapMetrics.GetRegion(curCell);
-    public bool CanExchangeRegimentWith(Region region)=> curCell == region?.Capital;    
+    public bool CanExchangeRegimentWith(Region region)=> curCell == region?.Capital && owner == region.owner;    
     public List<Vector2Int> path = null;
     List<GameObject> waypoints;
     public Vector2Int curCell, nextCell;
