@@ -17,11 +17,11 @@ public class RecruitListElement : InitGO
         icon.sprite = regiment.Icon;
         for (int i = 0; i < 3; i++)
             for (int j = 0; j < 2; j++)
-                pips[j * 3 + i].sprite = ProvinceMenu.instance.pips[regiment.pips[i, j]];
+                pips[j * 3 + i].sprite = ProvinceMenu.GetPips(regiment.pips[i, j]);
         name.text = regiment.name.ToString();
         descr.text = $"Стоимость {regiment.cost.ToArmyCost()}\nСодержание {regiment.upkeep.ToArmyCost()}\nВремя {regiment.time}";
         bye.onClick.RemoveAllListeners();
-        bye.onClick.AddListener(() => ProvinceMenu.instance.recruitMenu.AddToQueue(regiment));
+        bye.onClick.AddListener(()=>RecruitMenu.AddToQueue(regiment));
         CheckCost();
     }
     public void CheckCost()

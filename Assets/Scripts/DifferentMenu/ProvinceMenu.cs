@@ -7,15 +7,18 @@ public class ProvinceMenu : MonoBehaviour {
 
     public Text Name;
     public Text gold, manPower, wood, iron, science;
-    public static ProvinceMenu instance;
+    static ProvinceMenu instance;
     public static Region current;
     public Texture2D[] build;
     public Sprite[] buildState;
+    public static Sprite GetBuildState(int index) => instance.buildState[index];
     public Sprite[,] BuildingSprite;
     public GameObject[] specialBuildings;
+    public static GameObject GetSpecialBuilding(int index) => instance.specialBuildings[index];
     public BuildingButtonInterface[] buildings;
     public GameObject buildPanel, diplomPanel;
     public Sprite[] pips;
+    public static Sprite GetPips(int index) => instance.pips[index];
     public RecruitMenu recruitMenu;
     [Header("diplomacy, buildings, army, navy")]
     public Button[] wievButtons;
@@ -60,7 +63,7 @@ public class ProvinceMenu : MonoBehaviour {
             r = current;
         if (r == null) return;
         gameObject.SetActive(true);
-        ArmyPanel.CheckExchangeRegiment();
+        MenuManager.CheckExchangeRegiment();
         Name.text = r.name + " (" + r.id + ")";
 
 
@@ -84,7 +87,7 @@ public class ProvinceMenu : MonoBehaviour {
     public void HiddenProvinceMenu()
     {
         gameObject.SetActive(false);
-        ArmyPanel.CheckExchangeRegiment();
+        MenuManager.CheckExchangeRegiment();
     }
     public void SetMenuMod(int k)
     {

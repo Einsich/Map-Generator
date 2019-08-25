@@ -9,8 +9,8 @@ public class MapMesh : MonoBehaviour {
     [NonSerialized] List<int> triangles;
     [NonSerialized] List<Vector2> uvs,uvs1;
     [NonSerialized] List<Vector3> vertices;
-    public bool useUVs,useUVs1,fog;
-    public int y0, x0, tile = MapMetrics.Tile;
+    public bool useUVs,useUVs1;
+    public int  tile = MapMetrics.Tile;
     void Awake()
     {
         GetComponent<MeshFilter>().mesh = mapMesh = new Mesh();   
@@ -49,7 +49,7 @@ public class MapMesh : MonoBehaviour {
     public static int[,] regionIndex;
     public static List<Region> regions;
     static int[] dx = MapMetrics.Qdx, dy = MapMetrics.Qdy;
-    public void TriangulateMap()
+    public void TriangulateMap(int x0,int y0)
     {
         Clear();
         for (int i = y0; i < y0 + tile + 1; i++)
@@ -57,7 +57,6 @@ public class MapMesh : MonoBehaviour {
             {
                 uvs.Add(new Vector2( 1f * j / MapMetrics.SizeM, 1f * i / MapMetrics.SizeN));
                 Vector3 v = MapMetrics.GetCornerPosition(i,j,true);
-                if (fog) v.y += 0.1f;
                 vertices.Add(v);
                 uvs1.Add(new Vector2(v.x, v.z)); 
             }
@@ -75,8 +74,7 @@ public class MapMesh : MonoBehaviour {
                 triangles.Add(b+1);
             }
         Apply();
-        if (!fog)
-            GetComponent<MeshCollider>().sharedMesh = mapMesh;
+        GetComponent<MeshCollider>().sharedMesh = mapMesh;
     }
     
     static Vector2Int rivPoint(Vector2Int p,int d)

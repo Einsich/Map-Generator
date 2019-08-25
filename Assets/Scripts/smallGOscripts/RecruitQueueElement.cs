@@ -19,7 +19,7 @@ public class RecruitQueueElement : InitGO
     }
     public void DeRecruit()
     {
-        ProvinceMenu.instance.recruitMenu.RemoveFromQueue(action);
+        RecruitMenu.RemoveFromQueue(action);
     }
     private void Update()
     {

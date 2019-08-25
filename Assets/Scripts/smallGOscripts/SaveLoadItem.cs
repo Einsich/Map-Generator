@@ -4,19 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 public class SaveLoadItem : MonoBehaviour {
 
-    public MainMenu menu;
+    public SaveLoadMenu menu;
 
     public string MapName
     {
-        get
-        {
-            return mapName;
-        }
-        set
-        {
-            mapName = value;
-            transform.GetChild(0).GetComponent<Text>().text = value;
-        }
+        get => mapName;        
+        set => mapName =  transform.GetChild(0).GetComponent<Text>().text = value;        
     }
 
     string mapName;

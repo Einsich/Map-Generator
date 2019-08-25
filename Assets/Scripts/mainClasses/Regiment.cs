@@ -41,7 +41,7 @@ public class BaseRegiment
     public RegimentName name;
     public int time;
     public Treasury cost, upkeep;
-    public Sprite Icon => BattleInterface.instance.allRegimentType[(int)type];
+    public Sprite Icon => BattleInterface.allRegimentType[(int)type];
 
 }
 public enum RegimentName

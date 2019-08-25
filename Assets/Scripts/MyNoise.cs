@@ -215,7 +215,6 @@ static class MyNoise {
         }
         int watermater = (int)(plates.Count * water);
         if (watermater == plates.Count) watermater--;
-        Debug.Log(watermater + " / " + plates.Count);
         for (int i = 0; i < plates.Count; i++)
             plates[i].SetWaterLevel(i+1 < watermater);
         CalculateHeight();

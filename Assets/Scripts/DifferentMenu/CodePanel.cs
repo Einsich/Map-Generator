@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class CodePanel : MonoBehaviour {
 
     public InputField cdpanel;
-    public static CodePanel instance;
+    static CodePanel instance;
     public static List<State> state;
     void Awake()
     {
@@ -16,11 +16,11 @@ public class CodePanel : MonoBehaviour {
     {
         cdpanel.onValueChanged.AddListener(delegate { ChangedValue(cdpanel); });
     }
-    public void Active(bool w)
+    public void Active()
     {
-        cdpanel.gameObject.SetActive(w);
-        if(w)
-        cdpanel.ActivateInputField();
+        cdpanel.gameObject.SetActive(activepanel);
+        if (activepanel)
+            cdpanel.ActivateInputField();
     }
     void Error()
     {
@@ -94,15 +94,6 @@ public class CodePanel : MonoBehaviour {
             Error();
         }
     }
-    bool activepanel = false;
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.BackQuote))
-        {
-            CameraController.cheat = Date.cheat = activepanel = !activepanel;
-            Active(activepanel);
-        }
-
-    }
+    public bool activepanel = false;
 
 }

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class MainStatistic : MonoBehaviour {
 
-    public static MainStatistic instance;
+    static MainStatistic instance;
     public SpriteRenderer flagbut;
     public Text gold, manPower,wood,iron,science;
     public GameObject panel;
@@ -15,7 +15,7 @@ public class MainStatistic : MonoBehaviour {
     }
 	public void SetState(State state)
     {
-        flagbut.sprite = Sprite.Create(state.flag, new Rect(0, 0, 128, 128), new Vector2(0.5f, 0.5f));
+        flagbut.sprite = state.flagSprite;
         ShowData(state);
     }
     public void ShowData(State state)

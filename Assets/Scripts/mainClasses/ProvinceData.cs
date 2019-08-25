@@ -120,7 +120,7 @@ public class ProvinceData {
             action = null;
         }
         if (Player.curPlayer == null || Player.curPlayer == region.owner) 
-        MainStatistic.instance.ShowResources(region.owner);
+        MenuManager.ShowResources(region.owner);
         ProvinceMenu.needUpdate = true;
     }
     public void BuildComplete()

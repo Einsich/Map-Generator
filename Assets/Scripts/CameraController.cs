@@ -21,13 +21,14 @@ public class CameraController : MonoBehaviour {
         Camera.main.transform.position = target = v + Vector3.up*(minh + maxh) * t;
         Camera.main.transform.rotation = Quaternion.Euler(Mathf.Lerp(minangle,maxangle,t), 0, 0);
         showstate = Mathf.Lerp(minh, maxh, t) > Hshowstate;
+        locked = false;
         ChangeShowState();
     }
     public static void ChangeShowState()
     {
 
         Main.instance.terrainMat.SetFloat("_BorderMod", showstate?1:0);
-        for (int i = 1; i < state.Count; i++)
+        for (int i = 0; i < state.Count; i++)
         {
             state[i].SetNameStatus(!showstate);
             foreach (Army army in state[i].army)
@@ -38,15 +39,13 @@ public class CameraController : MonoBehaviour {
             regions[i].StateBorder = showstate;
         if (Main.mapMode == MapMode.Terrain)
             if (showstate)
-                foreach (Chunk ch in Main.Chunks)
-                    ch.Trees.gameObject.SetActive(false);
+                Main.instance.Trees.gameObject.SetActive(false);
             else
-                foreach (Chunk ch in Main.Chunks)
-                {
-                    ch.Trees.gameObject.SetActive(true);
-                    foreach (Transform tree in ch.Trees)
-                        MapMetrics.UpdateTree(tree.gameObject);
-                }
+            {
+                Main.instance.Trees.gameObject.SetActive(true);
+                foreach (Transform tree in Main.instance.Trees)
+                    MapMetrics.UpdateTree(tree.gameObject);
+            }
 
     }
     public static Vector3 p0;

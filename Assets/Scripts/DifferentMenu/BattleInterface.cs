@@ -4,20 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class BattleInterface : MonoBehaviour {
-    public BattleResult battleResultPrefab;
     public Texture2D unitCounter, pips;
-    public Sprite[] unitSprite, Pips, allRegimentType;
+    public static Sprite[] unitSprite, Pips, allRegimentType;
     public Image[] Lider, Random, Moral,Flags;
     public Text[]  Infantry, Cavalry, Artillery,General;
-    public Battle battle;
-    public static BattleInterface instance;
+    public static Battle curBattle;
     static List<Image> units = new List<Image>();
     static int stack=0;
-    static Image getUnit()
+     Image getUnit()
     {
         if (units.Count == stack)
         {
-            Image image = Instantiate(instance.Flags[0], instance.transform);
+            Image image = Instantiate(Flags[0], transform);
             image.GetComponent<RectTransform>().sizeDelta = new Vector2(10f, 10f);
             units.Add(image);
         }
@@ -31,7 +29,6 @@ public class BattleInterface : MonoBehaviour {
             unit.gameObject.SetActive(false);
     }
 	void Awake () {
-        instance = this;
         gameObject.SetActive(false);
         allRegimentType = unitSprite = new Sprite[3];
         for (int i = 0; i < 3; i++)
@@ -79,19 +76,13 @@ public class BattleInterface : MonoBehaviour {
                 }
         }
     }
-    public static void ShowBattle(Battle battle)
+    public void ShowBattle(Battle battle)
     {
-        if(battle!=null)
-        {
-            instance.gameObject.SetActive(true);
-            instance.Show(battle);
-            instance.battle = battle;
-        }
-        else
-        {
-            instance.gameObject.SetActive(false);
-            instance.battle = null;
-        }
+        curBattle = battle;
+        gameObject.SetActive(battle != null);
+        if (battle != null)
+            Show(battle);
+        
     }
     public void HiddenMenu()
     {
@@ -104,8 +95,8 @@ public class BattleInterface : MonoBehaviour {
     }
     public static bool needUpdate;
 	void Update () {
-        if (needUpdate && battle != null)
-            Show(battle);
+        if (needUpdate && curBattle != null)
+            Show(curBattle);
 
 	}
 }

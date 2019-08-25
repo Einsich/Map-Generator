@@ -5,13 +5,13 @@ using UnityEngine.UI;
 
 public class Main : MonoBehaviour
 {
-    public GameObject Text, worldborder, borderPrefab, CoronaPrefab, flagPrefab, WayPoint;
+    public GameObject Text, worldborder, CoronaPrefab, flagPrefab, WayPoint;
     public ArmyBar ArmyBarPrefab;
     public GameObject[] terrainItem;
     public GameObject[] Port,TownPrefab,ArmyPrefab;
-    public Chunk ChunkPref;
+    public Transform Towns, Ports, Trees, Names;
+    public MapMesh mapMeshPrefab;
     public Material terrainMat,riverMat;
-    public Image MiniMap;
     public static List<Region> regions;
     public static List<State> states;
     public static MapMode mapMode;
@@ -24,7 +24,7 @@ public class Main : MonoBehaviour
     static Texture2D regionMap,occupationMap;
     static Texture2D[] TerrainMask, TerrainNormalMask;
     static Texture2DArray TerrainMaskArray, TerrainNormalMaskArray;
-    public static List<Chunk> Chunks=new List<Chunk>();
+    public static List<MapMesh> MapMeshes = new List<MapMesh>();
     List<List<Vector2Int>> River;
     public static byte[] terrainIndexes;
     public static int[,] regionIndex;
@@ -36,6 +36,7 @@ public class Main : MonoBehaviour
     private void Start()
     {
         Fraction.TownPrefab = TownPrefab;
+        Creator.StartGame();
     }
     public static void Save(string path)
     {
@@ -47,7 +48,6 @@ public class Main : MonoBehaviour
         SaveLoad.Load(out seaLevel, out TerrainMask,out TerrainNormalMask, out terrainIndexes, out Heights, out regionIndex, out regions, out states, path);
         instance.StartGame(seaLevel, TerrainMask, TerrainNormalMask, terrainIndexes, Heights, regionIndex, regions, states,null);
     }
-    bool firstMap = true;
     public void StartGame(byte SeaLevel, Texture2D[] landTex,Texture2D[] landnorm,byte[]terrain, byte[] HeightArr, int[,] regIndex, List<Region> region, List<State> st,List<List<Vector2Int>>river)
     {
         MapMetrics.SizeN = h = regIndex.GetLength(0);
@@ -57,14 +57,7 @@ public class Main : MonoBehaviour
         TerrainNormalMask = landnorm;
         terrainIndexes = terrain;
         River = river;
-        if (firstMap)
-        {
-
-            MapMetrics.noise = noiseSorse;
-        }
-        else
-        {
-        }
+        MapMetrics.noise = noiseSorse;
         MapMetrics.splatmap = new Texture2D(w, h, TextureFormat.RGBA32, false);
         MapMetrics.SetHeights(HeightArr,h,w);
         regionIndex = Player.regionIndex = MapMetrics.cellStateIndex = regIndex;
@@ -79,48 +72,38 @@ public class Main : MonoBehaviour
             for (int j = 0; j < w; j++)
                 distantion[i, j] = -1;//not used
         mapMode = MapMode.None;
-
+        MenuManager.SetMiniMap();
        
         transform.GetChild(0).transform.position = new Vector3(w / 2, seaLevelf - 0.01f, h / 2);
         
-
-        CreateMiniMap();
         CreateWorldBorder();
 
         BuildWorld();
         CreateTerrain();
         CreateArmy();
-        SetMapMode(MapMode.Politic.ToString());
+        SetMapMode(MapMode.Politic);
         CameraController.SetPosition(new Vector3(w / 2, seaLevelf, h / 2));
-        Date.StartTimer(1, 1, 1387);
+        MenuManager.StartTimer(1, 1, 1387);
         Player.SetState(st[0]);
-        if (firstMap) firstMap = false;
     }
-    
+
     void CreateWorldBorder()
     {
-        if(firstMap)
+        WorldBorders = new GameObject("World Borders");
+        for (int i = 0; i < 4; i++)
         {
-            WorldBorders = new GameObject("World Borders");
-            for (int i = 0; i < 4; i++) 
-            {
-                GameObject wb = Instantiate(worldborder);
-                if (i >= 2)
-                    wb.transform.rotation = Quaternion.Euler(0, 90, 0);
-                wb.transform.SetParent(WorldBorders.transform);
-            }
+            GameObject wb = Instantiate(worldborder);
+            if (i >= 2)
+                wb.transform.rotation = Quaternion.Euler(0, 90, 0);
+            wb.transform.SetParent(WorldBorders.transform);
         }
-        WorldBorders.transform.GetChild(0).transform.position =  new Vector3(-250, MapMetrics.SeaLevel, 1000);
-        WorldBorders.transform.GetChild(1).transform.position = new Vector3(w + 250, MapMetrics.SeaLevel, h - 1000-1 );
-        WorldBorders.transform.GetChild(2).transform.position = new Vector3(1000, MapMetrics.SeaLevel, h + 250 -1);
+
+        WorldBorders.transform.GetChild(0).transform.position = new Vector3(-250, MapMetrics.SeaLevel, 1000);
+        WorldBorders.transform.GetChild(1).transform.position = new Vector3(w + 250, MapMetrics.SeaLevel, h - 1000 - 1);
+        WorldBorders.transform.GetChild(2).transform.position = new Vector3(1000, MapMetrics.SeaLevel, h + 250 - 1);
         WorldBorders.transform.GetChild(3).transform.position = new Vector3(w - 1000, MapMetrics.SeaLevel, -250);
     }
-
-    void CreateMiniMap()
-    {
-
-        MiniMap.sprite = MainMenu.MiniMap;
-    }
+    
 
   
     void CalculateContinentTerritory()
@@ -166,9 +149,7 @@ public class Main : MonoBehaviour
                 if (MapMetrics.InsideMap(loc.y - 1, loc.x - 1) && regions[regionIndex[loc.y - 1, loc.x - 1]].iswater)
                 { n++; rot += new Vector2(-1, -1); }
                 rot /= n;
-                GameObject port;
-                Chunk chunk = ChunkWithPosition(loc);
-                port = Instantiate(Port[(int)r.owner.fraction], chunk.Ports);
+                GameObject port = Instantiate(Port[(int)r.owner.fraction], Ports);
                 port.transform.position = MapMetrics.GetCornerPosition(loc.y, loc.x, true);
                 port.transform.rotation = Quaternion.Euler(0, Vector2.SignedAngle(rot, new Vector2(0, -1)), 0);
                 r.Port = port;
@@ -178,50 +159,31 @@ public class Main : MonoBehaviour
     void BuildWorld()
     {
         CalculateContinentTerritory();
-        int loc = 0;
         int tile = MapMetrics.Tile;
-        Chunk cur;
         MapMesh.regionIndex = regionIndex;
         MapMesh.regions = regions;
         for (int i = 0; i < h; i += tile)
             for (int j = 0; j < w; j += tile)
             {
-
-                if (Chunks.Count == loc)
-                {
-                    cur = Instantiate(ChunkPref);
-                    Chunks.Add(cur);
-                }
-                else cur = Chunks[loc];
-                cur.y0 = i;
-                cur.x0 = j;
-                cur.transform.localPosition = Vector3.zero;
-                cur.Triangulate();
-                loc++;
+                MapMesh mapMesh = Instantiate(mapMeshPrefab);
+                MapMeshes.Add(mapMesh);
+                mapMesh.TriangulateMap(j, i);
+                mapMesh.transform.localPosition = Vector3.zero;
             }
-        for (int i = loc; i < Chunks.Count; i++)
-        {
-            Chunks[i].gameObject.SetActive(false);
-        }
         
-        SetProvNames(loc);
-        SetTowns(loc);
+        SetProvNames();
+        SetTowns();
         BuildPorts();
 
-        for (int i = 1; i < states.Count; i++)
+        foreach (var state in states)
         {
-            GameObject text = Instantiate(Text);
-            text.layer = 8;
-            states[i].Text = text;
-            states[i].SetName();
-            states[i].SetNameStatus(true);
-            Region cap = states[i].Capital;
-            if (cap.Corona)
-                cap.Corona.SetActive(true);
-            else
-                cap.Corona = Instantiate(CoronaPrefab, cap.Town.transform);
-            
-            cap.Corona.transform.localPosition = Vector3.up*0.8f;
+            state.Text = Instantiate(Text);
+            state.Text.layer = 8;
+            state.SetName();
+            state.SetNameStatus(true);
+            Region cap = state.Capital;
+            cap.Corona = Instantiate(CoronaPrefab, cap.Town.transform);
+            cap.Corona.transform.localPosition = Vector3.up * 0.8f;
         }
         
 
@@ -241,82 +203,45 @@ public class Main : MonoBehaviour
         terrainMat.SetTexture("_MainTex", MapMetrics.map);
         terrainMat.SetTexture("_OccupeMap", MapMetrics.occupemap);
         terrainMat.SetTexture("_ProvincesMap", MapMetrics.provincemap);
+        terrainMat.SetColor("_Select", Color.white);
+
         Shader.SetGlobalTexture("_SplatMap", MapMetrics.splatmap);
         Shader.SetGlobalVector("_Size", new Vector4(1f / w, 1f / h, w, h));
     }
 
-    void SetProvNames(int loc)
+    void SetProvNames()
     {
-        for (int i = 0; i < loc; i++)
-        {
-            Chunks[i].ChildIT = 0;
-            Chunks[i].ChildCountT = Chunks[i].Names.transform.childCount;
-        }
-        for (int i = 0; i < regions.Count; i++)
-        {
-            Chunk chunk = ChunkWithPosition(regions[i].Capital);
-            if (chunk.ChildIT < chunk.ChildCountT)
-            {
-                regions[i].Text = chunk.Names.GetChild(chunk.ChildIT).gameObject;
-                regions[i].Text.SetActive(true);
-            }
-            else
-            {
-                regions[i].Text = Instantiate(Text, chunk.Names);                
-            }
-            chunk.ChildIT++;
 
-            Vector3 pos = MapMetrics.GetCellPosition(regions[i].Capital,  true);
-            regions[i].Text.transform.position = pos;
-            regions[i].Text.layer = 8;
+        foreach(var reg in regions)
+        {
+            reg.Text = Instantiate(Text, Names);
+            Vector3 pos = MapMetrics.GetCellPosition(reg.Capital, true);
+            reg.Text.transform.position = pos;
+            reg.Text.layer = 8;
             
-            // regions[i].SetName();
         }
-        for (int i = 0; i < loc; i++)
-            for (int j = Chunks[i].ChildIT; j < Chunks[i].ChildCountT; j++)
-                Chunks[i].Names.GetChild(j).gameObject.SetActive(false);
     }
 
-    void SetTowns(int loc)
+    void SetTowns()
     {
 
-        for (int i = 0; i < loc; i++)
-        {
-            Chunks[i].ChildIT = 0;
-            Chunks[i].ChildCountT = Chunks[i].Towns.transform.childCount;
-        }
-        for (int i = 0; i < regions.Count; i++)
-            if (!regions[i].iswater)
+        foreach (var reg in regions)
+            if (!reg.iswater)
             {
-                GameObject go;
-                Chunk chunk = ChunkWithPosition(regions[i].Capital);
-                if (chunk.ChildIT < chunk.ChildCountT)
-                {
-                    go = chunk.Towns.GetChild(chunk.ChildIT++).gameObject;
-                    go.SetActive(true);
-                    Transform corona = go.transform.childCount > 2 ? go.transform.GetChild(2) : null ;
-                    if (corona)
-                        corona.gameObject.SetActive(false);
-                }
-                else
-                {
-                    go = new GameObject();
-                    go.transform.SetParent(chunk.Towns);
-                    GameObject town = new GameObject();
-                    town.transform.SetParent(go.transform);
-                    town.transform.localPosition = Vector3.zero;
-                    town = Instantiate(flagPrefab, go.transform);
-                    town.transform.localPosition = Vector3.zero;
-                }
-                go.transform.position = MapMetrics.GetCellPosition(regions[i].Capital);
+                GameObject go = new GameObject();
+                go.transform.SetParent(Towns);
+                GameObject town = new GameObject();
+                town.transform.SetParent(go.transform);
+                town.transform.localPosition = Vector3.zero;
+                town = Instantiate(flagPrefab, go.transform);
+                town.transform.localPosition = Vector3.zero;
+
+                go.transform.position = MapMetrics.GetCellPosition(reg.Capital);
                 go.transform.rotation = Quaternion.Euler(0, UnityEngine.Random.Range(-90, 90), 0);
                 go.transform.GetChild(1).localRotation = Quaternion.Inverse(go.transform.rotation);
-                regions[i].Town = go;
-                regions[i].RebuildTown();
+                reg.Town = go;
+                reg.RebuildTown();
             }
-        for (int i = 0; i < loc; i++)
-            for (int j = Chunks[i].ChildIT; j < Chunks[i].ChildCountT; j++)
-                Chunks[i].Towns.GetChild(j).gameObject.SetActive(false);
     }
 
     void CreateTerrain()
@@ -334,18 +259,13 @@ public class Main : MonoBehaviour
         }
         TerrainMaskArray.Apply();
         TerrainNormalMaskArray.Apply();
-        int tile = MapMetrics.Tile;
-        for (int i = 0, l = 0; i < h; i += tile)
-            for (int j = 0; j < w; j += tile, l++)
-                foreach (Transform tr in Chunks[l].Trees)
-                    Destroy(tr.gameObject);
         for (int i = 0; i < h; i++)
             for (int j = 0; j < w; j++)
             {
                 int t = terrainIndexes[i * w + j]&31;
                 if (t == (int)TerrainType.ForestLeaf || t == (int)TerrainType.ForestSpire)
                 {
-                    GameObject tree = Instantiate(terrainItem[t - (int)TerrainType.ForestLeaf], ChunkWithPosition(i, j).Trees);
+                    GameObject tree = Instantiate(terrainItem[t - (int)TerrainType.ForestLeaf], Trees);
                     tree.transform.position = MapMetrics.GetCellPosition(i,j);
                 }
                 
@@ -364,6 +284,8 @@ public class Main : MonoBehaviour
     }
     void CreateArmy()
     {
+        Army.AllArmy.Clear();
+        Army.WayPoints.Clear();
         for (int i = 0; i < states.Count; i++)
         {
             Army.CreateArmy(states[i].Capital, states[i].defaultArmy());
@@ -402,23 +324,18 @@ public class Main : MonoBehaviour
     }
 
 
-    public void SetMapMode(string smode)
+    public void SetMapMode(MapMode mode)
     {
-        MapMode mode = MapMode.Politic;
-        for (; mode <= MapMode.Terrain; mode++)
-            if (mode.ToString() == smode)
-                break;
         if (mode == mapMode) return;
         if (mode == MapMode.Terrain)
         {
             terrainMat.SetFloat("_TerrainMode", 1);
             if (!CameraController.showstate)
-                foreach (Chunk ch in Chunks)
-                    {
-                        ch.Trees.gameObject.SetActive(true);
-                        foreach (Transform tree in ch.Trees)
-                            MapMetrics.UpdateTree(tree.gameObject);
-                    }
+            {
+                Trees.gameObject.SetActive(true);
+                foreach (Transform tree in Trees)
+                    MapMetrics.UpdateTree(tree.gameObject);
+            }
         }
 
         if (mode == MapMode.Politic)
@@ -426,11 +343,10 @@ public class Main : MonoBehaviour
             terrainMat.SetTexture("_MainTex", regionMap);
             terrainMat.SetTexture("_OccupeMap", occupationMap);
             terrainMat.SetFloat("_TerrainMode", 0);
-            foreach (Chunk ch in Chunks)
-                ch.Trees.gameObject.SetActive(false);
+            Trees.gameObject.SetActive(false);
 
         }
-        
+
         mapMode = mode;
     }
     static float[,] distantion;
@@ -529,22 +445,6 @@ public class Main : MonoBehaviour
         if (TerrainType.Swamp == type)
             return 12 + riv;
         return 3 + riv;
-    }
-    public static Chunk ChunkWithPosition(int i,int j)
-    {
-        return ChunkWithPosition(new Vector2Int(j, i));
-    }
-
-   public static Chunk ChunkWithPosition(Vector2Int v)
-    {
-        int a = 0;
-        int tile = MapMetrics.Tile;
-        for (int i = 0; i < h; i += tile)
-            for (int j = 0; j < w; j += tile)
-                if (v.y <= i + tile && v.x <= j + tile)
-                    return Chunks[a];
-                else a++;
-        return null;
     }
 }
 

@@ -5,16 +5,11 @@ using UnityEngine.UI;
 
 public class Date : MonoBehaviour {
 
-    [SerializeField] Text datetext;
-    [SerializeField] Image indicator;
+    public Text datetext;
+    public Image indicator;
     public Texture2D ind;
     public static bool cheat = false;
-    public static Date instance;
     public static PriorityQueue<Action> actionQueue = new PriorityQueue<Action>();
-    private void Awake()
-    {
-        instance = this;
-    }
     float t;
 	void Update () {
         if (Input.GetKeyDown(KeyCode.Space)&&!cheat)
@@ -41,15 +36,15 @@ public class Date : MonoBehaviour {
     static int cd,cm,cy,totalM,speed;
     public static double fdate;
     public static int dayPerSecond { get { return play ? speed : 0; } }
-    public static void StartTimer(int d,int m,int y)
+    public void StartTimer(int d,int m,int y)
     {
         curdate = DateToDay(d,m,y);
         fdate = curdate;
         cd = d-1;cm = m-1;cy = y;
         totalM = 0;
         speed  = 0;
-        instance.AddSpeed(12);
-        instance.datetext.text = string.Format("{0}-ого {1} {2}", cd + 1, nday[cm], cy);
+        AddSpeed(12);
+        datetext.text = string.Format("{0}-ого {1} {2}", cd + 1, nday[cm], cy);
 
         foreach (var x in Main.regions)
             x.data?.CalculateIncome();

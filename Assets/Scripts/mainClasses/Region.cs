@@ -116,7 +116,7 @@ public class Region
         int dS = (int)Mathf.Clamp((territory.Count * 0.025f), 0, 5);
         int fontSize = (int)Mathf.Min(1 + dS, Mathf.Max(1, maxd / (name.Length+5)));
         Text.transform.position = c;
-        Text.transform.SetParent(Main.ChunkWithPosition((int)c.z, (int)c.x).Names);
+        Text.transform.SetParent(Main.instance.Names);
         Text.GetComponent<CurvedText>().SetProperies(name+"("+id+")", l, r, fontSize);
         Text.GetComponent<Outline>().effectDistance = new Vector2(0.03f, -0.03f);
     }
@@ -184,9 +184,9 @@ public class Region
         ind -= ProvinceData.buildCount;
         if (ind >= 0)
         {
-            GameObject t1 = GameObject.Instantiate(ProvinceMenu.instance.specialBuildings[ind],town);
-            t1.transform.localPosition = Vector3.right*1.4f;
-                }
+            GameObject t1 = GameObject.Instantiate(ProvinceMenu.GetSpecialBuilding(ind), town);
+            t1.transform.localPosition = Vector3.right * 1.4f;
+        }
         GameObject t0 = GameObject.Instantiate(Fraction.TownPrefab[(int)data.fraction].transform.GetChild(lvl).gameObject, town);
         t0.transform.localPosition = Vector3.zero;
         flag = Town.transform.GetChild(1);

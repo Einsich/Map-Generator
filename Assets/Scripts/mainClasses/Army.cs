@@ -139,7 +139,7 @@ public class Army:MonoBehaviour
         foreach(var x in waypoints)
             x.SetActive(selected && i++ >= pointind);
         if (curBattle != null)
-            BattleInterface.ShowBattle(selected?curBattle:null);
+            MenuManager.ShowBattle(selected?curBattle:null);
     }
     bool active;
     public bool Active
@@ -181,7 +181,7 @@ public class Army:MonoBehaviour
         remove.Remove(regiment);
         add.Add(regiment);
     }
-    public static List<Army> AllArmy = new List<Army>();
+    static public List<Army> AllArmy = new List<Army>();
     public static Army CreateArmy(Region home,List<Regiment> list)
     {
         State state = home.owner;
@@ -251,7 +251,7 @@ public class Army:MonoBehaviour
         attacker.Fight(defender.pos);
         defender.Fight(attacker.pos);
         Battle battle = attacker.curBattle = defender.curBattle = new Battle(attacker, defender);
-        BattleInterface.ShowBattle(battle);
+        MenuManager.ShowBattle(battle);
         return true;
     }
     public void EndBattle()

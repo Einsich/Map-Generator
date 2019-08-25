@@ -12,7 +12,7 @@ public class BattleResult : MonoBehaviour
     static int open = 0;
     public static void ShowResult(Battle battle,bool win)
     {
-        BattleResult result = pool.Count == 0 ? Instantiate(BattleInterface.instance.battleResultPrefab, MainMenu.instance.transform) : pool.Pop();
+        BattleResult result = pool.Count == 0 ? Instantiate(MenuManager.battleResultPrefab, MainMenu.instance.transform) : pool.Pop();
         result.gameObject.SetActive(true);
         result.GetComponent<RectTransform>().anchoredPosition = new Vector2((open % 15) * -10f, (open % 15) * 6f);
         result.SetValue(battle, win);

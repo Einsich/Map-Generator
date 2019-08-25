@@ -16,7 +16,7 @@ public class State
     public List<Army> army;
     public Color mainColor;
     Treasury treasury_ = new Treasury();
-    public Treasury treasury { get => treasury_; set { treasury_ = value; if (this == Player.curPlayer) MainStatistic.instance.ShowResources(this); } }
+    public Treasury treasury { get => treasury_; set { treasury_ = value; if (this == Player.curPlayer) MenuManager.ShowResources(this); } }
     public Region Capital;
     public GameObject Text;
     public State() { regions = new List<Region>(); army = new List<Army>(); diplomacy = new List<Diplomacy>(); treasury_.Gold = 100; treasury_.Manpower = 1000; }
@@ -49,7 +49,7 @@ public class State
         }
         int fontSize = (int)Mathf.Clamp((4 + Mathf.Clamp(S, 0, 10)), 3, maxS);
         Text.transform.position = c;
-        Text.transform.SetParent(Main.ChunkWithPosition((int)c.z, (int)c.x).Names);
+        Text.transform.SetParent(Main.instance.Names);
 
         Text.GetComponent<CurvedText>().SetProperies(name, l, r, fontSize);
     }

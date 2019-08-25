@@ -28,8 +28,8 @@ public class GarnisonIcon : InitGO,IPointerClickHandler
         if(canExchange)
         {
             Player.army.ExchangeRegiment(garnison);
-            ArmyPanel.instance.UpdateArmy();
-            ProvinceMenu.instance.recruitMenu.UpdateGarnison();
+            MenuManager.UpdateArmyList();
+            MenuManager.UpdateGarnisonList();
         }
     }
 }

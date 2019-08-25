@@ -6,7 +6,11 @@ using UnityEngine;
 public class RecruitMenu : MonoBehaviour
 {
     public ListFiller toGarnison, toRecruit, toQueue;
-
+    static RecruitMenu instance;
+    private void Awake()
+    {
+        instance = this;
+    }
     public void UpdateGarnison()
     {
         var list = Player.curRegion.data.garnison;
@@ -27,18 +31,17 @@ public class RecruitMenu : MonoBehaviour
         var list = Player.curRegion.data.recruitQueue;
         toQueue.UpdateList(list.ConvertAll(x => (object)x));
     }
-
-    public void AddToQueue(BaseRegiment regiment)
+    public static void AddToQueue(BaseRegiment regiment)
     {
         RecruitAction act = new RecruitAction(Player.curRegion.data, regiment, regiment.time);
         Player.curRegion.data.AddRecruit(act);
-        UpdateQueue();
+        instance.UpdateQueue();
     }
 
-    public void RemoveFromQueue(RecruitAction act)
+    public static void RemoveFromQueue(RecruitAction act)
     {
         act.actually = false;
         Player.curRegion.data.RemoveRecruit(act);
-        UpdateQueue();
+        instance.UpdateQueue();
     }
 }

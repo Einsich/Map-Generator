@@ -14,9 +14,10 @@ static class Creator {
     static List<Region> regions;
     static List<State> states;
     static List<List<Vector2Int>> river;
-    public static void Create(int H,int W,int Seed,byte seaLvl,byte [] heiarr)
+    static bool wasCreate = false;
+    public static void Create(int H, int W, int Seed, byte seaLvl, byte[] heiarr)
     {
-        h = H;w = W;seed = Seed;
+        h = H; w = W; seed = Seed;
         heightArray = heiarr;
         Random.InitState(seed);
         seaLevel = seaLvl;
@@ -33,10 +34,22 @@ static class Creator {
         }
         CreateMap();
         CreateTerrein();
-        CreateProvinces(10,15);
-        CreateState(1,20);
+        CreateProvinces(10, 15);
+        CreateState(1, 20);
         CreateProvincesData();
         CreateDiplomacy();
+        wasCreate = true;
+    }
+    public static void StartGame()
+    {
+        if (!wasCreate)
+        {
+            int w = 100, h = 100, seed = 100;
+            byte sea = 127;
+            byte[] ha = MyNoise.GetMap(h, w, seed, 0.5f, NoiseType.ContinentAlgorithm);
+            MainMenu.CreateMiniMap(sea, ha, w, h);
+            Create(h, w, seed, sea, ha);
+        }
         Main.instance.StartGame(seaLevel, terrainMask, terrainNormalMask, terrainIndexes, heightArray, regionIndex, regions, states, river);
     }
     static Texture2D[] terrainMask,terrainNormalMask;

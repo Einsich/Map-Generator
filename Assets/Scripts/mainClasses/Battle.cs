@@ -92,8 +92,8 @@ public class Battle {
         if (Player.curPlayer == army[1].owner)
             BattleResult.ShowResult(this, teamWinner == 1);
 
-        if (BattleInterface.instance.battle == this)
-            BattleInterface.ShowBattle(null);
+        if (BattleInterface.curBattle == this)
+            MenuManager.ShowBattle(null);
         army[0].curBattle = army[1].curBattle = null;
         army[0].EndBattle();
         army[1].EndBattle();

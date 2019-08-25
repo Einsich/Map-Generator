@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class ArmyPanel : MonoBehaviour
 {
     static Army curArmy;
-   public static ArmyPanel instance;
+    static ArmyPanel instance;
     public ListFiller army;
     public Image exchangeImage;
     void Awake()
@@ -20,7 +20,7 @@ public class ArmyPanel : MonoBehaviour
         curArmy = Player.army;
         show &= curArmy != null;
         instance.gameObject.SetActive(show);
-        CheckExchangeRegiment();
+        MenuManager.CheckExchangeRegiment();
         if (show)
             instance.Show();
     }
@@ -31,16 +31,6 @@ public class ArmyPanel : MonoBehaviour
     public void UpdateArmy()
     {
         army.UpdateList(curArmy.army.ConvertAll(x => (object)x));
-
-    }
-    public static void CheckExchangeRegiment()
-    {
-        bool exchange = Player.army != null && Player.army.CanExchangeRegimentWith(Player.curRegion) &&
-            instance.gameObject.activeSelf && ProvinceMenu.instance.gameObject.activeSelf;
-
-
-        instance.exchangeImage.gameObject.SetActive(exchange);
-        GarnisonIcon.canExchange = exchange;
 
     }
 }

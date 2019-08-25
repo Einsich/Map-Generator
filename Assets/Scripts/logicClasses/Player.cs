@@ -16,6 +16,9 @@ public class Player : MonoBehaviour {
     private void Awake()
     {
         instance = this;
+        curPlayer = null;
+        curRegion = null;
+        army = null;
     }
     public void Occupated(Region r,State occupant)
     {
@@ -43,7 +46,7 @@ public class Player : MonoBehaviour {
     public static void SetState(State state)
     {
         if(state!=null)
-        MainStatistic.instance.SetState(state);
+        MenuManager.SetState(state);
 
         curPlayer = state;
         foreach (Region r in regions)
@@ -51,13 +54,13 @@ public class Player : MonoBehaviour {
             r.UpdateSplateState(curPlayer);
             r.UpdateBorder();
         }
-        for(int i=1;i<states.Count;i++)
+        for(int i=0;i<states.Count;i++)
         {
             states[i].SetNameStatus(!CameraController.showstate);                
         }
         Army.UpdateUnitFog();
         MapMetrics.UpdateSplatMap();
-        ProvinceMenu.instance.HiddenProvinceMenu();
+        MenuManager.HiddenProvinceMenu();
     }
     void Update () {
         if (!EventSystem.current.IsPointerOverGameObject()&&(Input.GetMouseButtonDown(0)|| Input.GetMouseButtonDown(1)))
@@ -99,7 +102,7 @@ public class Player : MonoBehaviour {
                                 {
                                     regions[i].Selected = true;
                                     curRegion = regions[i];
-                                    ProvinceMenu.instance.ShowProvinceMenu(curRegion);
+                                    MenuManager.ShowProvinceMenu(curRegion);
                                 }
                             }
                             else
@@ -167,7 +170,7 @@ public class Player : MonoBehaviour {
         }
         if(curRegion==null)
         {
-            ProvinceMenu.instance.HiddenProvinceMenu();
+            MenuManager.HiddenProvinceMenu();
         }
     }
 
