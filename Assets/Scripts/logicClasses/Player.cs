@@ -133,11 +133,13 @@ public class Player : MonoBehaviour {
                         {
                             army.Selected(false);
                             army = null;
+                            ArmyPanel.Show(false);
                         }
                         if (army == sel)
                         {
                             army.Selected(false);
                             army = null;
+                            ArmyPanel.Show(false);
                         }
                         else
                         if (curPlayer == null || sel.owner == curPlayer)
@@ -145,6 +147,7 @@ public class Player : MonoBehaviour {
 
                             army = sel;
                             army.Selected(true);
+                            ArmyPanel.Show(true);
                         }
                     }
                     else
@@ -157,6 +160,7 @@ public class Player : MonoBehaviour {
                     {
                         army.Selected(false);
                         army = null;
+                            ArmyPanel.Show(false);
                     }
                 }
             }

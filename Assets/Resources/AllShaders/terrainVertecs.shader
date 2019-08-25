@@ -167,7 +167,7 @@
 				w = ((1.6*t.x - 2.27)*t.x + 0.27)*t.x + 1.0;
 			return float4(w, w, w, 1);
 		}
-		float lengthState=0.15, lengthProv=0.05;
+		float lengthState, lengthProv;
 		float2 uvmid;
 		float4 p0;
 		float2 BordDirection(float4 p, float4 c, float2 uv, float2 d,float boost)
@@ -226,8 +226,9 @@
 			float2 d = dx;
 			int cS = 0,cP = 0;
 			lengthProv = 0.1;
-			lengthState = 0.15;
-			for (int i = 0; i < 4; i++)
+			lengthState = 0.25;
+			uint i;
+			for (i = 0; i < 4; i++)
 			{
 				buf = BordDirection(p0, c0, uv, d,1);
 				if (buf.y > 0)
@@ -247,7 +248,7 @@
 			float boost = (cS == 2 ||cP == 2) ? 2. : 1;
 			lengthProv *= boost;
 			lengthState *= boost;
-			for (int i = 0; i<4; i++)
+			for (i = 0; i<4; i++)
 			{
 				buf = BordDirection(p0, c0, uv, d,boost);
 				if (buf.y > 0)

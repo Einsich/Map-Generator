@@ -569,7 +569,7 @@ static class Creator {
         {
 
             states[i].mainColor = normcolor[idstate[i]];
-            states[i].name = names[idstate[i]];
+            states[i].name = names[idstate[i]].TrimEnd('\r');
             states[i].flag = Resources.Load<Texture2D>("FlagTexture/(" + idstate[i] + ")");
             if (states[i].regions.Count > 0)
                 states[i].Capital = states[i].regions[0];

@@ -60,6 +60,7 @@ public class ProvinceMenu : MonoBehaviour {
             r = current;
         if (r == null) return;
         gameObject.SetActive(true);
+        ArmyPanel.CheckExchangeRegiment();
         Name.text = r.name + " (" + r.id + ")";
 
 
@@ -83,6 +84,7 @@ public class ProvinceMenu : MonoBehaviour {
     public void HiddenProvinceMenu()
     {
         gameObject.SetActive(false);
+        ArmyPanel.CheckExchangeRegiment();
     }
     public void SetMenuMod(int k)
     {

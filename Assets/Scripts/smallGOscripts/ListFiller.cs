@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ListFiller : MonoBehaviour
 {
     
     List<InitGO> list = new List<InitGO>();
     public InitGO prefab;
+    public int column = 1;
     RectTransform rect;
     Vector2 size;
     private void Initialize()
@@ -28,20 +30,18 @@ public class ListFiller : MonoBehaviour
             else
                 list.Add(element = Instantiate(prefab, transform));
             i++;
+            element.gameObject.SetActive(true);
             element.Init(x);
         }
-        rect.sizeDelta = new Vector2(rect.sizeDelta.x, (size.y + 1) * i);
+        rect.sizeDelta = new Vector2(rect.sizeDelta.x, (size.y + 1) * ((i + column - 1) / column));
         for (; i < list.Count; i++)
             list[i].gameObject.SetActive(false);
     }
 
    
 }
-public interface IInit
-{
-    void Init(object initElement);
-}
-public abstract class InitGO : MonoBehaviour, IInit
+
+public abstract class InitGO : MonoBehaviour
 {
     public abstract void Init(object initElement);
 }

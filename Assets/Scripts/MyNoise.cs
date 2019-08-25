@@ -12,6 +12,7 @@ static class MyNoise {
     static int seed;//семя для рандома
     public static byte[] GetMap(int height,int widht,int seed, float water,NoiseType type)
     {
+        MyNoise.seed = seed;
         byte[] r;
         switch (type)
         {

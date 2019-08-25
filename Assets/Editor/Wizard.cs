@@ -21,18 +21,18 @@ public class Wizard : ScriptableWizard
         {
             return;
         }
-        int n = 14, l = t.width; 
+        int n = 1, l = t.width; 
         Texture2DArray textureNormArray = new Texture2DArray(l, l, n, t.format, t.mipmapCount>1);
         textureNormArray.anisoLevel = t.anisoLevel;
         textureNormArray.filterMode = t.filterMode;
         textureNormArray.wrapMode = t.wrapMode;
-
+        
         int[] q = {0, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1 };
         int[] x = {3, 3, 2, 1, 0, 0, 2, 3, 2, 2, 3, 1, 2, 3 };
         int[] y = {3, 3, 3, 0, 0, 3, 0, 0, 2, 1, 2, 1, 1, 1 };
 
-        int[] xn = {3, 0, 0, 1, 1, 0, 2, 3, 3, 2, 1, 1, 1, 1 };
-        int[] yn = {3, 3, 3, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2 };
+        int[] xn = { 0 };// {3, 0, 0, 1, 1, 0, 2, 3, 3, 2, 1, 1, 1, 1 };
+        int[] yn = { 0 };// {3, 3, 3, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2 };
         
         for (int i = 0; i < n; i++)
         {

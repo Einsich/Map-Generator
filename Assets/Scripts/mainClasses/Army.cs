@@ -10,7 +10,8 @@ public class Army:MonoBehaviour
     public ArmyAction action;
     public GameObject selectia;
     public ArmyBar bar;
-    public Region curReg { get { return MapMetrics.GetRegion(curCell); } }
+    public Region curReg => MapMetrics.GetRegion(curCell);
+    public bool CanExchangeRegimentWith(Region region)=> curCell == region?.Capital;    
     public List<Vector2Int> path = null;
     List<GameObject> waypoints;
     public Vector2Int curCell, nextCell;
@@ -95,6 +96,8 @@ public class Army:MonoBehaviour
         if (selectia.activeSelf)
             selectia.transform.Rotate(Vector3.up, .4f);
     }
+
+    
     void UpdateFog(Vector2Int prev,Vector2Int next)
     {
         if(Player.curPlayer==owner)
@@ -131,8 +134,10 @@ public class Army:MonoBehaviour
     public void Selected(bool selected)
     {
         selectia.SetActive(selected);
-        for (int i = 0; i <= next + 1; i++)
-            waypoints[i].SetActive(selected);
+        //for (int i = 0; i <= next + 1; i++)
+        int i = 0;
+        foreach(var x in waypoints)
+            x.SetActive(selected && i++ >= pointind);
         if (curBattle != null)
             BattleInterface.ShowBattle(selected?curBattle:null);
     }
@@ -164,6 +169,17 @@ public class Army:MonoBehaviour
         owner = home.owner;
         AllArmy.Add(this);
         Stop();
+    }
+    public void ExchangeRegiment(Regiment regiment)
+    {
+        var list = curReg.data.garnison;
+        List<Regiment> remove, add;
+        if (list.Contains(regiment))
+        { remove = list; add = army; }
+        else
+        { remove = army; add = list; }
+        remove.Remove(regiment);
+        add.Add(regiment);
     }
     public static List<Army> AllArmy = new List<Army>();
     public static Army CreateArmy(Region home,List<Regiment> list)

@@ -510,7 +510,7 @@ public class Main : MonoBehaviour
     static bool CanMoveTo(Vector2Int prev,Vector2Int cur, State goer)
     {
         State s = MapMetrics.GetRegion(cur).owner;
-        if (goer == null||goer==s)
+        if (goer == null||goer==s || s== null)
             return true;
         
         Diplomacy dip = goer.GetDiplomacyWith(s);
