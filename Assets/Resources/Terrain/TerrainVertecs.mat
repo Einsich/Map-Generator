@@ -124,7 +124,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _BorderMod: 1
+    - _BorderMod: 0
     - _BumpScale: 0.6
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -141,7 +141,7 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _SelectTime: 52.94952
+    - _SelectTime: 67.03016
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _Speed: 0.3

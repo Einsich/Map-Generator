@@ -4,25 +4,27 @@ using UnityEngine;
 
 public class Diplomacy {
 
-    bool privalliance, privwar, privforceaccess;
+    bool alliance_, war_, forceaccess_;
     public bool alliance
     {
-        get { return privalliance; }
-        set { privalliance = value;
+        get { return alliance_; }
+        set { alliance_ = value;
         }
     }
     public bool war
     {
-        get { return privwar; }
-        set { privwar = value;
+        get { return war_; }
+        set { war_ = value;
         }
     }
     public bool forceaccess
     {
-        get { return privforceaccess; }
-        set { privforceaccess = value;
+        get { return forceaccess_; }
+        set { forceaccess_ = value;
         }
     }
+    public bool canMove => alliance_ || war_ || forceaccess_;
+    public bool canAttack => war_;
     public State s1, s2;
     public Diplomacy(State state1,State state2)
     {

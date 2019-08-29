@@ -5,78 +5,61 @@ using UnityEngine;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class MapMesh : MonoBehaviour {
 
-    Mesh mapMesh;
-    [NonSerialized] List<int> triangles;
-    [NonSerialized] List<Vector2> uvs,uvs1;
-    [NonSerialized] List<Vector3> vertices;
-    public bool useUVs,useUVs1;
-    public int  tile = MapMetrics.Tile;
+    Mesh mapMesh;   
+    public static int  tile = MapMetrics.Tile;
     void Awake()
     {
         GetComponent<MeshFilter>().mesh = mapMesh = new Mesh();   
     }
-    public void Clear()
-    {
-        mapMesh.Clear();
-        vertices = ListPool<Vector3>.Get();
-        if (useUVs)
-            uvs = ListPool<Vector2>.Get();
-        if (useUVs1)
-            uvs1 = ListPool<Vector2>.Get();
-        triangles = ListPool<int>.Get();
-    }
 
     public void Apply()
     {
-        mapMesh.SetVertices(vertices);
-        ListPool<Vector3>.Add(vertices);
-        if (useUVs)
-        {
-            mapMesh.SetUVs(0, uvs);
-            ListPool<Vector2>.Add(uvs);
-        }
-        if(useUVs1)
-        {
-            mapMesh.SetUVs(1, uvs1);
-            ListPool<Vector2>.Add(uvs1);
-        }
-        mapMesh.SetTriangles(triangles, 0);
-        ListPool<int>.Add(triangles);
-        mapMesh.RecalculateNormals();
-        mapMesh.RecalculateBounds();
+       
     }
 
     public static int[,] regionIndex;
     public static List<Region> regions;
     static int[] dx = MapMetrics.Qdx, dy = MapMetrics.Qdy;
-    public void TriangulateMap(int x0,int y0)
+    
+    public void TriangulateMap(int x0, int y0)
     {
-        Clear();
+        List<int> triangles = new List<int>();
+        List<Vector2> uvs = new List<Vector2>(), uvs1 = new List<Vector2>();
+        List<Vector3> vertices = new List<Vector3>();
         for (int i = y0; i < y0 + tile + 1; i++)
-            for (int j = x0; j < x0 + tile + 1; j++) 
+            for (int j = x0; j < x0 + tile + 1; j++)
             {
-                uvs.Add(new Vector2( 1f * j / MapMetrics.SizeM, 1f * i / MapMetrics.SizeN));
-                Vector3 v = MapMetrics.GetCornerPosition(i,j,true);
+                uvs.Add(new Vector2(1f * j / MapMetrics.SizeM, 1f * i / MapMetrics.SizeN));
+                Vector3 v = MapMetrics.GetCornerPosition(i, j, true);
+                Navigation.field[i + y0, j + x0] = new Vector2(v.x, v.z);
                 vertices.Add(v);
-                uvs1.Add(new Vector2(v.x, v.z)); 
+                uvs1.Add(new Vector2(v.x, v.z));
             }
-        for(int i=0;i< tile; i++)
-            for(int j=0;j< tile; j++)
+        for (int i = 0; i < tile; i++)
+            for (int j = 0; j < tile; j++)
             {
                 int a = i * (tile + 1) + j;
                 int b = a + tile + 1;
                 triangles.Add(a);
                 triangles.Add(b);
-                triangles.Add(b+1);                
+                triangles.Add(b + 1);
 
-                triangles.Add(a+1);
+                triangles.Add(a + 1);
                 triangles.Add(a);
-                triangles.Add(b+1);
+                triangles.Add(b + 1);
             }
-        Apply();
+        mapMesh.SetVertices(vertices);
+        mapMesh.SetUVs(0, uvs);
+        mapMesh.SetUVs(1, uvs1);
+        mapMesh.SetTriangles(triangles, 0);
+        ListPool<Vector3>.Add(vertices);
+        ListPool<int>.Add(triangles);
+        ListPool<Vector2>.Add(uvs);
+        ListPool<Vector2>.Add(uvs1);
+        mapMesh.RecalculateNormals();
+        mapMesh.RecalculateBounds();
         GetComponent<MeshCollider>().sharedMesh = mapMesh;
     }
-    
     static Vector2Int rivPoint(Vector2Int p,int d)
     {
         if (d < 0) d = 3;

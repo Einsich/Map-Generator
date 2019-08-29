@@ -44,9 +44,9 @@ static class Creator {
     {
         if (!wasCreate)
         {
-            int w = 100, h = 100, seed = 100;
+            int w = 100, h = 100, seed = 1000;
             byte sea = 127;
-            byte[] ha = MyNoise.GetMap(h, w, seed, 0.5f, NoiseType.ContinentAlgorithm);
+            byte[] ha = MyNoise.GetMap(h, w, seed, 0.5f, NoiseType.PerlinNoise);
             MainMenu.CreateMiniMap(sea, ha, w, h);
             Create(h, w, seed, sea, ha);
         }
@@ -571,24 +571,28 @@ static class Creator {
         int n = normcolor.Count;
         int[] idstate = new int[n];
         for (int i = 0; i < n; i++) idstate[i] = i;
-        for (int i = n - 1, j; i > 1; i--)
+        for (int i = n - 1; i > 1; i--)
         {
-            j = Random.Range(0, i);
+            int j = Random.Range(0, i);
             int a = idstate[i];
             idstate[i] = idstate[j];
             idstate[j] = a;
         }
-        for (int i = 0; i < states.Count; i++)
+        int k = 0;
+        foreach(var state in states)
         {
 
-            states[i].mainColor = normcolor[idstate[i]];
-            states[i].name = names[idstate[i]].TrimEnd('\r');
-            states[i].flag = Resources.Load<Texture2D>("FlagTexture/(" + idstate[i] + ")");
-            if (states[i].regions.Count > 0)
-                states[i].Capital = states[i].regions[0];
-            else Debug.LogErrorFormat("states[{0}] without regions!", i);
+            state.mainColor = normcolor[idstate[k]];
+            state.name = names[idstate[k]].TrimEnd('\r');
+            state.flag = Resources.Load<Texture2D>("FlagTexture/(" + idstate[k] + ")");
+            if (state.regions.Count > 0)
+                state.Capital = state.regions[0];
+            else Debug.LogErrorFormat("states[{0}] without regions!", k);
 
-            states[i].fraction = (FractionName)(i % 2);
+            state.fraction = (FractionName)(k % 2);
+            state.persons.Add(state.defaultLeader());
+            state.persons.Add(state.defaultLeader());
+            k++;
         }
     }
    static void AddRegions(int i0, List<int>st, int size)

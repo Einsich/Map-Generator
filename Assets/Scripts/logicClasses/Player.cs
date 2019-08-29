@@ -58,9 +58,41 @@ public class Player : MonoBehaviour {
         {
             states[i].SetNameStatus(!CameraController.showstate);                
         }
+        foreach (var army in Army.AllArmy)
+            army.GetComponent<ArmyAI>().enabled = army.owner != state;
         Army.UpdateUnitFog();
         MapMetrics.UpdateSplatMap();
         MenuManager.HiddenProvinceMenu();
+    }
+    public static void SelectArmy(Army sel)
+    {
+        army = sel;
+        army.Selected(true);
+        ArmyPanel.Show(true);
+    }
+    public static void DeselectArmy()
+    {
+        army.Selected(false);
+        army = null;
+        ArmyPanel.Show(false);
+    }
+    public static void ArmyTap(Army tap,bool leftClick)
+    {
+        if (leftClick)
+        {
+            if (army != null && army != tap)
+                DeselectArmy();
+            if (army == tap)
+                DeselectArmy();
+            else
+            if (curPlayer == null || tap.owner == curPlayer)
+                SelectArmy(tap);
+        }
+        else
+        if (army)
+        {
+            army.TryAttack(tap);            
+        }
     }
     void Update () {
         if (!EventSystem.current.IsPointerOverGameObject()&&(Input.GetMouseButtonDown(0)|| Input.GetMouseButtonDown(1)))
@@ -69,10 +101,10 @@ public class Player : MonoBehaviour {
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
             {
+                int x = (int)hit.point.x;
+                int y = (int)hit.point.z;
                 if (hit.transform.tag == "Map")
                 {
-                    int x = (int)hit.point.x;
-                    int y = (int)hit.point.z;
                     if(Input.GetMouseButtonDown(0))
                     {
                         if (!MapMetrics.InsideMap(y, x))
@@ -80,6 +112,8 @@ public class Player : MonoBehaviour {
                             if (curRegion != null)
                                 curRegion.Selected = false;
                             curRegion = null;
+                            if (army != null)
+                                DeselectArmy();
                         }
                         else
                         {
@@ -97,6 +131,8 @@ public class Player : MonoBehaviour {
                                         curRegion.Selected = false;
                                         curRegion = null;
                                     }
+                                    if (army != null)
+                                        DeselectArmy();
                                 }
                                 else
                                 {
@@ -114,7 +150,7 @@ public class Player : MonoBehaviour {
                         }
                     }
 
-                    if (Input.GetMouseButtonDown(1) && army && army.action != ArmyAction.Retreat)
+                    if (Input.GetMouseButtonDown(1) && army && !army.retreat)
                     {
                         if (army.curBattle == null)
                             army.TryMoveTo(hit.point);
@@ -122,48 +158,20 @@ public class Player : MonoBehaviour {
                             army.curBattle.EndBattle(army.owner);
                     }
                 }
-                else if (curRegion != null)
-                {
-                    curRegion.Selected = false;
-                    curRegion = null;
-                }
                 if (hit.transform.tag == "Unit")
                 {
-                        Army sel = hit.transform.GetComponent<Army>();
-                    if (Input.GetMouseButtonDown(0))
+                    Army sel = hit.transform.GetComponent<Army>();
+                    ArmyTap(sel, Input.GetMouseButtonDown(0));
+                }
+                if(hit.transform.tag == "Town")
+                {
+                    if (army)
                     {
-                        if (army != null && army != sel)
-                        {
-                            army.Selected(false);
-                            army = null;
-                            ArmyPanel.Show(false);
-                        }
-                        if (army == sel)
-                        {
-                            army.Selected(false);
-                            army = null;
-                            ArmyPanel.Show(false);
-                        }
+                        Region reg = MapMetrics.regions[int.Parse(hit.transform.name)];
+                        if (reg.curOwner == army.owner)
+                            army.TryMoveTo(hit.point);
                         else
-                        if (curPlayer == null || sel.owner == curPlayer)
-                        {
-
-                            army = sel;
-                            army.Selected(true);
-                            ArmyPanel.Show(true);
-                        }
-                    }
-                    else
-                        if (army && Input.GetMouseButtonDown(1))
-                    {
-                        army.TryMoveTo(hit.point);
-                    }
-                    else
-                         if (army != null)
-                    {
-                        army.Selected(false);
-                        army = null;
-                            ArmyPanel.Show(false);
+                            army.TryAttack(reg);
                     }
                 }
             }

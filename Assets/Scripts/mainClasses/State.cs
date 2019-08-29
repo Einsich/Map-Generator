@@ -14,12 +14,14 @@ public class State
     public Sprite flagSprite => flagS ? flagS : Sprite.Create(flag, new Rect(0, 0, flag.width, flag.height), new Vector2(0.5f, 0.5f));        
     
     public List<Army> army;
+    public List<Person> persons;
     public Color mainColor;
     Treasury treasury_ = new Treasury();
     public Treasury treasury { get => treasury_; set { treasury_ = value; if (this == Player.curPlayer) MenuManager.ShowResources(this); } }
     public Region Capital;
     public GameObject Text;
-    public State() { regions = new List<Region>(); army = new List<Army>(); diplomacy = new List<Diplomacy>(); treasury_.Gold = 100; treasury_.Manpower = 1000; }
+    public State() { regions = new List<Region>(); army = new List<Army>(); diplomacy = new List<Diplomacy>();persons = new List<Person>();
+        treasury_.Gold = 100; treasury_.Manpower = 1000; }
     public void SetName()
     {
         Vector2Int left, center, right;
@@ -69,6 +71,8 @@ public class State
     }
     public Diplomacy GetDiplomacyWith(State other)
     {
+        if (other == this)
+            return null;
         foreach (Diplomacy d in diplomacy)
             if (d.s1 == other || d.s2 == other)
                 return d;
@@ -130,6 +134,14 @@ public class State
         for (int j = 0; j < a; j++)
             list.Add(new Regiment(artillery));
         return list;
+    }
+    public Person defaultLeader()
+    {
+        switch(Random.Range(0,2))
+        {
+            default:return new Knight();
+            case 1:return new Trader();
+        }
     }
 }
 

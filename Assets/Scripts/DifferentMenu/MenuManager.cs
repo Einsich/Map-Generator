@@ -18,6 +18,7 @@ public class MenuManager : MonoBehaviour
 
     public BattleResult batResPref;
     public static BattleResult battleResultPrefab => instance.batResPref;
+    public static Transform MenuTransform => instance.transform;
     static MenuManager instance;
     void Awake()
     {

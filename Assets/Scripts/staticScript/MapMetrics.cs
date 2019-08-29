@@ -22,6 +22,8 @@ static class MapMetrics
                         Ody = { 0, -1, -1, -1, 0, 1, 1, 1 },
                         Qdx = { 1, 0, -1, 0 },Qdy = { 0, -1, 0, 1 };
     public static Vector2Int[] Qd = { new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1, 0), new Vector2Int(0, -1) };
+    public static Vector2Int[] OctoDelta = { new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1, 0), new Vector2Int(0, -1),
+    new Vector2Int(1,1),new Vector2Int(1,-1),new Vector2Int(-1,1),new Vector2Int(-1,-1)};
     public static void SetHeights(byte[] height,int n,int m)
     {
         heights = height;

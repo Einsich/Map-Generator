@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class Main : MonoBehaviour
 {
-    public GameObject Text, worldborder, CoronaPrefab, flagPrefab, WayPoint;
+    public GameObject Text, worldborder, CoronaPrefab, flagPrefab, WayPoint,SiegePrefab;
     public ArmyBar ArmyBarPrefab;
     public GameObject[] terrainItem;
     public GameObject[] Port,TownPrefab,ArmyPrefab;
@@ -60,6 +60,7 @@ public class Main : MonoBehaviour
         MapMetrics.noise = noiseSorse;
         MapMetrics.splatmap = new Texture2D(w, h, TextureFormat.RGBA32, false);
         MapMetrics.SetHeights(HeightArr,h,w);
+        Navigation.Init(h, w);
         regionIndex = Player.regionIndex = MapMetrics.cellStateIndex = regIndex;
 
         regions = CameraController.regions = Player.regions =
@@ -228,7 +229,9 @@ public class Main : MonoBehaviour
         foreach (var reg in regions)
             if (!reg.iswater)
             {
-                GameObject go = new GameObject();
+                GameObject go = new GameObject(reg.id.ToString());
+                go.tag = "Town";
+                go.AddComponent<SphereCollider>().radius = 0.71f ;
                 go.transform.SetParent(Towns);
                 GameObject town = new GameObject();
                 town.transform.SetParent(go.transform);
@@ -286,10 +289,9 @@ public class Main : MonoBehaviour
     {
         Army.AllArmy.Clear();
         Army.WayPoints.Clear();
-        for (int i = 0; i < states.Count; i++)
-        {
-            Army.CreateArmy(states[i].Capital, states[i].defaultArmy());
-        }
+        foreach (var state in states)
+                Army.CreateArmy(state.Capital, state.defaultArmy(), state.persons[0]);
+        
     }
 
    public static bool Angle(int y,int x,out Vector2Int dir)
@@ -356,7 +358,6 @@ public class Main : MonoBehaviour
     public static Queue<Vector2Int> used = new Queue<Vector2Int>();
     public static List<Vector2Int> FindPath(Vector2Int from, Vector2Int to,State goer)
     {
-        // Debug.Log(from); Debug.Log(to);
         if (MapMetrics.GetRegion(from).Continent != MapMetrics.GetRegion(to).Continent)
             return null;
         Node prev = new Node(Heuristic(from, to), from), next;
@@ -380,7 +381,7 @@ public class Main : MonoBehaviour
                 pos = new Vector2Int(dx[i], dy[i]) + prev.pos;
                 next = new Node(Heuristic(prev.pos, pos), pos);
 
-                if (MapMetrics.InsideMap(pos.y, pos.x) && (dnext = CellMoveCost(pos)) < 100 && CanMoveTo(prev.pos,pos,goer))
+                if (MapMetrics.InsideMap(pos.y, pos.x) && (dnext = CellMoveCost(pos)) < 100 && CanMoveTo(prev.pos,pos,goer,pos == to))
                 {
                     dist = distantion[prev.pos.y, prev.pos.x] + ((i & 1)==0 ? 0.5f : 0.7f) * (dnext + dprev);
                     if (distantion[pos.y, pos.x] >= 0 && distantion[pos.y, pos.x] <= dist)
@@ -423,14 +424,23 @@ public class Main : MonoBehaviour
     {
         return (from - to).magnitude * 10;
     }
-    static bool CanMoveTo(Vector2Int prev,Vector2Int cur, State goer)
+    static bool CanMoveTo(Vector2Int prev,Vector2Int cur, State goer,bool lastCell)
     {
-        State s = MapMetrics.GetRegion(cur).owner;
-        if (goer == null||goer==s || s== null)
-            return true;
         
+        Region reg = MapMetrics.GetRegion(cur);
+        State s = reg.ocptby == null ? reg.owner : reg.ocptby;
+        if (goer == s) 
+            return true;
+        if (s == null || !lastCell &&  reg.Capital == cur)
+            return false;
+        Army army = Army.ArmyInPoint(cur);
+        Diplomacy diparmy = goer.GetDiplomacyWith(army?.owner);
+        if (army != null && (diparmy ==null ||!diparmy.canAttack))
+            return false;
         Diplomacy dip = goer.GetDiplomacyWith(s);
-        return dip.alliance || dip.forceaccess || dip.war || MapMetrics.GetRegion(prev).owner == s;
+
+        return dip.canMove || MapMetrics.GetRegion(prev).owner == s;
+        
     }
     public static float CellMoveCost(Vector2Int p)
     {

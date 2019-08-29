@@ -2,31 +2,42 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Army:MonoBehaviour
+public class Army:MonoBehaviour,ITarget
 {
-    public List<Regiment> army;
-    public General genegal;
     public State owner;
-    public ArmyAction action;
-    public GameObject selectia;
-    public ArmyBar bar;
+    public State curOwner => owner;
     public Region curReg => MapMetrics.GetRegion(curCell);
+    public Battle curBattle;
+    public ITarget target;
+    public List<Regiment> army;
+    public Person genegal;
+    public Vector2Int curPosition => curCell;
+    public bool retreat;
+    public Region besiege;
+    public ArmyAI AI;
+    public GameObject selectia,siegeModel;
+    public ArmyBar bar;
     public bool CanExchangeRegimentWith(Region region)=> curCell == region?.Capital && owner == region.owner;    
     public List<Vector2Int> path = null;
     List<GameObject> waypoints;
-    public Vector2Int curCell, nextCell;
+    public Vector2Int curCell;// => Navigation.GetFixedPosition(pos);
+    public Vector2Int nextCell;
     public int next = -2,pointind;
     float  speed = 0.2f,needAngle;
-    public Battle curBattle;
     static float dAngle = 2.5f;
     public Vector2 endPath, direction,pos;
+    public bool destoyed;
+    GameObject cube;
     private void Start()
     {
         selectia.SetActive(false);
+        cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cube.transform.localScale *= 0.3f;
     }
     private void Update()
     {
         UpdateRotation();
+        cube.transform.position = MapMetrics.GetCellPosition(curCell);
         if (path == null)
             return;
         if (Reached(pos, nextCell))
@@ -36,6 +47,12 @@ public class Army:MonoBehaviour
 
             UpdateFog(p1, p2);
             UpdateUnitFog();
+            if(besiege!=null)
+            {
+                Vector2Int d = besiege.Capital - curCell;
+                if (Mathf.Max(Mathf.Abs(d.x), Mathf.Abs(d.y)) > 1)
+                    besiege.SiegeEnd();
+            }
             if (next < 0)
             {
                 if ((pos - endPath).sqrMagnitude < 0.01f)
@@ -50,6 +67,22 @@ public class Army:MonoBehaviour
             {
                 speed = 1f / Main.CellMoveCost(curCell);
                 nextCell = path[next--];
+                if (target != null && target.curPosition == nextCell)
+                {
+
+                    target.WasCatch(this);
+                    target = null;
+                    return;
+                }
+                Army arm = ArmyInPoint(nextCell);
+                if (arm!=null)
+                {
+                    if (owner.GetDiplomacyWith(arm.owner).canAttack)
+                        TryStartBattle(this, arm);
+                    else
+                        TryMoveTo(MapMetrics.GetPosition(endPath));
+                    return;
+                }
             }
         }
 
@@ -72,13 +105,11 @@ public class Army:MonoBehaviour
         pos += Date.dayPerSecond * Time.deltaTime * direction * speed;
         transform.position = MapMetrics.GetPosition(pos);
 
-        Army enemy = ArmyInPoint(this);
-        TryStartBattle(this, enemy);
 
     }
     static bool Reached(Vector2 pos,Vector2Int next)
     {
-        return Mathf.Max(Mathf.Abs(pos.x - next.x - 0.5f) , Mathf.Abs(pos.y - next.y - 0.5f)) <= 0.9f;
+        return Mathf.Max(Mathf.Abs(pos.x - next.x - 0.5f) , Mathf.Abs(pos.y - next.y - 0.5f)) <= 0.5f;
     }
     static Vector2 DirectionInPoint(Vector2 pos,Vector2Int next,Vector2Int nextpl)
     {
@@ -157,17 +188,21 @@ public class Army:MonoBehaviour
     {
         get { return curReg.HiddenFrom(Player.curPlayer) || curReg.InFogFrom(Player.curPlayer); }
     }
-    public void InitArmy(List<Regiment>list,Region home)
+    public void InitArmy(List<Regiment>list,Region home,Person person)
     {
         army = list;
 
         waypoints = new List<GameObject>();
-        nextCell = curCell = home.Capital;
+         nextCell = curCell = home.Capital;
         pos = curCell + new Vector2(0.5f, 0.5f);
+        //nextCell = home.Capital;
+        //pos = new Vector2(transform.position.x, transform.position.z);
         path = null;
-        genegal = new General();
+        genegal = person;
         owner = home.owner;
+        AI.army = this;
         AllArmy.Add(this);
+        AllArmyAI.Add(AI);
         Stop();
     }
     public void ExchangeRegiment(Regiment regiment)
@@ -182,23 +217,43 @@ public class Army:MonoBehaviour
         add.Add(regiment);
     }
     static public List<Army> AllArmy = new List<Army>();
-    public static Army CreateArmy(Region home,List<Regiment> list)
+    static public List<ArmyAI> AllArmyAI = new List<ArmyAI>();
+    public static Army CreateArmy(Region home,List<Regiment> list,Person person)
     {
         State state = home.owner;
 
         GameObject def = Instantiate(Main.instance.ArmyPrefab[(int)state.fraction]);
-        def.transform.position = MapMetrics.GetCellPosition(home.Capital);
         Army army = def.GetComponent<Army>();
+        def.transform.position = MapMetrics.GetCellPosition(home.Capital);
+        army.AI = def.AddComponent<ArmyAI>();
+        army.siegeModel = Instantiate(Main.instance.SiegePrefab, Main.instance.Towns);
+        army.siegeModel.SetActive(false);
         state.army.Add(army);
-        army.InitArmy(list, home);
+        army.InitArmy(list, home, person);
         ArmyBar bar = Instantiate(Main.instance.ArmyBarPrefab, Main.instance.mainCanvas);
         bar.currentArmy = army;
         return army;
        
     }
-   public bool TryMoveTo(Vector3 p,bool retreat = false)
+
+    public bool TryAttack(ITarget target)
     {
-        Vector2Int to = new Vector2Int((int)p.x, (int)p.z);
+        Diplomacy dip = owner.GetDiplomacyWith(target.curOwner);
+        if (dip == null || dip.canAttack)
+        {
+            this.target = target;
+            bool ans = TryMoveTo(target.curPosition);
+            if (!ans)
+                target = null;
+            return ans;
+        }
+        return false;
+    }
+
+    public bool TryMoveTo(Vector3 p, bool retreat = false)=> TryMoveTo(new Vector2Int((int)p.x, (int)p.z), p, retreat);
+    public bool TryMoveTo(Vector2Int to, bool retreat = false)=> TryMoveTo(to, MapMetrics.GetCellPosition(to), retreat);
+    public bool TryMoveTo(Vector2Int to,Vector3 p, bool retreat = false)
+    {
         Vector3 rp = MapMetrics.GetCellPosition(to);
 
         if (to==curCell)
@@ -207,63 +262,88 @@ public class Army:MonoBehaviour
             path = ListPool<Vector2Int>.Get();
             next = -1;
             GetComponent<Animation>().Play("walk");
-            action = ArmyAction.Move;
             endPath.x = Mathf.Clamp(p.x, rp.x - 0.2f, rp.x + 0.2f);
             endPath.y = Mathf.Clamp(p.z, rp.z - 0.2f, rp.z + 0.2f);
+            nextCell = curCell;
             return true;
         }
-        List<Vector2Int> pa = Main.FindPath(curCell,to, Player.curPlayer);
+        List<Vector2Int> pa = Main.FindPath(curCell,to, owner);
         if (pa != null)
         {
             endPath.x = Mathf.Clamp(p.x, rp.x - 0.2f, rp.x + 0.2f);
             endPath.y = Mathf.Clamp(p.z, rp.z - 0.2f, rp.z + 0.2f);
             path = pa;
             next = path.Count - 2;
-            nextCell = path[next+1];
-           
-            if (retreat || !TryStartBattle(this, ArmyInPoint(this)))
+            nextCell = path[next + 1];
+
+            if (target != null && target.curPosition == nextCell)
             {
+                target.WasCatch(this);
+                target = null;
+            }
+            else
+                if (!TryStartBattle(this, ArmyInPoint(nextCell)))
+            {
+
                 ClearWayPoints();
-                BuildWayPoints(pos,path,endPath);
+                BuildWayPoints(pos, path, endPath);
                 GetComponent<Animation>().Play("walk");
-                action = ArmyAction.Move;
             }
         }
         return pa != null;
     }
     public void Stop()
     {
-        if(path!=null)
-        ListPool<Vector2Int>.Add(path);
+        if (path != null)
+            ListPool<Vector2Int>.Add(path);
         path = null;
         next = -2;
         ClearWayPoints();
         GetComponent<Animation>().Play("idle");
-        action = ArmyAction.Idle;
+        retreat = false;
     }
-
+    
+    public void WasCatch(Army catcher)
+    {
+        if (owner == catcher.owner)
+        {
+            catcher.Stop();
+        }
+        else
+        {
+            if (curReg.Capital == curPosition)
+                curReg.WasCatch(catcher);
+            else
+                TryStartBattle(this, catcher);
+        }
+    }
     public static bool TryStartBattle(Army attacker,Army defender)
     {
-        if (attacker.action == ArmyAction.Retreat || !defender || defender.action == ArmyAction.Retreat || attacker.curBattle != null || defender.curBattle != null) 
+        if (attacker.retreat || !defender || defender.retreat || attacker.curBattle != null ||
+            defender.curBattle != null ||attacker == defender) 
             return false;
         attacker.Stop();
         defender.Stop();
         attacker.Fight(defender.pos);
         defender.Fight(attacker.pos);
         Battle battle = attacker.curBattle = defender.curBattle = new Battle(attacker, defender);
-        MenuManager.ShowBattle(battle);
+        if (Player.army == attacker || Player.army == defender)
+            MenuManager.ShowBattle(battle);
         return true;
     }
     public void EndBattle()
     {
-        if (action == ArmyAction.Fight)
+        if (curBattle != null)
+        {
+            curBattle = null;
             Stop();
+        }
     }
     public void Retreat(Vector3 p)
     {
         if (TryMoveTo(p,true))
         {
-            action = ArmyAction.Retreat;
+            retreat = true;
         }
     }
     public static Queue<Region> queueRetreat = new Queue<Region>();
@@ -300,7 +380,7 @@ public class Army:MonoBehaviour
     }
     public void DestroyArmy()
     {
-        AllArmy.Remove(this);
+        destoyed = true;
         owner.army.Remove(this);
         //Destroy(gameObject);
         gameObject.SetActive(false);
@@ -309,7 +389,6 @@ public class Army:MonoBehaviour
     {
         needAngle = Vector3.SignedAngle(transform.forward, new Vector3(enemy.x - pos.x, 0, enemy.y - pos.y), Vector3.up);
         GetComponent<Animation>().Play("attack");
-        action = ArmyAction.Fight;
     }
     public static List<GameObject> WayPoints = new List<GameObject>();
     public static int WayPointsIndex = -1;
@@ -360,10 +439,10 @@ public class Army:MonoBehaviour
         }
     }
 
-    public static Army ArmyInPoint(Army army)
+    public static Army ArmyInPoint(Vector2Int point)
     {
         foreach (Army a in AllArmy)
-            if (army != a && (a.pos - army.pos).sqrMagnitude < 1.5f)
+            if (a.curCell == point)
                 return a;
         return null;
     }
@@ -383,15 +462,23 @@ public class Army:MonoBehaviour
     }
     public static void ProcessAllArmy()
     {
+        AllArmy.RemoveAll(a => a.destoyed);
         foreach (Army army in AllArmy)
         {
-            army.bar.UpdateInformation();
             if (army.curBattle == null)
             {
                 army.UpdateManpower();
                 army.UpdateMoral();
             }
+            army.bar.UpdateInformation();
         }
+    }
+    public static void ProcessAllArmyAI()
+    {
+        AllArmyAI.RemoveAll(a => a.army.destoyed);
+        foreach (var ai in AllArmyAI)
+            if (ai.enabled)
+                ai.DoRandomMove();
     }
     public void UpdateManpower()
     {
@@ -421,6 +508,7 @@ public enum ArmyAction
 {
     Idle,
     Move,
+    Siege,
     Retreat,
     Fight
 }

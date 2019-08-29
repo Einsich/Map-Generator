@@ -97,22 +97,22 @@ public class Date : MonoBehaviour {
     {
         while(actionQueue.Count>0&&actionQueue.Peek().time<=curdate)
         {
-            switch(actionQueue.Peek().type)
+            Action action = actionQueue.Dequeue();
+            if (!action.actually)
+                continue;
+            switch (action.type)
             {
                 
                 case TypeAction.BuildAction:
-                    BuildAction act = (BuildAction)actionQueue.Dequeue();
-                    if (act.actually)
-                    {
+                    BuildAction act = (BuildAction)action;
                         act.prdata.BuildComplete();
-                    }
                     break;
                 case TypeAction.RecruitAction:
-                    RecruitAction recact = (RecruitAction)actionQueue.Dequeue();
-                    if (recact.actually)
-                    {
+                    RecruitAction recact = (RecruitAction)action;
                         recact.prdata.RecruitRegiment(recact);
-                    }
+                    break;
+                case TypeAction.PersonAliveAction:
+                    ((PersonAliveAction)action).person.Alive();
                     break;
             }
         }
@@ -127,5 +127,6 @@ public class Date : MonoBehaviour {
         totalM++;
         for (int i = 0; i < Main.regions.Count; i++)
             Main.regions[i].MonthUpdate(totalM);
+        Army.ProcessAllArmyAI();
     }
 }

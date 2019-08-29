@@ -94,7 +94,6 @@ public class Battle {
 
         if (BattleInterface.curBattle == this)
             MenuManager.ShowBattle(null);
-        army[0].curBattle = army[1].curBattle = null;
         army[0].EndBattle();
         army[1].EndBattle();
         phase = -1;

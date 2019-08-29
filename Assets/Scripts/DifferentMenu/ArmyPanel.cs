@@ -9,6 +9,11 @@ public class ArmyPanel : MonoBehaviour
     static ArmyPanel instance;
     public ListFiller army;
     public Image exchangeImage;
+    public Image icon;
+    public Image[] pips;
+    public Image expFill;
+    public Text exp;
+    public Text name;
     void Awake()
     {
         instance = this;
@@ -27,6 +32,13 @@ public class ArmyPanel : MonoBehaviour
     public void Show()
     {
         UpdateArmy();
+        Person person = curArmy.genegal;
+        icon.sprite = person.icon;
+        for (int i = 0; i < 3; i++)
+            pips[i].sprite = ProvinceMenu.GetPips(person.pips[i]);
+        expFill.fillAmount = person.expf;
+        exp.text = $"{person.lvl} ур. {person.exp} / {person.nextLvl}";
+        name.text = person.name;
     }
     public void UpdateArmy()
     {

@@ -23,16 +23,6 @@ public class Regiment
         baseRegiment = t;
     }
 }
-public class General
-{
-    ///<summary>pips [fire, shock, smt]</summary>
-    public int[] pips = new int[3];
-    public string name;
-    public General()
-    {
-        name = "Нет генерала";
-    }
-}
 public class BaseRegiment
 {
     ///<summary>pips [fire, shock, moral; attack, defence]</summary>

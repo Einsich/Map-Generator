@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Region 
+public class Region :ITarget
 {
     public static Material[] borderMaterial;
     public string name;
@@ -22,6 +22,8 @@ public class Region
             }
         } }
     public State ocptby;
+    public State curOwner => ocptby == null ? owner : ocptby;
+    public Army siegeby;
     public int id,portIdto=-1, Continent;
     public Region[] neib;
     //public GameObject[] arrow;
@@ -33,6 +35,7 @@ public class Region
     public ProvinceData data;
     BorderState bordState;
     bool selected;
+    public Vector2Int curPosition => Capital;
 
     public bool HiddenBord
     {
@@ -66,6 +69,7 @@ public class Region
             
         }
     }
+
 
     public Region()
     {
@@ -227,8 +231,21 @@ public class Region
     {
 
     }
-    public void RenderArmy()
+
+    public void WasCatch(Army catcher)
     {
+        siegeby = catcher;
+        siegeby.Stop();
+        siegeby.besiege = this;
+        Debug.Log("Началась осада " + name);
+        siegeby.siegeModel.SetActive(true);
+        siegeby.siegeModel.transform.position = MapMetrics.GetCellPosition(Capital);
+    }
+    public void SiegeEnd()
+    {
+        siegeby.besiege = null;
+        siegeby.siegeModel.SetActive(false);
+        siegeby = null;
 
     }
 }
