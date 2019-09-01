@@ -60,7 +60,7 @@ public class Player : MonoBehaviour {
         }
         foreach (var army in Army.AllArmy)
             army.GetComponent<ArmyAI>().enabled = army.owner != state;
-        Army.UpdateUnitFog();
+        Army.FoggedArmy();
         MapMetrics.UpdateSplatMap();
         MenuManager.HiddenProvinceMenu();
     }
@@ -76,7 +76,7 @@ public class Player : MonoBehaviour {
         army = null;
         ArmyPanel.Show(false);
     }
-    public static void ArmyTap(Army tap,bool leftClick)
+    public static void ArmyTap(Army tap, bool leftClick)
     {
         if (leftClick)
         {
@@ -91,7 +91,9 @@ public class Player : MonoBehaviour {
         else
         if (army)
         {
-            army.TryAttack(tap);            
+            Region reg = tap.curReg;
+            if (army.besiege != reg || !tap.inTown)
+                army.TryMoveToTarget(tap);            
         }
     }
     void Update () {
@@ -169,9 +171,12 @@ public class Player : MonoBehaviour {
                     {
                         Region reg = MapMetrics.regions[int.Parse(hit.transform.name)];
                         if (reg.curOwner == army.owner)
-                            army.TryMoveTo(hit.point);
+                            army.TryMoveTo(reg.Capital);
                         else
-                            army.TryAttack(reg);
+                        {
+                            if (army.besiege != reg)
+                                army.TryMoveToTarget(reg);
+                        }
                     }
                 }
             }

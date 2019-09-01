@@ -21,6 +21,7 @@ public class Region :ITarget
                 flagrenderer.SetPropertyBlock(block);
             }
         } }
+    public SiegeAction siegeAction;
     public State ocptby;
     public State curOwner => ocptby == null ? owner : ocptby;
     public Army siegeby;
@@ -31,6 +32,7 @@ public class Region :ITarget
     public List<Vector2Int> territory;
     public bool iswater,retreatused;
     public Vector2Int Capital;
+    public Vector2 pos;
     public GameObject Text,Town,Port,Corona;
     public ProvinceData data;
     BorderState bordState;
@@ -231,12 +233,17 @@ public class Region :ITarget
     {
 
     }
-
     public void WasCatch(Army catcher)
     {
+        if (siegeby == catcher)
+            return;
+        Diplomacy dip = curOwner.GetDiplomacyWith(catcher.owner);
+        if (!dip.canAttack)
+            return;
         siegeby = catcher;
-        siegeby.Stop();
+        siegeby.navAgent.Stop(false);
         siegeby.besiege = this;
+        siegeAction = new SiegeAction(this, 30);
         Debug.Log("Началась осада " + name);
         siegeby.siegeModel.SetActive(true);
         siegeby.siegeModel.transform.position = MapMetrics.GetCellPosition(Capital);
@@ -246,7 +253,13 @@ public class Region :ITarget
         siegeby.besiege = null;
         siegeby.siegeModel.SetActive(false);
         siegeby = null;
-
+        if(siegeAction!=null)
+        siegeAction.actually = false;
+    }
+    public void WinSiege()
+    {
+        Player.instance.Occupated(this, siegeby.owner);
+        SiegeEnd();
     }
 }
 

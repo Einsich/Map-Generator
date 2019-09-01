@@ -114,6 +114,9 @@ public class Date : MonoBehaviour {
                 case TypeAction.PersonAliveAction:
                     ((PersonAliveAction)action).person.Alive();
                     break;
+                case TypeAction.SiegeAction:
+                    ((SiegeAction)action).region.WinSiege();
+                    break;
             }
         }
         Battle.ProcessAllBattles();

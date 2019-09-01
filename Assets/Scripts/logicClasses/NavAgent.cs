@@ -4,32 +4,237 @@ using UnityEngine;
 
 public class NavAgent : MonoBehaviour
 {
-    ITarget target;
-    Vector2Int curCell;
-    Vector2 pos;
-    State owner;
-    Army army;
-    public void SetToArmy(Army army)
+    public ITarget target;
+    //public Vector2Int curCell => Navigation.GetFixedPosition(pos_);
+    public Vector2Int curCell;
+    Vector2 pos_;
+    public Vector2 pos
     {
-        this.army = army;
-        pos = army.pos;
+        get => pos_;
+        set
+        {
+            Navigation.GetNavList(pos_).Remove(this);
+            pos_ = value;
+            Navigation.GetNavList(pos_).Add(this);
+        }
+    }
+    public State owner;
+    public Army army;
+    float speed = 1f;
+    float needAngle, dAngle = 2.5f;
+    public Region lastCollidedTown;
+    public void SetToArmy()
+    {
+        army = GetComponent<Army>();
         owner = army.owner;
+        Navigation.AddNavAgent(this);
     }
-    void Start()
+    Vector2 next, nextpl, end;
+    List<Vector2Int> path;
+    Vector2Int lastPathCell => path != null ?path.Count>0? path[path.Count - 1]:ToInt(end) : Vector2Int.zero;
+    int pathIndex;
+    void FixedUpdate()
     {
-        
-    }
+        UpdateRotation();
+        if (path == null)
+            return;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-    static Vector2Int ToInt(Vector2 p) => new Vector2Int((int)p.x, (int)p.y);
-    public bool MoveTo(Vector2 to)
-    {
-        return false;
-        List<Vector2Int> path = Main.FindPath(ToInt(pos), ToInt(to), owner);
+        Vector2 direction = DirectionInPoint(pos, next, nextpl).normalized;
+        pos += Date.dayPerSecond * Time.deltaTime * direction * speed;
 
+        needAngle = Vector3.SignedAngle(transform.forward, new Vector3(direction.x, 0, direction.y), Vector3.up);
+        float dist = (next - pos).sqrMagnitude;
+        if (dist < 1f)
+        {
+
+            next = nextpl;
+            if (pathIndex < path.Count)
+            {
+                nextpl = path[pathIndex] + Vector2.one * 0.5f;
+                speed = 1f / Main.CellMoveCost(path[pathIndex]);
+                pathIndex++;
+            }
+            else
+            {
+                nextpl = end;
+                speed = 1f / Main.CellMoveCost(Navigation.GetFixedPosition(end));
+            }
+
+        }
+
+        if ((pos - end).sqrMagnitude < 0.16f)
+        {
+            pos = end;
+            Stop();
+        }
+        UpdateWayPoints();
+        Navigation.CalculateTownCollide(this);
+        Navigation.CalculateArmyCollide(this);
+        transform.position = MapMetrics.GetPosition(pos);
+        Vector2Int cell = Navigation.GetFixedPosition(pos);
+        if (cell != curCell)
+        {
+
+            Vector2Int buf = curCell;
+            curCell = cell;
+            army.UpdateFog(buf, cell);
+            Army.FoggedArmy();
+        }
+        if (target != null)
+        {
+            if (target.curPosition != lastPathCell)
+                MoveTo(target.curPosition);
+        }
+    }
+    public void ShowPath(bool selected)
+    {
+
+        int i = 0;
+        foreach (var x in waypoints)
+            x.SetActive(selected && i++ >= pathIndex);
+    }
+    public static Vector2Int ToInt(Vector2 p) => new Vector2Int((int)p.x, (int)p.y);
+    public static Vector2 FromV3(Vector3 p) => new Vector2(p.x, p.z);
+    public void RotateTo(Vector2 enemy)
+    {
+        needAngle = Vector3.SignedAngle(transform.forward, new Vector3(enemy.x - pos_.x, 0, enemy.y - pos_.y), Vector3.up);
+    }
+    float lastDist;
+    void UpdateWayPoints()
+    {
+        if (wayIndex >= waypoints.Count)
+            return;
+        float dist = (FromV3(waypoints[wayIndex].transform.position) - pos).sqrMagnitude;
+        if (lastDist < dist)//dist < 0.16f)
+        {
+            waypoints[wayIndex++].SetActive(false);
+            lastDist = 10000f;
+        }
+        else
+        lastDist = dist;
+    }
+    void UpdateRotation()
+    {
+        //transform.LookAt(transform.position + new Vector3(v.x, 0, v.y), Vector3.up);
+        if (Mathf.Abs(needAngle) > dAngle)
+        {
+            float d = Mathf.Abs(needAngle) * 0.1f * Mathf.Sign(needAngle);
+            transform.Rotate(Vector3.up, d);
+            needAngle -= d;
+        }
+    }
+    public void RecalculatePath()
+    {
+        if (path != null && MoveTo(end, lastPathCell))
+        {
+
+        }
+        else
+            Stop();
+    }
+    public void CatchTarget()
+    {
+        target = null;
+        Stop(false);
+    }
+    public bool MoveToTarget(ITarget target)
+    {
+        bool res = MoveTo(target.curPosition);
+        if(res)
+        {
+            this.target = target;
+        }
+        return res;
+    }
+    public bool MoveTo(Vector2Int to) => MoveTo(to + Vector2.one * 0.5f, to);
+    public bool MoveTo(Vector2 to, Vector2Int toInt)
+    {
+        List<Vector2Int> list = Main.FindPath(curCell, toInt, owner);
+        if (list != null)
+        {
+            ClearWayPoints();
+            BuildWayPoints(pos, list, to);
+            path = list;
+            pathIndex = 0;
+            end = to;
+            target = null;
+            if (path.Count > 1)
+            {
+                next = path[0];
+                nextpl = path[1];
+            }
+            else
+                if (path.Count > 0)
+            {
+                next = path[0];
+                nextpl = to;
+            }
+            else
+                next = nextpl = to;
+        }
+        return path != null;
+    }
+    public void Stop(bool lookForward = true)
+    {
+        ClearWayPoints();
+        path = null;
+        lastCollidedTown = null;
+        if (lookForward)
+            needAngle = Vector3.SignedAngle(transform.forward, Vector3.back, Vector3.up);
+        army.Stop();
+    }
+    int wayIndex;
+    List<GameObject> waypoints = new List<GameObject>();
+    void ClearWayPoints()
+    {
+        foreach (GameObject wp in waypoints)
+            Navigation.SetWayPoint(wp);
+        waypoints.Clear();
+    }
+    void BuildWayPoints(Vector2 begin, List<Vector2Int> way, Vector2 end)
+    {
+        Vector2 pos = begin;
+        wayIndex = 0;
+        if (way.Count < 2)
+            goto shortway;
+
+        int i = 2;
+        Vector2 next = way[0] + Vector2.one * 0.5f;
+        Vector2 nextpl = way[1] + Vector2.one * 0.5f;
+        float dist = (next - begin).sqrMagnitude;
+        GameObject point;
+        int iter = 0;
+        for (; iter < 1000;)
+        {
+            point = Navigation.GetWayPoint();
+            pos += DirectionInPoint(pos, next, nextpl).normalized * 0.4f;
+            point.transform.position = MapMetrics.GetPosition(pos);
+            //point.SetActive(selectia.activeSelf);
+            waypoints.Add(point);
+            dist = (next - pos).sqrMagnitude;
+            if (dist < 1f)
+            {
+                if (i == way.Count + 1)
+                    break;
+                next = nextpl;
+                nextpl = i < way.Count ? way[i] + Vector2.one * 0.5f : end;
+                i++;
+            }
+            iter++;
+        }
+        shortway:
+        Vector2 dir = end - pos;
+        float l = dir.magnitude;
+        dir /= l;
+        for (float d = 0.4f; d < l; d += 0.4f)
+        {
+            point = Navigation.GetWayPoint();
+            point.transform.position = MapMetrics.GetPosition(pos + dir * d);
+            waypoints.Add(point);
+        }
+    }
+    static Vector2 DirectionInPoint(Vector2 pos, Vector2 next, Vector2 nextpl)
+    {
+        return 0.66f * (next - pos).normalized + 0.33f * (nextpl - pos).normalized;
     }
 }

@@ -99,7 +99,7 @@ public class Battle {
         phase = -1;
         if (retrReg != null)
         {
-            army[teamWinner ^ 1].Retreat(MapMetrics.GetCellPosition(retrReg.Capital));
+            army[teamWinner ^ 1].Retreat(retrReg.Capital);
         }
         else
         {

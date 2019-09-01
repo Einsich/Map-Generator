@@ -81,11 +81,7 @@ public class State
     public void RecalculArmyPath()
     {
         foreach (Army a in army)
-            if (a.path != null)
-                if (!a.TryMoveTo(a.endPath))
-                {
-                    a.Stop();
-                }
+            a.navAgent.RecalculatePath();
     }
     public float ShockPower(RegimentType type)
     {

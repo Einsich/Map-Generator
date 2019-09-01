@@ -239,7 +239,7 @@ public class Main : MonoBehaviour
                 town = Instantiate(flagPrefab, go.transform);
                 town.transform.localPosition = Vector3.zero;
 
-                go.transform.position = MapMetrics.GetCellPosition(reg.Capital);
+                reg.pos = NavAgent.FromV3(go.transform.position = MapMetrics.GetCellPosition(reg.Capital));
                 go.transform.rotation = Quaternion.Euler(0, UnityEngine.Random.Range(-90, 90), 0);
                 go.transform.GetChild(1).localRotation = Quaternion.Inverse(go.transform.rotation);
                 reg.Town = go;
@@ -288,7 +288,6 @@ public class Main : MonoBehaviour
     void CreateArmy()
     {
         Army.AllArmy.Clear();
-        Army.WayPoints.Clear();
         foreach (var state in states)
                 Army.CreateArmy(state.Capital, state.defaultArmy(), state.persons[0]);
         
@@ -407,6 +406,7 @@ public class Main : MonoBehaviour
                 to = parent[to.y, to.x];
             }
             //path.Add(to);without fromPoint
+            path.Reverse();
         }
         while (used.Count != 0)
         {

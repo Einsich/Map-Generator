@@ -887,6 +887,8 @@ MonoBehaviour:
     type: 3}
   flagPrefab: {fileID: 1406898825258846, guid: 2cc1826e238a03f4484a5104c714524e, type: 3}
   WayPoint: {fileID: 1820316038017560, guid: b1f364ebdf2d40c4482f00d9d652528f, type: 3}
+  SiegePrefab: {fileID: 1235820174976025169, guid: b30c202b21e232b4b8cf9b09098662cb,
+    type: 3}
   ArmyBarPrefab: {fileID: 7968798183061681790, guid: 661e621359928dd49b2541b65564cee6,
     type: 3}
   terrainItem:

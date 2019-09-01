@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Map
   - Unit
+  - Town
   layers:
   - Default
   - TransparentFX

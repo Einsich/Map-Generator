@@ -26,7 +26,8 @@ public enum TypeAction
 {
     BuildAction,
     RecruitAction,
-    PersonAliveAction
+    PersonAliveAction,
+    SiegeAction
 }
 public class BuildAction:Action
 {
@@ -56,5 +57,14 @@ public class PersonAliveAction : Action
     {
         type = TypeAction.PersonAliveAction;
         this.person = person;
+    }
+}
+public class SiegeAction : Action
+{
+    public Region region;
+    public SiegeAction(Region region, int dt) : base(dt)
+    {
+        type = TypeAction.SiegeAction;
+        this.region = region;
     }
 }
