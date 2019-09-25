@@ -112,7 +112,9 @@ public class Main : MonoBehaviour
         for (int i = 0; i < h; i++)
             for (int j = 0; j < w; j++)
                 regions[regionIndex[i, j]].territory.Add(new Vector2Int(j, i));
-
+        foreach (var r in regions)
+            if (!r.iswater)
+                r.CalculateTerreinTypes();
         Queue<Region> q = new Queue<Region>();
         int continent = 1;
         foreach (Region r in regions)
@@ -434,10 +436,10 @@ public class Main : MonoBehaviour
         if (s == null || !lastCell &&  reg.Capital == cur)
             return false;
         Army army = Army.ArmyInPoint(cur);
-        Diplomacy diparmy = goer.GetDiplomacyWith(army?.owner);
-        if (army != null && (diparmy ==null ||!diparmy.canAttack))
+        Diplomacy diparmy = Diplomacy.GetDiplomacy(goer, army?.owner);
+        if (army != null && (diparmy ==null || !diparmy.canAttack))
             return false;
-        Diplomacy dip = goer.GetDiplomacyWith(s);
+        Diplomacy dip = Diplomacy.GetDiplomacy(goer, s);
 
         return dip.canMove || MapMetrics.GetRegion(prev).owner == s;
         

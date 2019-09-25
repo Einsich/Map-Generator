@@ -1,13 +1,16 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Action:System.IComparable<Action> {
+public class Action: IComparable<Action> {
     public int time,startTime;
     protected float T;
     public bool actually;
     public TypeAction type;
+    protected delegate void Method();
+    protected event Method onAction;
     public float progress => (Date.curdate - startTime) * T;
+
     public int CompareTo(Action other)
     {
         return time - other.time;
@@ -18,7 +21,11 @@ public class Action:System.IComparable<Action> {
         actually = true;
         startTime = Date.curdate;
         T = 1f / dt;
-        Date.actionQueue.Enqueue(this);
+        GameTimer.actionQueue.Enqueue(this);
+    }
+    public void DoAction()
+    {
+        onAction();
     }
 
 }
@@ -31,40 +38,36 @@ public enum TypeAction
 }
 public class BuildAction:Action
 {
-   public ProvinceData prdata;
     public BuildAction(ProvinceData reg,int dt):base(dt)
     {
         type = TypeAction.BuildAction;
-        prdata = reg;
+        onAction += () => reg.BuildComplete();
     }
 }
 public class RecruitAction : Action
 {
-    public ProvinceData prdata;
     public BaseRegiment regiment;
     public RecruitAction(ProvinceData prov,BaseRegiment reg, int dt) : base(dt)
     {
         type = TypeAction.RecruitAction;
-        prdata = prov;
         regiment = reg;
+        onAction += () =>  prov.RecruitRegiment(this);
     }
 }
 
 public class PersonAliveAction : Action
 {
-    public Person person;
     public PersonAliveAction(Person person, int dt) : base(dt)
     {
         type = TypeAction.PersonAliveAction;
-        this.person = person;
+        onAction += () => person.Alive();
     }
 }
 public class SiegeAction : Action
 {
-    public Region region;
     public SiegeAction(Region region, int dt) : base(dt)
     {
         type = TypeAction.SiegeAction;
-        this.region = region;
+        onAction += () => region.WinSiege();
     }
 }

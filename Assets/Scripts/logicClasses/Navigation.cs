@@ -80,15 +80,19 @@ public static class Navigation
         Region region = agent.lastCollidedTown;
         bool Collide()
         {
-            if (region.curOwner == agent.owner)
-                return false;
             if ((region.pos - p).sqrMagnitude < townRadiusSqr)
             {
+                if (region.curOwner == agent.owner)
+                {
+                    agent.army.inTown = true;
+                    return true;
+                }
+
                 agent.pos = region.pos + (p - region.pos).normalized * townRadius;
                 if (agent.lastCollidedTown != region)
                 {
                     agent.lastCollidedTown = region;
-                    if (agent.target == region)
+                    if (agent.target == region || (agent.target is Army targ && targ.inTown && targ.curReg == region))
                     {
                         agent.CatchTarget();
                         region.WasCatch(agent.army);
@@ -110,6 +114,7 @@ public static class Navigation
             if ((region = MapMetrics.GetRegion(cell + d)).Capital == cell + d)
                 if (Collide())
                     return;
+        agent.army.inTown = false;
         agent.lastCollidedTown = null;
     }
     public static void CalculateArmyCollide(NavAgent agent)

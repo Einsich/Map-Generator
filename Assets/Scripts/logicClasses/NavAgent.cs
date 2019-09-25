@@ -29,6 +29,7 @@ public class NavAgent : MonoBehaviour
         owner = army.owner;
         Navigation.AddNavAgent(this);
     }
+    public void ResetNavAgent() => Navigation.GetNavList(pos_).Remove(this);
     Vector2 next, nextpl, end;
     List<Vector2Int> path;
     Vector2Int lastPathCell => path != null ?path.Count>0? path[path.Count - 1]:ToInt(end) : Vector2Int.zero;
@@ -40,7 +41,9 @@ public class NavAgent : MonoBehaviour
             return;
 
         Vector2 direction = DirectionInPoint(pos, next, nextpl).normalized;
-        pos += Date.dayPerSecond * Time.deltaTime * direction * speed;
+        Vector2 possave = pos;
+        float delta = Date.dayPerSecond * Time.deltaTime * speed;
+        pos += delta * direction;
 
         needAngle = Vector3.SignedAngle(transform.forward, new Vector3(direction.x, 0, direction.y), Vector3.up);
         float dist = (next - pos).sqrMagnitude;
@@ -70,13 +73,22 @@ public class NavAgent : MonoBehaviour
         UpdateWayPoints();
         Navigation.CalculateTownCollide(this);
         Navigation.CalculateArmyCollide(this);
-        transform.position = MapMetrics.GetPosition(pos);
+        direction = (pos - possave).normalized;
+        pos = possave +  direction * delta;
+        Vector3 position = MapMetrics.GetPosition(pos);
+        if(delta > 0 && (position - transform.position).sqrMagnitude < 0.000001f)
+        {
+            Stop();
+            return;
+        }
+        transform.position = position;
         Vector2Int cell = Navigation.GetFixedPosition(pos);
         if (cell != curCell)
         {
 
             Vector2Int buf = curCell;
             curCell = cell;
+            army.UpdateRegion(MapMetrics.GetRegion(cell));
             army.UpdateFog(buf, cell);
             Army.FoggedArmy();
         }
@@ -91,7 +103,7 @@ public class NavAgent : MonoBehaviour
 
         int i = 0;
         foreach (var x in waypoints)
-            x.SetActive(selected && i++ >= pathIndex);
+            x.SetActive(selected && i++ >= wayIndex);
     }
     public static Vector2Int ToInt(Vector2 p) => new Vector2Int((int)p.x, (int)p.y);
     public static Vector2 FromV3(Vector3 p) => new Vector2(p.x, p.z);
@@ -179,6 +191,7 @@ public class NavAgent : MonoBehaviour
         ClearWayPoints();
         path = null;
         lastCollidedTown = null;
+        target = null;
         if (lookForward)
             needAngle = Vector3.SignedAngle(transform.forward, Vector3.back, Vector3.up);
         army.Stop();
@@ -201,7 +214,6 @@ public class NavAgent : MonoBehaviour
         int i = 2;
         Vector2 next = way[0] + Vector2.one * 0.5f;
         Vector2 nextpl = way[1] + Vector2.one * 0.5f;
-        float dist = (next - begin).sqrMagnitude;
         GameObject point;
         int iter = 0;
         for (; iter < 1000;)
@@ -211,7 +223,7 @@ public class NavAgent : MonoBehaviour
             point.transform.position = MapMetrics.GetPosition(pos);
             //point.SetActive(selectia.activeSelf);
             waypoints.Add(point);
-            dist = (next - pos).sqrMagnitude;
+            float dist = (next - pos).sqrMagnitude;
             if (dist < 1f)
             {
                 if (i == way.Count + 1)

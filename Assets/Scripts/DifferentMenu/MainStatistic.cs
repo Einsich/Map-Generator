@@ -10,31 +10,38 @@ public class MainStatistic : MonoBehaviour {
     public Text gold, manPower,wood,iron,science;
     public GameObject panel, personPanel;
     public ListFiller PersonFiller;
+    State state;
     private void Awake()
     {
         instance = this;
         Person.icons = Resources.LoadAll<Sprite>("PersonIcons");
     }
-	public void SetState(State state)
+    private void Update()
+    {
+        if (state != null)
+            ShowPersons();
+    }
+    public void SetState(State state)
     {
         flagbut.sprite = state.flagSprite;
-        ShowData(state);
+        this.state = state;
+        ShowData();
     }
-    public void ShowData(State state)
+    public void ShowData()
     {
-        ShowResources(state);
-        ShowPersons(state);
+        ShowResources();
+        ShowPersons();
     }
-    public void ShowResources(State state)
+    public void ShowResources()
     {
         Treasury t = state.treasury;
-        gold.text = t.Gold.ToString();
-        manPower.text = t.Manpower.ToString();
-        wood.text = t.Wood.ToString();
-        iron.text = t.Iron.ToString();
-        science.text = t.Science.ToString();
+        gold.text = t.Gold.ToString("N1");
+        manPower.text = t.Manpower.ToString("N1");
+        wood.text = t.Wood.ToString("N1");
+        iron.text = t.Iron.ToString("N1");
+        science.text = t.Science.ToString("N1");
     }
-    public void ShowPersons(State state)
+    public void ShowPersons()
     {
         PersonFiller.UpdateList(state.persons.ConvertAll(x => (object)x));
         personPanel.SetActive(true);
@@ -43,6 +50,6 @@ public class MainStatistic : MonoBehaviour {
     {
         panel.SetActive(!panel.activeSelf);
         if (panel.gameObject.activeSelf && Player.curPlayer != null)
-            ShowPersons(Player.curPlayer);
+            ShowPersons();
     }
 }

@@ -6,8 +6,10 @@ public class Army:MonoBehaviour,ITarget
 {
     public State owner;
     public State curOwner => owner;
-    public Region curReg => MapMetrics.GetRegion(navAgent.curCell);
-    public bool inTown => curPosition == curReg.curPosition;
+
+    Region curReg_;
+    public Region curReg => curReg_ != null ? curReg_ : MapMetrics.GetRegion(navAgent.curCell);
+    public bool inTown;
     public Battle curBattle;
     public List<Regiment> army;
     public Person genegal;
@@ -24,6 +26,7 @@ public class Army:MonoBehaviour,ITarget
     Animation animator;
     private void Start()
     {
+        UpdateRegion(curReg);
         animator = GetComponent<Animation>();
         Stop();
         selectia.SetActive(false);
@@ -32,15 +35,30 @@ public class Army:MonoBehaviour,ITarget
     }
     private void FixedUpdate()
     {
+        UpdateRotation();
         cube.transform.position = MapMetrics.GetCellPosition(navAgent.curCell);
-
+        if (inTown)
+            cube.transform.position += Vector3.up * 2;
     }
+
     void UpdateRotation()
     {
         if (selectia.activeSelf)
             selectia.transform.Rotate(Vector3.up, .4f);
     }
-
+    public void UpdateRegion(Region cur)
+    {
+        if (cur != curReg_)
+        {
+            if (genegal is Trader trader)
+            {
+                if (curReg_ != null)
+                    trader.UpdateInfluence(curReg_, false);
+                trader.UpdateInfluence(cur, true);
+            }
+            curReg_ = cur;
+        }
+    }
     
     public void UpdateFog(Vector2Int prev,Vector2Int next)
     {
@@ -102,11 +120,13 @@ public class Army:MonoBehaviour,ITarget
     {
         army = list;        
         genegal = person;
+        genegal.curArmy = this;
         owner = home.owner;
         navAgent = gameObject.AddComponent<NavAgent>();
         navAgent.SetToArmy();
         navAgent.pos = home.Capital + new Vector2(0.5f, 0.5f);
         navAgent.curCell = home.Capital;
+        inTown = true;
         AI.army = this;
         AllArmy.Add(this);
         AllArmyAI.Add(AI);
@@ -118,7 +138,10 @@ public class Army:MonoBehaviour,ITarget
         if (list.Contains(regiment))
         { remove = list; add = army; }
         else
-        { remove = army; add = list; }
+        { remove = army; add = list;
+            if (army.Count == 1)
+                return;
+        }
         remove.Remove(regiment);
         add.Add(regiment);
     }
@@ -143,7 +166,9 @@ public class Army:MonoBehaviour,ITarget
     }
     public bool TryMoveToTarget(ITarget target)
     {
-        Diplomacy dip = owner.GetDiplomacyWith(target.curOwner);
+        if (inTown && curReg.siegeby)
+            return false;
+        Diplomacy dip = Diplomacy.GetDiplomacy(owner, target.curOwner);
         if (dip != null && !dip.canAttack)
             return false;
         bool res = navAgent.MoveToTarget(target);
@@ -157,11 +182,12 @@ public class Army:MonoBehaviour,ITarget
     public bool TryMoveTo(Vector2Int to)=> TryMoveTo(to, MapMetrics.GetCellPosition(to));
     public bool TryMoveTo(Vector2Int to,Vector3 p)
     {
+        if (inTown && curReg.siegeby)
+            return false;
         bool res =  navAgent.MoveTo(new Vector2(p.x, p.z), to);
         if (res)
         {
             MoveAction();
-            return true;
         }
         return res;
     }
@@ -182,10 +208,10 @@ public class Army:MonoBehaviour,ITarget
     {
         if (owner == catcher.owner)
         {
-            catcher.Stop();
+           // catcher.Stop();
         }
-        Diplomacy dip = owner.GetDiplomacyWith(catcher.owner);
-        if(dip.canAttack)
+        Diplomacy dip = Diplomacy.GetDiplomacy(owner, catcher.owner);
+        if (dip.canAttack)
         {
             if (curReg.Capital == navAgent.curCell)
                 curReg.WasCatch(catcher);
@@ -257,12 +283,17 @@ public class Army:MonoBehaviour,ITarget
         
         return null;
     }
+
+    public float retreatChance => 0.5f + genegal.lvl * 0.1f;
+    public bool retreatAble => Random.value < retreatChance;
+
     public void DestroyArmy()
     {
         destoyed = true;
-        owner.army.Remove(this);
-        //Destroy(gameObject);
+        genegal.Die();
         gameObject.SetActive(false);
+        bar.gameObject.SetActive(false);
+        navAgent.ResetNavAgent();
     }
     public void Fight(Army enemy)
     {
@@ -333,6 +364,13 @@ public class Army:MonoBehaviour,ITarget
         float d = curReg.Capital == navAgent.curCell ? GameConst.MoralInHome : GameConst.MoralInForeign;
         foreach (Regiment regiment in army)
             regiment.moral = Mathf.Clamp(regiment.moral + d, 0, regiment.maxmoral);
+    }
+    public void UpdateUpkeep()
+    {
+        Treasury upkeep = new Treasury(0);
+        foreach (var g in army)
+            upkeep += g.baseRegiment.upkeep;
+        owner.treasury -= upkeep;
     }
 }
 public enum ArmyAction

@@ -9,8 +9,6 @@ public class Date : MonoBehaviour {
     public Image indicator;
     public Texture2D ind;
     public static bool cheat = false;
-    public static PriorityQueue<Action> actionQueue = new PriorityQueue<Action>();
-    float t;
 	void Update () {
         if (Input.GetKeyDown(KeyCode.Space)&&!cheat)
             Pause();
@@ -19,7 +17,6 @@ public class Date : MonoBehaviour {
             fdate += speed*Time.deltaTime;
             if (fdate-curdate>=1)
             {
-                t = Time.time;
                 deltadate = (int)fdate - curdate;
                 curdate =(int)fdate;
                 UpdateDate();
@@ -27,13 +24,12 @@ public class Date : MonoBehaviour {
 
         }
 	}
-    static int[] tday = new int[] { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
     static int[] sday = new int[] { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
     static string[] nday = new string[] { "Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля",
         "Августа", "Сентября", "Октября", "Ноября", "Декабря" };
     static bool play = false;
     public static int curdate, deltadate;
-    static int cd,cm,cy,totalM,speed;
+    static int cd, cm, cy, totalM, speed;
     public static double fdate;
     public static int dayPerSecond { get { return play ? speed : 0; } }
     public void StartTimer(int d,int m,int y)
@@ -45,9 +41,7 @@ public class Date : MonoBehaviour {
         speed  = 0;
         AddSpeed(12);
         datetext.text = string.Format("{0}-ого {1} {2}", cd + 1, nday[cm], cy);
-
-        foreach (var x in Main.regions)
-            x.data?.CalculateIncome();
+        GameTimer.Start();
     }
     static int DateToDay(int d,int m,int y)
     {
@@ -87,49 +81,11 @@ public class Date : MonoBehaviour {
         DayToDate(curdate, out cd, out cm, out cy);
         datetext.text = string.Format("{0}-ого {1} {2}", cd + 1, nday[cm], cy);
         if (deltadate > 0)
-            DayUpdate();
+            GameTimer.DayUpdate(curdate);
         if(cd==0)
         {
-            MonthUpdate();
+            totalM++;
+            GameTimer.MonthUpdate();
         }
-    }
-    public static void DayUpdate()
-    {
-        while(actionQueue.Count>0&&actionQueue.Peek().time<=curdate)
-        {
-            Action action = actionQueue.Dequeue();
-            if (!action.actually)
-                continue;
-            switch (action.type)
-            {
-                
-                case TypeAction.BuildAction:
-                    BuildAction act = (BuildAction)action;
-                        act.prdata.BuildComplete();
-                    break;
-                case TypeAction.RecruitAction:
-                    RecruitAction recact = (RecruitAction)action;
-                        recact.prdata.RecruitRegiment(recact);
-                    break;
-                case TypeAction.PersonAliveAction:
-                    ((PersonAliveAction)action).person.Alive();
-                    break;
-                case TypeAction.SiegeAction:
-                    ((SiegeAction)action).region.WinSiege();
-                    break;
-            }
-        }
-        Battle.ProcessAllBattles();
-        Army.ProcessAllArmy();
-        BattleInterface.needUpdate = true;
-        ProvinceMenu.needUpdate = true;
-
-    }
-    public static void MonthUpdate()
-    {
-        totalM++;
-        for (int i = 0; i < Main.regions.Count; i++)
-            Main.regions[i].MonthUpdate(totalM);
-        Army.ProcessAllArmyAI();
     }
 }

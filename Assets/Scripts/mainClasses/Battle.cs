@@ -44,20 +44,20 @@ public class Battle {
         int D = army[0].genegal.pips[phase] - army[1].genegal.pips[phase];
         Da += D > 0 ? D : 0;Dd += -D > 0 ? -D : 0;
         int ia=0, id=0,tar;
-        while(ia>=0||id>=0)
+        while (ia >= 0 || id >= 0)
         {
-            if((ia = NextUnit(ia, 0)) >=0)
+            if ((ia = NextUnit(ia, 0)) >= 0)
             {
                 tar = Target(ia, 0);
-                if(tar>=0)
-                Attack(F[0, ia], F[1, tar], Da, army[0].owner);
+                if (tar >= 0)
+                    Attack(F[0, ia], F[1, tar], Da, army[0].owner);
                 ia++;
             }
             if ((id = NextUnit(id, 1)) >= 0)
             {
                 tar = Target(id, 1);
-                if (tar >= 0) 
-                Attack(F[1, id], F[0, tar], Dd, army[1].owner);
+                if (tar >= 0)
+                    Attack(F[1, id], F[0, tar], Dd, army[1].owner);
                 id++;
             }
         }
@@ -78,10 +78,11 @@ public class Battle {
     }
     public void EndBattle(int teamWinner)
     {
-        Region retrReg = army[teamWinner ^ 1].FindRetreatRegion();
-        if(retrReg==null)
+        Army defeater = army[teamWinner ^ 1];
+        Region retrReg = defeater.retreatAble ? defeater.FindRetreatRegion() : null;
+        if (retrReg == null) 
         {
-            foreach (Regiment r in army[teamWinner ^ 1].army)
+            foreach (Regiment r in defeater.army)
                 r.count = 0;
         }
         if(Player.curPlayer==null)
@@ -99,11 +100,11 @@ public class Battle {
         phase = -1;
         if (retrReg != null)
         {
-            army[teamWinner ^ 1].Retreat(retrReg.Capital);
+            defeater.Retreat(retrReg.Capital);
         }
         else
         {
-            army[teamWinner ^ 1].DestroyArmy();
+            defeater.DestroyArmy();
         }
     }
     int NextUnit(int cur,int team)

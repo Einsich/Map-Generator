@@ -25,6 +25,7 @@ public class Regiment
 }
 public class BaseRegiment
 {
+    public const int PipsN = 3, PipsM = 2;
     ///<summary>pips [fire, shock, moral; attack, defence]</summary>
     public int[,] pips;
     public RegimentType type;

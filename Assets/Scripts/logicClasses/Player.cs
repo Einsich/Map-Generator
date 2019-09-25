@@ -54,7 +54,7 @@ public class Player : MonoBehaviour {
             r.UpdateSplateState(curPlayer);
             r.UpdateBorder();
         }
-        for(int i=0;i<states.Count;i++)
+        for (int i = 0; i < states.Count; i++) 
         {
             states[i].SetNameStatus(!CameraController.showstate);                
         }
@@ -89,11 +89,40 @@ public class Player : MonoBehaviour {
                 SelectArmy(tap);
         }
         else
-        if (army)
+        if (army && !army.retreat)
         {
             Region reg = tap.curReg;
             if (army.besiege != reg || !tap.inTown)
                 army.TryMoveToTarget(tap);            
+        }
+    }
+    public static void RegionTap(Region tap)
+    {
+        if (curRegion != tap && !tap.HiddenFrom(curPlayer))
+        {
+            if (curRegion != null)
+                curRegion.Selected = false;
+            if (tap.iswater)
+            {
+                if (curRegion != null)
+                {
+                    curRegion.Selected = false;
+                    curRegion = null;
+                }
+                if (army != null)
+                    DeselectArmy();
+            }
+            else
+            {
+                tap.Selected = true;
+                curRegion = tap;
+                MenuManager.ShowProvinceMenu(curRegion);
+            }
+        }
+        else if (curRegion != null)
+        {
+            curRegion.Selected = false;
+            curRegion = null;
         }
     }
     void Update () {
@@ -119,36 +148,7 @@ public class Player : MonoBehaviour {
                         }
                         else
                         {
-                            int i = regionIndex[y, x];
-
-
-                            if (curRegion != regions[i] && !regions[i].HiddenFrom(curPlayer))
-                            {
-                                if (curRegion != null)
-                                    curRegion.Selected = false;
-                                if (regions[i].iswater)
-                                {
-                                    if (curRegion != null)
-                                    {
-                                        curRegion.Selected = false;
-                                        curRegion = null;
-                                    }
-                                    if (army != null)
-                                        DeselectArmy();
-                                }
-                                else
-                                {
-                                    regions[i].Selected = true;
-                                    curRegion = regions[i];
-                                    MenuManager.ShowProvinceMenu(curRegion);
-                                }
-                            }
-                            else
-                            if (curRegion != null)
-                            {
-                                curRegion.Selected = false;
-                                curRegion = null;
-                            }
+                            RegionTap(Main.regions[regionIndex[y, x]]);
                         }
                     }
 
@@ -167,9 +167,12 @@ public class Player : MonoBehaviour {
                 }
                 if(hit.transform.tag == "Town")
                 {
-                    if (army)
+                    Region reg = MapMetrics.regions[int.Parse(hit.transform.name)];
+                    if (Input.GetMouseButtonDown(0))
+                        RegionTap(reg);
+                    if (army && Input.GetMouseButtonDown(1))
                     {
-                        Region reg = MapMetrics.regions[int.Parse(hit.transform.name)];
+
                         if (reg.curOwner == army.owner)
                             army.TryMoveTo(reg.Capital);
                         else

@@ -11,59 +11,49 @@ public class ProvinceData {
         switch(type)
         {
             case Building.Infrastructure:cost = new Treasury(100, 400, 100, 100, 0);break;
-            case Building.Agricultural:cost = new Treasury(50, 2000, 20, 20, 0);break;
-            case Building.Military:cost = new Treasury(1050, 1000, 200, 100, 0);break;
-            case Building.Industry:cost = new Treasury(150, 2000, 100, 150, 0);break;
-            case Building.Trade:cost = new Treasury(300, 100, 20, 200, 0);break;
+            case Building.Police:cost = new Treasury(200, 600, 20, 20, 0);break;
+            case Building.Military:cost = new Treasury(1000, 1000, 200, 100, 0);break;
+            case Building.Industry:cost = new Treasury(150, 800, 100, 150, 0);break;
+            case Building.Trade:cost = new Treasury(300, 100, 100, 100, 0);break;
             case Building.Towers:cost = new Treasury(300, 3000, 1000, 500, 0);break;
+            case Building.WoodSpesial:cost = new Treasury(100, 500, 200, 100, 0);break;
+            case Building.IronSpesial:cost = new Treasury(100, 500, 100, 200, 0); break;
+            case Building.FarmSpecial:cost = new Treasury(100, 500, 50, 50, 0);break;
+            case Building.UniversitySpecial:cost = new Treasury(500, 200, 100, 100, 100);break;
             default: cost = new Treasury(500) { Science=10};break;
         }
 
-        return cost * (1 + lvl);
+        return cost * levelCoef[1 + lvl];
     }
+    static float[] levelCoef = { 0, 1, 1.5f, 1.75f, 2 };
     static Treasury Income(Building type, int lvl)
     {
         Treasury income;
         switch (type)
         {
-            case Building.Infrastructure: income = new Treasury(10, 0, 0, 0, 0); break;
-            case Building.Agricultural: income = new Treasury(10, 0, 0, 0, 0); break;
+            case Building.Infrastructure: income = new Treasury(20, 0, 0, 0, 0); break;
             case Building.Military: income = new Treasury(0, 100, 0, 0, 0); break;
-            case Building.Industry: income = new Treasury(0, 0, 6, 6, 0); break;
-            case Building.Trade: income = new Treasury(10, 0, 3, 3, 1); break;
-            case Building.Towers:income = new Treasury(0);break;
-            default: income = new Treasury(0) { Science = 10 }; break;
+            case Building.Trade: income = new Treasury(10, 0, 2, 2, 1); break;
+            case Building.UniversitySpecial: income = new Treasury(0, 0, 0, 0, 10);break;
+            case Building.FarmSpecial: income = new Treasury(50, 0, 0, 0, 0); break;
+            case Building.WoodSpesial: income = new Treasury(0, 0, 20, 0, 0); break;
+            case Building.IronSpesial: income = new Treasury(0, 0, 0, 20, 0); break;
+            default: income = new Treasury(0); break;
         }
 
-        return income * lvl;
+        return income * levelCoef[lvl];
     }
     static int Time(Building type, int lvl)
     {
-        /*
-        я уверен в том что эта функция не доделана,
-        но я не понимаю что она делает....
-        
-        а или она доделана, но тогда я не вижу смылсл в параметре lvl и код можно написать так:
-        return ((int)type)<6?200:600;
-        */
-        int t = 600;
-        switch (type)
-        {
-            case Building.Infrastructure:
-            case Building.Agricultural: 
-            case Building.Military:
-            case Building.Industry: 
-            case Building.Trade:
-            case Building.Towers: t = 200; break;
-        }
-        return t;
+        return ((int)type) < 6 ? 100 * (1 + lvl) : 600;
     }
     public FractionName fraction;
-    public const int maxLvl = 4, buildCount = 6, specialCount = buildCount + 6;
+    public const int buildCount = 6, specialCount = buildCount + 6;
     public int[]buildings;
     public int isBuildInd;
-
-    public Treasury income = new Treasury();
+    public float order = 1f;
+    public float traderImpact = 1f;
+    public Treasury income = new Treasury(), incomeclear;
     static Treasury defaultTreasure = new Treasury(10, 50, 0, 0, 0);
     public List<RecruitAction> recruitQueue = new List<RecruitAction>();
     public void AddRecruit(RecruitAction act)
@@ -120,7 +110,7 @@ public class ProvinceData {
             action = null;
         }
         if (Player.curPlayer == null || Player.curPlayer == region.owner) 
-        MenuManager.ShowResources(region.owner);
+        MenuManager.ShowResources();
         ProvinceMenu.needUpdate = true;
     }
     public void BuildComplete()
@@ -145,19 +135,27 @@ public class ProvinceData {
     {
         int ind = (int)build;
         int lvl = buildings[ind];
+        if (lvl >= region.owner.technology.BuildLvl[ind])
+            return false;
         if (ind < buildCount) 
         {
-            if (lvl == maxLvl ||  !(Cost(build, lvl)<= region.owner.treasury))
+            if (!(Cost(build, lvl) <= region.owner.treasury))
                 return false;
         }
         else
         {
+            for (int i = buildCount; i < specialCount; i++)
+                if (buildings[i] > 0)
+                    return false;
             if (build == Building.FervieSpesial && region.portIdto < 0)
                 return false;
-            int sum = 0;
-            for (int i = buildCount; i < specialCount; i++)
-                sum |= buildings[i];
-            if (sum > 0 || lvl == 1 || !(Cost(build, lvl) <= region.owner.treasury))
+            if (build == Building.FarmSpecial && !region.haveGrassland)
+                return false;
+            if (build == Building.WoodSpesial && !region.haveWood)
+                return false;
+            if (build == Building.IronSpesial && !region.haveIron)
+                return false;
+            if (!(Cost(build, lvl) <= region.owner.treasury))
                 return false;
         }
         return true;
@@ -171,13 +169,22 @@ public class ProvinceData {
             return BuildState.CantBuild;
         return BuildState.CanBuild;
     }
+    public float IncomeCoefFromDistance()
+    {
+        return 1f / (1f + 0.01f * region.sqrDistanceToCapital);
+    }
+    public float IncomeCoefFromOrder()
+    {
+        return order;
+    }
 
     public void CalculateIncome()
     {
-        income = defaultTreasure;
-        for(int build = 0;build<specialCount;build++)
-            income += Income((Building)build, buildings[build]);
-      
+        incomeclear = defaultTreasure;
+        for (int build = 0; build < specialCount; build++)
+            incomeclear += Income((Building)build, buildings[build]);
+
+        income = incomeclear * IncomeCoefFromDistance() * IncomeCoefFromOrder() * traderImpact;
     }
     public void EconomyUpdate()
     {
@@ -193,18 +200,18 @@ public class ProvinceData {
 }
 public enum Building
 {
-    Infrastructure,
-    Agricultural,
-    Military,
-    Industry,
-    Trade,
-    Towers,
-    FarmSpecial,
+    Infrastructure,//+к голде
+    Police,//увеличивает порядок
+    Military,//увеличивает кол-во рекрутов
+    Industry,//увеличивает на процент добычу дерева и железа
+    Trade,//дает небольшое кол-во всех ресурсов
+    Towers,//увеличивает защиту провинции
+    FarmSpecial,//если много лугов/пашень, то добавляет к голде и рекрутам
     WeaponSpesial,
-    IndustrySpesial,
-    MagistratSpesial,
-    UniversitySpecial,
-    FervieSpesial
+    WoodSpesial,//если много леса, то позволяет добывать дерево
+    IronSpesial,//если много гор, то позволяет добывать железо
+    UniversitySpecial,//дает науку
+    FervieSpesial//позволяет строить корабли
 }
 public enum BuildState
 {

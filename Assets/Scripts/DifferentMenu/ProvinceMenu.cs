@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class ProvinceMenu : MonoBehaviour {
 
     public Text Name;
-    public Text gold, manPower, wood, iron, science;
+    public Text gold, manPower, wood, iron, science, Info;
     static ProvinceMenu instance;
     public static Region current;
     public Texture2D[] build;
@@ -64,15 +64,17 @@ public class ProvinceMenu : MonoBehaviour {
         if (r == null) return;
         gameObject.SetActive(true);
         MenuManager.CheckExchangeRegiment();
-        Name.text = r.name + " (" + r.id + ")";
+        Name.text = r.name + " (" + r.id + ") ";
 
-
+        Info.text = string.Format("distance = {0:N2}\ndist coef = {1:N2}\norder coef = {2:N2}\ntrader impact = {3:N2}",
+            Mathf.Sqrt(r.sqrDistanceToCapital), r.data.IncomeCoefFromDistance(), r.data.IncomeCoefFromOrder(),r.data.traderImpact);
         Treasury t = r.data.income;
-        gold.text = t.Gold.ToString();
-        manPower.text = t.Manpower.ToString();
-        wood.text = t.Wood.ToString();
-        iron.text = t.Iron.ToString();
-        science.text = t.Science.ToString();
+        Treasury tc = r.data.incomeclear;
+        gold.text = string.Format("{0:N1}\n({1:N1})", t.Gold, tc.Gold);
+        manPower.text = string.Format("{0:N1}\n({1:N1})", t.Manpower, tc.Manpower);
+        wood.text = string.Format("{0:N1}\n({1:N1})", t.Wood, tc.Wood);
+        iron.text = string.Format("{0:N1}\n({1:N1})", t.Iron, tc.Iron); 
+        science.text = string.Format("{0:N1}\n({1:N1})", t.Science, tc.Science); 
 
         wievButtons[0].gameObject.SetActive(r.owner != Player.curPlayer);
 

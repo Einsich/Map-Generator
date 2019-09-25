@@ -223,7 +223,7 @@ static class Creator {
         if (v <= 0.8f) return 12;//snowmount
         return 13;//verysnowmount
     }
-    
+   
     static void CreateProvinces(int minsize, int maxsize)
     {
         List<int> id = ListPool<int>.Get();
@@ -590,8 +590,9 @@ static class Creator {
             else Debug.LogErrorFormat("states[{0}] without regions!", k);
 
             state.fraction = (FractionName)(k % 2);
-            state.persons.Add(state.defaultLeader());
-            state.persons.Add(state.defaultLeader());
+            state.defaultLeader();
+            state.defaultLeader();
+            state.defaultLeader();
             k++;
         }
     }
@@ -631,15 +632,16 @@ static class Creator {
     }
     static void CreateDiplomacy()
     {
+        Diplomacy.InitDiplomacy(states.Count);
         for (int i = 0; i < states.Count; i++)
-            for (int j = i + 1; j < states.Count; j++)
+            states[i].ID = i;
+        for (int i = 0; i < states.Count; i++)
+            for (int j = i; j < states.Count; j++)
             {
                 Diplomacy dip = new Diplomacy(states[i], states[j]);
                 dip.alliance = Random.value > 0.66f;
                 dip.war = dip.alliance ? false : Random.value > 0.5f;
                 dip.forceaccess = dip.war ^ dip.alliance ? false : Random.value > 0.5f;
-                states[i].diplomacy.Add(dip);
-                states[j].diplomacy.Add(dip);
             }
     }
 }

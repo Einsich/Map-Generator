@@ -23,7 +23,7 @@ public class DiplomacyMenu : MonoBehaviour
         if (sel == select)
             return;
         select = sel;
-        dip = pl.GetDiplomacyWith(sel);
+        dip = Diplomacy.GetDiplomacy(pl, sel);
         SchowDiplomacy();
     }
     public void SchowDiplomacy()

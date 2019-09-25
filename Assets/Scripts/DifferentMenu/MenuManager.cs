@@ -55,9 +55,9 @@ public class MenuManager : MonoBehaviour
     {
         instance.statisticPanel.SetState(state);
     }
-    public static void ShowResources(State state)
+    public static void ShowResources()
     {
-        instance.statisticPanel.ShowResources(state);
+        instance.statisticPanel.ShowResources();
     }
     public static void HiddenProvinceMenu()
     {

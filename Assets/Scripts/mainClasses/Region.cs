@@ -10,7 +10,7 @@ public class Region :ITarget
     State _owner;
     Transform flag;
     MeshRenderer flagrenderer;
-    MaterialPropertyBlock block=new MaterialPropertyBlock();
+    MaterialPropertyBlock block = new MaterialPropertyBlock();
     public State owner { get => _owner;set {
             _owner = value;
             flag?.gameObject.SetActive(value != null);
@@ -25,13 +25,13 @@ public class Region :ITarget
     public State ocptby;
     public State curOwner => ocptby == null ? owner : ocptby;
     public Army siegeby;
-    public int id,portIdto=-1, Continent;
+    public int id, portIdto = -1, Continent;
     public Region[] neib;
-    //public GameObject[] arrow;
-    //public List<GameObject>[] border;
+    public bool haveWood, haveIron, haveGrassland;
     public List<Vector2Int> territory;
     public bool iswater,retreatused;
     public Vector2Int Capital;
+    public float sqrDistanceToCapital => (Capital - _owner.Capital.Capital).sqrMagnitude;
     public Vector2 pos;
     public GameObject Text,Town,Port,Corona;
     public ProvinceData data;
@@ -169,11 +169,11 @@ public class Region :ITarget
             if (n.owner == st) return false;
         return true;
     }
-    public void MonthUpdate(int month)
+    public void MonthUpdate()
     {
         if (iswater) return;
-        
-            data.EconomyUpdate();
+        data.EconomyUpdate();
+        CalculateUpkeep();
         
     }
     public void RebuildTown(bool newfraction = false)
@@ -228,16 +228,42 @@ public class Region :ITarget
         return port;
 
     }
-
-    public void UpdateArmy()
+    public void CalculateTerreinTypes()
     {
-
+        int wood = 0, iron = 0, grass = 0, n = territory.Count;
+        foreach (var v in territory)
+        {
+            TerrainType type = (TerrainType)Main.terrainIndexes[MapMetrics.Index(v.y, v.x)];
+            switch(type)
+            {
+                case TerrainType.ForestLeaf:
+                case TerrainType.ForestSpire:wood++;break;
+                case TerrainType.Mountain:
+                case TerrainType.MountainDesert:
+                case TerrainType.MountainSnow:
+                case TerrainType.MountainVerySnow:iron++;break;
+                case TerrainType.Grass:
+                case TerrainType.Steppe:
+                case TerrainType.HalfSteppe:grass++;break;
+                default:break;
+            }
+        }
+        haveWood = wood * 10 > n;
+        haveIron = iron * 10 > n;
+        haveGrassland = grass * 5 > n;
+    }
+    public void CalculateUpkeep()
+    {
+        Treasury upkeep = new Treasury(0);
+        foreach (var g in data.garnison)
+            upkeep += g.baseRegiment.upkeep;
+        _owner.treasury -= upkeep * GameConst.GarnisonUpkeepSale;
     }
     public void WasCatch(Army catcher)
     {
         if (siegeby == catcher)
             return;
-        Diplomacy dip = curOwner.GetDiplomacyWith(catcher.owner);
+        Diplomacy dip = Diplomacy.GetDiplomacy(curOwner, catcher.owner);
         if (!dip.canAttack)
             return;
         siegeby = catcher;
@@ -250,6 +276,7 @@ public class Region :ITarget
     }
     public void SiegeEnd()
     {
+        
         siegeby.besiege = null;
         siegeby.siegeModel.SetActive(false);
         siegeby = null;
@@ -258,8 +285,19 @@ public class Region :ITarget
     }
     public void WinSiege()
     {
+        foreach (Army insider in curOwner.army)
+            if (insider.inTown && insider.curReg == this)
+                insider.DestroyArmy();
+        curOwner.army.RemoveAll(a => a.destoyed);
         Player.instance.Occupated(this, siegeby.owner);
         SiegeEnd();
+    }
+    public bool isBusy()
+    {
+        foreach (Army insider in curOwner.army)
+            if (insider.inTown && insider.curReg == this)
+                return true;
+        return false;
     }
 }
 
