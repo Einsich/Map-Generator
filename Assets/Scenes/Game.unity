@@ -900,6 +900,9 @@ MonoBehaviour:
   TownPrefab:
   - {fileID: 1279643330294858, guid: c8cc572029806ab4d8da29efbbf7048a, type: 3}
   - {fileID: 1391903515407708, guid: 350cf09372754ba4c9d3da28a116ca73, type: 3}
+  WallsPrefab:
+  - {fileID: 1044448935764921527, guid: 8f07ccc24047cb94bb514b7bb85ba270, type: 3}
+  - {fileID: 1044448935764921527, guid: 8f07ccc24047cb94bb514b7bb85ba270, type: 3}
   ArmyPrefab:
   - {fileID: 1148633570868516, guid: 74c7bd43059e9564eaa76f9e9e426b38, type: 3}
   - {fileID: 1712904288633570, guid: 692251a272674ab4691a87407a39a772, type: 3}

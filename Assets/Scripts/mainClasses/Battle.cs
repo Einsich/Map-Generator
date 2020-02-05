@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Battle {
 
-    public Regiment[,] F = new Regiment[2,2* 40];
+   /* public Regiment[,] F = new Regiment[2,2* 40];
     public Army[]army;
     /// <summary>
     /// 0 - FIRE, 1 - SHOCK 
@@ -257,5 +257,5 @@ public class Battle {
                 F[k, i - 40] = F[k, i];
                 F[k, i] = null;
             }
-    }
+    }*/
 }

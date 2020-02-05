@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class Player : MonoBehaviour {
-    
+
     public static bool play;
     public static int[,] regionIndex;
     public static List<Region> regions;
@@ -20,9 +20,9 @@ public class Player : MonoBehaviour {
         curRegion = null;
         army = null;
     }
-    public void Occupated(Region r,State occupant)
+    public void Occupated(Region r, State occupant)
     {
-        
+
         if (occupant != r.owner)
         {
             r.ocptby = occupant;
@@ -45,8 +45,8 @@ public class Player : MonoBehaviour {
     }
     public static void SetState(State state)
     {
-        if(state!=null)
-        MenuManager.SetState(state);
+        if (state != null)
+            MenuManager.SetState(state);
 
         curPlayer = state;
         foreach (Region r in regions)
@@ -54,9 +54,9 @@ public class Player : MonoBehaviour {
             r.UpdateSplateState(curPlayer);
             r.UpdateBorder();
         }
-        for (int i = 0; i < states.Count; i++) 
+        for (int i = 0; i < states.Count; i++)
         {
-            states[i].SetNameStatus(!CameraController.showstate);                
+            states[i].SetNameStatus(!CameraController.showstate);
         }
         foreach (var army in Army.AllArmy)
             army.GetComponent<ArmyAI>().enabled = army.owner != state;
@@ -89,11 +89,19 @@ public class Player : MonoBehaviour {
                 SelectArmy(tap);
         }
         else
-        if (army && !army.retreat)
+        if (army)
         {
-            Region reg = tap.curReg;
-            if (army.besiege != reg || !tap.inTown)
-                army.TryMoveToTarget(tap);            
+            if (army.owner.diplomacy.haveWar(tap.owner.diplomacy))
+            {
+                Region reg = tap.curReg;
+                if (army.besiege != reg || !tap.inTown)
+                {
+                    army.TryMoveToTarget(tap, TargetType);
+                }
+            } else
+            {
+                army.TryMoveTo(tap.curPosition);
+            }
         }
     }
     public static void RegionTap(Region tap)
@@ -125,8 +133,8 @@ public class Player : MonoBehaviour {
             curRegion = null;
         }
     }
-    void Update () {
-        if (!EventSystem.current.IsPointerOverGameObject()&&(Input.GetMouseButtonDown(0)|| Input.GetMouseButtonDown(1)))
+    void Update() {
+        if (!EventSystem.current.IsPointerOverGameObject() && (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -136,7 +144,7 @@ public class Player : MonoBehaviour {
                 int y = (int)hit.point.z;
                 if (hit.transform.tag == "Map")
                 {
-                    if(Input.GetMouseButtonDown(0))
+                    if (Input.GetMouseButtonDown(0))
                     {
                         if (!MapMetrics.InsideMap(y, x))
                         {
@@ -152,12 +160,9 @@ public class Player : MonoBehaviour {
                         }
                     }
 
-                    if (Input.GetMouseButtonDown(1) && army && !army.retreat)
+                    if (Input.GetMouseButtonDown(1) && army)
                     {
-                        if (army.curBattle == null)
-                            army.TryMoveTo(hit.point);
-                        else
-                            army.curBattle.EndBattle(army.owner);
+                        army.TryMoveTo(hit.point);
                     }
                 }
                 if (hit.transform.tag == "Unit")
@@ -165,7 +170,7 @@ public class Player : MonoBehaviour {
                     Army sel = hit.transform.GetComponent<Army>();
                     ArmyTap(sel, Input.GetMouseButtonDown(0));
                 }
-                if(hit.transform.tag == "Town")
+                if (hit.transform.tag == "Town")
                 {
                     Region reg = MapMetrics.regions[int.Parse(hit.transform.name)];
                     if (Input.GetMouseButtonDown(0))
@@ -178,17 +183,22 @@ public class Player : MonoBehaviour {
                         else
                         {
                             if (army.besiege != reg)
-                                army.TryMoveToTarget(reg);
+                                army.TryMoveToTarget(reg, TargetType);
                         }
                     }
                 }
             }
         }
-        if(curRegion==null)
+        if (curRegion == null)
         {
             MenuManager.HiddenProvinceMenu();
         }
     }
 
-
+    static DamageType TargetType { get { DamageType target = DamageType.Melee;
+            if (Input.GetKey(KeyCode.LeftAlt))
+                target = DamageType.Range;
+            if (Input.GetKey(KeyCode.LeftControl))
+                target = DamageType.Siege;
+            return target; } }
 }

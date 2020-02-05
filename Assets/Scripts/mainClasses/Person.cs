@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class Person
 {
-    public static Sprite[] icons;
-    public Sprite icon => icons[(int)personType];
+    public Sprite icon => SpriteHandler.GetPersonIcon(personType);
     static string[] names = {  "Yan", "Yanis", "Yanka", "Yanchik", "Yanushka", "Yandex" };
     ///<summary>pips [fire, shock, smt]</summary>
     public int[] pips = new int[3];

@@ -10,16 +10,20 @@ public class MainStatistic : MonoBehaviour {
     public Text gold, manPower,wood,iron,science;
     public GameObject panel, personPanel;
     public ListFiller PersonFiller;
+    public TechnologyPanel technologyPanel;
+    [Header("State, diplomacy, army, research, economy, persons")]
+    public Button[] ModeButton;
+    public ButtonSelector buttonSelector;
     State state;
     private void Awake()
     {
         instance = this;
-        Person.icons = Resources.LoadAll<Sprite>("PersonIcons");
+        buttonSelector = new ButtonSelector(ModeButton, new ShowSmth[] { Nope, Nope, Nope, ShowTechnology, Nope, ShowPersons }) ;
     }
     private void Update()
     {
-        if (state != null)
-            ShowPersons();
+       // if (state != null && panel.activeSelf)
+         //   buttonSelector.Update();
     }
     public void SetState(State state)
     {
@@ -30,7 +34,6 @@ public class MainStatistic : MonoBehaviour {
     public void ShowData()
     {
         ShowResources();
-        ShowPersons();
     }
     public void ShowResources()
     {
@@ -41,15 +44,22 @@ public class MainStatistic : MonoBehaviour {
         iron.text = t.Iron.ToString("N1");
         science.text = t.Science.ToString("N1");
     }
-    public void ShowPersons()
+    public void ShowPersons(bool show)
     {
-        PersonFiller.UpdateList(state.persons.ConvertAll(x => (object)x));
-        personPanel.SetActive(true);
+        if (show)
+            PersonFiller.UpdateList(state.persons.ConvertAll(x => (object)x));
+        personPanel.SetActive(show);
+    }
+    public void ShowTechnology(bool show)
+    {
+        if (show)
+            technologyPanel.ShowTechnology(state.technology);
+        technologyPanel.gameObject.SetActive(show);
     }
     public void PanelShowMode()
     {
         panel.SetActive(!panel.activeSelf);
-        if (panel.gameObject.activeSelf && Player.curPlayer != null)
-            ShowPersons();
+        buttonSelector.Update();
     }
+    public void Nope(bool show) { }
 }

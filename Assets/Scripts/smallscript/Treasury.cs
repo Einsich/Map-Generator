@@ -39,6 +39,17 @@ public struct Treasury
             }
         }
     }
+    public static string ToString(int i)
+    {
+        switch (i)
+        {
+            case 0: return "Золото";
+            case 1: return "Рекруты";
+            case 2: return "Дерево";
+            case 3: return "Железо";
+            default: return "Наука";
+        }
+    }
     public string ToArmyCost()
     {
         return $"({Gold}, {Wood}, {Iron})";
@@ -58,6 +69,10 @@ public struct Treasury
     public static Treasury operator *(Treasury a, float b)
     {
         return new Treasury(a.Gold * b, a.Manpower * b, a.Wood * b, a.Iron * b, a.Science * b);
+    }
+    public static Treasury operator *(Treasury a, Treasury b)
+    {
+        return new Treasury(a.Gold * b.Gold, a.Manpower * b.Manpower, a.Wood * b.Wood, a.Iron * b.Iron, a.Science * b.Science);
     }
     public static bool operator <=(Treasury a, Treasury b)
     {

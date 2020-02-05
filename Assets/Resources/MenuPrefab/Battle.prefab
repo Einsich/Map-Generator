@@ -2225,13 +2225,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05ba054bb75e9c74cbca9f38f86720c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  battleResultPrefab: {fileID: 5181125841955935742, guid: 54de9ecdbd51a2244aad5c5c3435556f,
-    type: 3}
   unitCounter: {fileID: 2800000, guid: 68382ef61381ea04fb925c935a1c8c91, type: 3}
+  unitIcons: {fileID: 2800000, guid: 4dcaa61a2dbe3b14182397594b27a792, type: 3}
   pips: {fileID: 2800000, guid: e1db1f2405940af46a981f6adcfcd612, type: 3}
-  unitSprite: []
-  Pips: []
-  allRegimentType: []
   Lider:
   - {fileID: 1793491458709567325}
   - {fileID: 1793491459706047381}

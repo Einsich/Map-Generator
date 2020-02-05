@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class NavAgent : MonoBehaviour
 {
-    public ITarget target;
+    public IFightable target;
     //public Vector2Int curCell => Navigation.GetFixedPosition(pos_);
     public Vector2Int curCell;
     Vector2 pos_;
@@ -20,7 +20,6 @@ public class NavAgent : MonoBehaviour
     }
     public State owner;
     public Army army;
-    float speed = 1f;
     float needAngle, dAngle = 2.5f;
     public Region lastCollidedTown;
     public void SetToArmy()
@@ -34,15 +33,18 @@ public class NavAgent : MonoBehaviour
     List<Vector2Int> path;
     Vector2Int lastPathCell => path != null ?path.Count>0? path[path.Count - 1]:ToInt(end) : Vector2Int.zero;
     int pathIndex;
+    private float SpeedLandCoef = 1;
     void FixedUpdate()
     {
+        if (!Date.play)
+            return;
         UpdateRotation();
         if (path == null)
             return;
 
         Vector2 direction = DirectionInPoint(pos, next, nextpl).normalized;
         Vector2 possave = pos;
-        float delta = Date.dayPerSecond * Time.deltaTime * speed;
+        float delta = Date.dayPerSecond * Time.deltaTime * army.Speed * SpeedLandCoef;
         pos += delta * direction;
 
         needAngle = Vector3.SignedAngle(transform.forward, new Vector3(direction.x, 0, direction.y), Vector3.up);
@@ -54,20 +56,21 @@ public class NavAgent : MonoBehaviour
             if (pathIndex < path.Count)
             {
                 nextpl = path[pathIndex] + Vector2.one * 0.5f;
-                speed = 1f / Main.CellMoveCost(path[pathIndex]);
+                SpeedLandCoef = 1f / Main.CellMoveCost(path[pathIndex]);
                 pathIndex++;
             }
             else
             {
                 nextpl = end;
-                speed = 1f / Main.CellMoveCost(Navigation.GetFixedPosition(end));
+                SpeedLandCoef = 1f / Main.CellMoveCost(Navigation.GetFixedPosition(end));
             }
 
         }
 
-        if ((pos - end).sqrMagnitude < 0.16f)
+        if ((pos - end).sqrMagnitude < 0.001f)
         {
             pos = end;
+            if(target==null)
             Stop();
         }
         UpdateWayPoints();
@@ -78,7 +81,9 @@ public class NavAgent : MonoBehaviour
         Vector3 position = MapMetrics.GetPosition(pos);
         if(delta > 0 && (position - transform.position).sqrMagnitude < 0.000001f)
         {
-            Stop();
+            if (target == null)
+
+                Stop();
             return;
         }
         transform.position = position;
@@ -95,7 +100,7 @@ public class NavAgent : MonoBehaviour
         if (target != null)
         {
             if (target.curPosition != lastPathCell)
-                MoveTo(target.curPosition);
+                MoveTo(target.position, target.curPosition);
         }
     }
     public void ShowPath(bool selected)
@@ -144,14 +149,9 @@ public class NavAgent : MonoBehaviour
         else
             Stop();
     }
-    public void CatchTarget()
+    public bool MoveToTarget(IFightable target)
     {
-        target = null;
-        Stop(false);
-    }
-    public bool MoveToTarget(ITarget target)
-    {
-        bool res = MoveTo(target.curPosition);
+        bool res = MoveTo(target.position, target.curPosition);
         if(res)
         {
             this.target = target;
@@ -169,7 +169,6 @@ public class NavAgent : MonoBehaviour
             path = list;
             pathIndex = 0;
             end = to;
-            target = null;
             if (path.Count > 1)
             {
                 next = path[0];
@@ -191,7 +190,6 @@ public class NavAgent : MonoBehaviour
         ClearWayPoints();
         path = null;
         lastCollidedTown = null;
-        target = null;
         if (lookForward)
             needAngle = Vector3.SignedAngle(transform.forward, Vector3.back, Vector3.up);
         army.Stop();

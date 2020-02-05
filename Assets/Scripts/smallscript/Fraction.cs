@@ -6,6 +6,7 @@ public class Fraction {
 
     public FractionName fraction;
     public static GameObject[] TownPrefab;
+    public static GameObject[] WallsPrefab;
 }
 public enum FractionName
 {

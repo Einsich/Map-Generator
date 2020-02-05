@@ -16,17 +16,29 @@ public class State
     public List<Army> army;
     public List<Person> persons;
     public Color mainColor;
+    public Diplomacy diplomacy;
     public Technology technology;
     Treasury treasury_ = new Treasury();
     public Treasury treasury { get => treasury_; set { treasury_ = value; if (this == Player.curPlayer) MenuManager.ShowResources(); } }
+    public float Gold { get => treasury_.Gold; set => treasury_.Gold = value; }
+    public float Manpower { get => treasury_.Manpower; set => treasury_.Manpower = value; }
+    public float Wood { get => treasury_.Wood; set => treasury_.Wood = value; }
+    public float Iron { get => treasury_.Iron; set => treasury_.Iron = value; }
+    public float Science { get => treasury_.Science; set => treasury_.Science = value; }
+
     public Region Capital;
     public GameObject Text;
     public State() {
         regions = new List<Region>();
         army = new List<Army>();
         persons = new List<Person>();
-        treasury_.Gold = 100; treasury_.Manpower = 1000;
-        technology = new Technology(this, 1);
+        treasury_.Gold = 100; treasury_.Manpower = 1000;treasury_.Science = 500;
+        regiments =
+        new List<BaseRegiment>() { new BaseRegiment(this, RegimentType.Infantry, DamageType.Melee, 1, 1, 1, 1, 10,1000, new Treasury(100,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),20),
+        new BaseRegiment(this, RegimentType.Infantry, DamageType.Range, 1, 1, 1, 1, 10,1000, new Treasury(400,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),30),
+        new BaseRegiment(this, RegimentType.Cavalry, DamageType.Melee, 1, 1, 1, 1, 10,1000, new Treasury(400,1000,10,10,0), new Treasury(20, 0, 0, 0, 0),50),
+        new BaseRegiment(this, RegimentType.Artillery, DamageType.Siege, 1, 1, 1, 1, 10,1000, new Treasury(500,1000,50,50,10), new Treasury(40, 0, 0, 0, 0),70) };
+        technology = new Technology(this, 0);
     }
     public void SetName()
     {
@@ -102,13 +114,7 @@ public class State
         }
         return r;
     }
-    public List<BaseRegiment> regiments =
-        new List<BaseRegiment>() { new BaseRegiment() { pips = new int[,] { { 0, 0 }, { 1, 0 }, { 2, 0 } },type  = RegimentType.Infantry,cost = new Treasury(100,1000,10,10,0),
-           upkeep = new Treasury(10, 0, 0, 0, 0), name = RegimentName.Пехота,time = 30 },
-            new BaseRegiment() { pips = new int[,] { { 0, 0 }, { 1, 1 }, { 1, 0 } }, type = RegimentType.Cavalry,cost = new Treasury(400,1000,10,10,0),
-               upkeep = new Treasury(20, 0, 0, 0, 0), name = RegimentName.Кавалерия,time = 50 },
-        new BaseRegiment() { pips = new int[,] {{ 1, 1 }, { 0, 1 }, { 1, 0 }},type  = RegimentType.Artillery,cost = new Treasury(500,1000,50,50,10),
-            upkeep = new Treasury(40, 0, 0, 0, 0),name = RegimentName.Пушки,time = 80 }};
+    public List<BaseRegiment> regiments;
     public BaseRegiment infantry => regiments[0];
     public BaseRegiment cavalry => regiments[1];
     public BaseRegiment artillery => regiments[2];

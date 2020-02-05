@@ -6,11 +6,9 @@ using UnityEngine;
 public class Regiment
 {
 
-    public float moral, maxmoral;
-    public int count, loses;
+    public float count, loses;
     public BaseRegiment baseRegiment;
-    public float moralF => moral / maxmoral;
-    public float countF => count / 1000f;
+    public float NormalCount => count / baseRegiment.maxcount;
 
     public Regiment()
     {
@@ -18,32 +16,50 @@ public class Regiment
     }
     public Regiment(BaseRegiment t)
     {
-        count = 1000;
-        moral = maxmoral = 2f;
+        count = t.maxcount;
         baseRegiment = t;
     }
 }
 public class BaseRegiment
 {
-    public const int PipsN = 3, PipsM = 2;
-    ///<summary>pips [fire, shock, moral; attack, defence]</summary>
-    public int[,] pips;
+    public int[] armor;
+    public Tech[] teches;
     public RegimentType type;
-    public RegimentName name;
+    public DamageType damageType;
+    public float maxcount = 1000;
+    public float damage;
+
     public int time;
     public Treasury cost, upkeep;
-    public Sprite Icon => BattleInterface.allRegimentType[(int)type];
+    public Sprite Icon => SpriteHandler.GetRegimentSprite(this);
+    public State owner;
+    public BaseRegiment(State state, RegimentType type, DamageType damageType,int MeleeArmor,int ChargeArmor, int RangeArmor, int SiegeArmor, float damage, float maxcount,
+        Treasury cost, Treasury upkeep, int time)
+    {
+        owner = state;
+        this.type = type;
+        this.damageType = damageType;
+        this.damage = damage;
+        armor = new int[(int)DamageType.Count] { MeleeArmor, ChargeArmor, RangeArmor, SiegeArmor };
+        this.maxcount = maxcount;
+        this.cost = cost;
+        this.upkeep = upkeep;
+        this.time = time;
+    }
 
 }
-public enum RegimentName
+public enum DamageType
 {
-    Пехота,
-    Кавалерия,
-    Пушки
+    Melee,
+    Charge,
+    Range,
+    Siege,
+    Count
 }
 public enum RegimentType
 {
     Infantry,
     Cavalry,
-    Artillery
+    Artillery,
+    Count
 }

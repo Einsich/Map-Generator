@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ProvinceData {
     
-     static Treasury Cost(Building type,int lvl)
+      Treasury Cost(Building type,int lvl)
     {
         Treasury cost;
         switch(type)
@@ -15,7 +15,7 @@ public class ProvinceData {
             case Building.Military:cost = new Treasury(1000, 1000, 200, 100, 0);break;
             case Building.Industry:cost = new Treasury(150, 800, 100, 150, 0);break;
             case Building.Trade:cost = new Treasury(300, 100, 100, 100, 0);break;
-            case Building.Towers:cost = new Treasury(300, 3000, 1000, 500, 0);break;
+            case Building.Walls: cost = new Treasury(300, 3000, 200, 200, 0);break;
             case Building.WoodSpesial:cost = new Treasury(100, 500, 200, 100, 0);break;
             case Building.IronSpesial:cost = new Treasury(100, 500, 100, 200, 0); break;
             case Building.FarmSpecial:cost = new Treasury(100, 500, 50, 50, 0);break;
@@ -23,10 +23,10 @@ public class ProvinceData {
             default: cost = new Treasury(500) { Science=10};break;
         }
 
-        return cost * levelCoef[1 + lvl];
+        return cost * levelCoef[1 + lvl] * region.owner.technology.BuildCostBonus;
     }
     static float[] levelCoef = { 0, 1, 1.5f, 1.75f, 2 };
-    static Treasury Income(Building type, int lvl)
+     Treasury Income(Building type, int lvl)
     {
         Treasury income;
         switch (type)
@@ -56,6 +56,7 @@ public class ProvinceData {
     public Treasury income = new Treasury(), incomeclear;
     static Treasury defaultTreasure = new Treasury(10, 50, 0, 0, 0);
     public List<RecruitAction> recruitQueue = new List<RecruitAction>();
+    public int wallsLevel => buildings[(int)Building.Walls];
     public void AddRecruit(RecruitAction act)
     {
         region.owner.treasury -= act.regiment.cost;
@@ -116,7 +117,7 @@ public class ProvinceData {
     public void BuildComplete()
     {
         buildings[isBuildInd]++;
-        if (isBuildInd == 0 || isBuildInd >= buildCount)
+        if (isBuildInd == (int)Building.Infrastructure || isBuildInd == (int)Building.Walls || isBuildInd >= buildCount)
             region.RebuildTown();
         
         isBuildInd = -1;
@@ -184,7 +185,7 @@ public class ProvinceData {
         for (int build = 0; build < specialCount; build++)
             incomeclear += Income((Building)build, buildings[build]);
 
-        income = incomeclear * IncomeCoefFromDistance() * IncomeCoefFromOrder() * traderImpact;
+        income = incomeclear * IncomeCoefFromDistance() * IncomeCoefFromOrder() * traderImpact * region.owner.technology.TreasureBonus;
     }
     public void EconomyUpdate()
     {
@@ -205,7 +206,7 @@ public enum Building
     Military,//увеличивает кол-во рекрутов
     Industry,//увеличивает на процент добычу дерева и железа
     Trade,//дает небольшое кол-во всех ресурсов
-    Towers,//увеличивает защиту провинции
+    Walls,//увеличивает защиту провинции
     FarmSpecial,//если много лугов/пашень, то добавляет к голде и рекрутам
     WeaponSpesial,
     WoodSpesial,//если много леса, то позволяет добывать дерево

@@ -3,42 +3,107 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Diplomacy {
+    List<Diplomacy> war, alliance, trade, improveRelation, forceAccess;
+    public List<float> casusbelli;
+    public List<(Diplomacy, float)> 
+    fabricateCB, destabilization, subsidies,
+    coalicion;
+/*
+bool war alliance,forceAcces
+Deal {int pr1,pr2,float dr}trade
+Gift {float gift, float dr}
+Fabracation{float dcb, float gold, float dr}
+Destabilisation{float gold,float dr}
 
-    bool alliance_, war_, forceaccess_;
-    public bool alliance
+*/
+public bool canDeclareWar(Diplomacy dip) => !haveWar(dip) && !haveAlliance(dip) && !haveAccess(dip);
+    public bool haveWar(Diplomacy dip) => war.Contains(dip);
+    public bool haveAlliance(Diplomacy dip) => alliance.Contains(dip);
+    public bool haveAccess(Diplomacy dip) => forceAccess.Contains(dip);
+    public bool fabricatingCasus(Diplomacy dip) => fabricateCB.Exists((x) => x.Item1 == dip);
+
+    public void DeclareWar(Diplomacy dip, bool declare)
     {
-        get { return alliance_; }
-        set { alliance_ = value;
+        DeclaredWar(dip, declare);
+        dip.DeclaredWar(this, declare);
+    }
+    public void DeclaredWar(Diplomacy dip, bool declare)
+    {
+        if (declare)
+            war.Add(dip);
+        else
+            war.Remove(dip);
+    }
+    public void MakeAlliance(Diplomacy dip, bool make)
+    {
+        MakedAlliance(dip, make);
+        dip.MakedAlliance(this, make);
+    }
+    public void MakedAlliance(Diplomacy dip, bool make)
+    {
+        if (make)
+            alliance.Add(dip);
+        else
+            alliance.Remove(dip);
+    }
+    public void ForceAccess(Diplomacy dip, bool access)
+    {
+        if (access)
+            forceAccess.Add(dip);
+        else
+            forceAccess.Remove(dip);
+    }
+    public void FabricateCasusBelli(Diplomacy dip, bool fabricate, float gold)
+    {
+        if (fabricate)
+            fabricateCB.Add((dip, gold));
+        else
+            fabricateCB.RemoveAll((x) => x.Item1 == dip);
+    }
+    public bool canMove(Diplomacy dip) => haveWar(dip) || haveAlliance(dip) || haveAccess(dip);
+    public bool canAttack(Diplomacy dip) => haveWar(dip);
+    public State state;
+    public Diplomacy(State state)
+    {
+        this.state = state;
+        diplomacies[state.ID] = this;
+        war = new List<Diplomacy>();
+        alliance = new List<Diplomacy>();
+        forceAccess = new List<Diplomacy>();
+        casusbelli = new List<float>(diplomacies.Length);
+        for(int i=0;i< diplomacies.Length;i++)
+        {
+            casusbelli.Add(0);
         }
+        fabricateCB = new List<(Diplomacy, float)>();
     }
-    public bool war
-    {
-        get { return war_; }
-        set { war_ = value;
-        }
-    }
-    public bool forceaccess
-    {
-        get { return forceaccess_; }
-        set { forceaccess_ = value;
-        }
-    }
-    public bool itsI;
-    public bool canMove => alliance_ || war_ || forceaccess_ || itsI;
-    public bool canAttack => war_ && !itsI;
-    public State s1, s2;
-    public Diplomacy(State state1,State state2)
-    {
-        s1 = state1;
-        s2 = state2;
-        alliance = war = forceaccess = false;
-        itsI = state1 == state2;
-        diplomacies[state1.ID, state2.ID] = diplomacies[state2.ID, state1.ID] = this;
-    }
-    public static Diplomacy GetDiplomacy(State state1, State state2) => state1 != null && state2 != null ? diplomacies[state1.ID, state2.ID]: null;
-    public static Diplomacy[,] diplomacies;
+
+
+    public static Diplomacy GetDiplomacy(State state) => state != null ? diplomacies[state.ID]: null;
+    public static Diplomacy[] diplomacies;
     public static void InitDiplomacy(int n)
     {
-        diplomacies = new Diplomacy[n, n];
+        diplomacies = new Diplomacy[n];
+    }
+    public static void DiplomacyUpdate()
+    {
+        foreach(var state in diplomacies)
+        {
+            foreach(var x in state.fabricateCB)
+            {
+                int i = x.Item1.state.ID;
+                if(state.state.Gold >= x.Item2)
+                {
+                    state.state.Gold -= x.Item2;
+                    state.casusbelli[i] += x.Item2;
+                }
+
+            }
+            for (int i = 0; i < state.casusbelli.Count; i++)
+                if (state.casusbelli[i] > 0.1f)
+                    state.casusbelli[i] -= 0.1f;
+                else
+                    state.casusbelli[i] = 0;
+        }
     }
 }

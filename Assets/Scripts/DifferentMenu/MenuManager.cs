@@ -12,12 +12,12 @@ public class MenuManager : MonoBehaviour
     public MainStatistic statisticPanel;
     public GameMenu gameMenu;
     public CodePanel codePanel;
-    public BattleInterface battlePanel;
+    //public BattleInterface battlePanel;
     public ProvinceMenu provincePanel;
     public ArmyPanel armyPanel;
 
-    public BattleResult batResPref;
-    public static BattleResult battleResultPrefab => instance.batResPref;
+   // public BattleResult batResPref;
+  //  public static BattleResult battleResultPrefab => instance.batResPref;
     public static Transform MenuTransform => instance.transform;
     static MenuManager instance;
     void Awake()
@@ -30,7 +30,7 @@ public class MenuManager : MonoBehaviour
         statisticPanel = Instantiate(statisticPanel, transform);
         gameMenu = Instantiate(gameMenu, transform);
         codePanel = Instantiate(codePanel, transform);
-        battlePanel = Instantiate(battlePanel, transform);
+       // battlePanel = Instantiate(battlePanel, transform);
         provincePanel = Instantiate(provincePanel, transform);
         armyPanel = Instantiate(armyPanel, transform);
         saveLoadPanel.prevMenu = gameMenu.gameObject;
@@ -59,6 +59,10 @@ public class MenuManager : MonoBehaviour
     {
         instance.statisticPanel.ShowResources();
     }
+    public static void ShowTechnology()
+    {
+        instance.statisticPanel.ShowTechnology(true);
+    }
     public static void HiddenProvinceMenu()
     {
         instance.provincePanel.HiddenProvinceMenu();
@@ -78,10 +82,10 @@ public class MenuManager : MonoBehaviour
         GarnisonIcon.canExchange = exchange;
 
     }
-    public static void ShowBattle(Battle battle)
-    {
-        instance.battlePanel.ShowBattle(battle);
-    }
+    //public static void ShowBattle(Battle battle)
+    //{
+    //    instance.battlePanel.ShowBattle(battle);
+    //}
     public static void UpdateArmyList()
     {
         instance.armyPanel.UpdateArmy();

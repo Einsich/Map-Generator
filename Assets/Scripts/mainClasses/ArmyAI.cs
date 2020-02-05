@@ -11,11 +11,7 @@ public class ArmyAI : MonoBehaviour
     State owner;
     public void DoRandomMove()
     {
-        if (army_.retreat)
-            return;
-        if (army_.curBattle != null)
-            army_.curBattle.EndBattle(owner);
-        else
+      
             army_.TryMoveTo(owner.regions[Random.Range(0, owner.regions.Count)].Capital);
     }
 }

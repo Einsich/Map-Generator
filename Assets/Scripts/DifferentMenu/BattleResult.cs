@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class BattleResult : MonoBehaviour
 {
-    public Text[] unitsCount,unitsLoses,unitsResult,general;
+   /* public Text[] unitsCount,unitsLoses,unitsResult,general;
     public Image[] flags;
     public Text result;
     static Stack<BattleResult> pool = new Stack<BattleResult>();
@@ -51,5 +51,5 @@ public class BattleResult : MonoBehaviour
     void Update()
     {
         
-    }
+    }*/
 }

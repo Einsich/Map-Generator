@@ -89,7 +89,7 @@ public static class Navigation
                 }
 
                 agent.pos = region.pos + (p - region.pos).normalized * townRadius;
-                if (agent.lastCollidedTown != region)
+               /* if (agent.lastCollidedTown != region)
                 {
                     agent.lastCollidedTown = region;
                     if (agent.target == region || (agent.target is Army targ && targ.inTown && targ.curReg == region))
@@ -97,7 +97,7 @@ public static class Navigation
                         agent.CatchTarget();
                         region.WasCatch(agent.army);
                     }
-                }
+                }*/
 
                 return true;
             }
@@ -128,12 +128,12 @@ public static class Navigation
             if ((other.pos - p).sqrMagnitude <= armyRadiusSqr)
             {
                 p = other.pos + (p - other.pos).normalized * armyRadius;
-                if (agent.target == (object)other.army)
-                {
-                    Debug.Log("catch");
-                    agent.CatchTarget();
-                }
-                other.army.WasCatch(agent.army);
+                //if (agent.target == (object)other.army)
+               // {
+                //    Debug.Log("catch");
+               //     agent.CatchTarget();
+               // }
+               // other.army.WasCatch(agent.army);
             }
         }
         bool InsideNavList(int x, int y) => 0 <= x && x < navListM && 0 <= y && y < navListN;

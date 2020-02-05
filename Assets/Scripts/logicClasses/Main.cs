@@ -8,7 +8,7 @@ public class Main : MonoBehaviour
     public GameObject Text, worldborder, CoronaPrefab, flagPrefab, WayPoint,SiegePrefab;
     public ArmyBar ArmyBarPrefab;
     public GameObject[] terrainItem;
-    public GameObject[] Port,TownPrefab,ArmyPrefab;
+    public GameObject[] Port,TownPrefab,WallsPrefab,ArmyPrefab;
     public Transform Towns, Ports, Trees, Names;
     public MapMesh mapMeshPrefab;
     public Material terrainMat,riverMat;
@@ -36,6 +36,7 @@ public class Main : MonoBehaviour
     private void Start()
     {
         Fraction.TownPrefab = TownPrefab;
+        Fraction.WallsPrefab = WallsPrefab;
         Creator.StartGame();
     }
     public static void Save(string path)
@@ -232,19 +233,20 @@ public class Main : MonoBehaviour
             if (!reg.iswater)
             {
                 GameObject go = new GameObject(reg.id.ToString());
+                reg.Town = go;
                 go.tag = "Town";
                 go.AddComponent<SphereCollider>().radius = 0.71f ;
                 go.transform.SetParent(Towns);
                 GameObject town = new GameObject();
                 town.transform.SetParent(go.transform);
                 town.transform.localPosition = Vector3.zero;
+                
                 town = Instantiate(flagPrefab, go.transform);
                 town.transform.localPosition = Vector3.zero;
-
+                reg.flag = town.transform;
                 reg.pos = NavAgent.FromV3(go.transform.position = MapMetrics.GetCellPosition(reg.Capital));
                 go.transform.rotation = Quaternion.Euler(0, UnityEngine.Random.Range(-90, 90), 0);
                 go.transform.GetChild(1).localRotation = Quaternion.Inverse(go.transform.rotation);
-                reg.Town = go;
                 reg.RebuildTown();
             }
     }
@@ -436,12 +438,10 @@ public class Main : MonoBehaviour
         if (s == null || !lastCell &&  reg.Capital == cur)
             return false;
         Army army = Army.ArmyInPoint(cur);
-        Diplomacy diparmy = Diplomacy.GetDiplomacy(goer, army?.owner);
-        if (army != null && (diparmy ==null || !diparmy.canAttack))
+        if (army != null && !goer.diplomacy.canAttack(army?.owner.diplomacy))
             return false;
-        Diplomacy dip = Diplomacy.GetDiplomacy(goer, s);
 
-        return dip.canMove || MapMetrics.GetRegion(prev).owner == s;
+        return goer.diplomacy.canMove(s.diplomacy) || MapMetrics.GetRegion(prev).owner == s;
         
     }
     public static float CellMoveCost(Vector2Int p)

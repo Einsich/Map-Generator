@@ -4,7 +4,13 @@ using UnityEngine;
 
 public interface ITarget
 {
-    Vector2Int curPosition { get; }
-    State curOwner { get; }
-    void WasCatch(Army catcher);
+   // Vector2Int curPosition { get; }
+   // State curOwner { get; }
+    //void WasCatch(Army catcher);
+}
+public enum TargetType
+{
+    MeleeAttack,
+    RangeAttack,
+    SiegeAttack
 }

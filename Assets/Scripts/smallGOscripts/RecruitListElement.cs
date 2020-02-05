@@ -15,10 +15,10 @@ public class RecruitListElement : InitGO
         regiment = (BaseRegiment)reg;
         gameObject.SetActive(true);
         icon.sprite = regiment.Icon;
-        for (int i = 0; i < 3; i++)
-            for (int j = 0; j < 2; j++)
-                pips[j * 3 + i].sprite = ProvinceMenu.GetPips(regiment.pips[i, j]);
-        name.text = regiment.name.ToString();
+        //for (int i = 0; i < 3; i++)
+          //  for (int j = 0; j < 2; j++)
+            //    pips[j * 3 + i].sprite = SpriteHandler.GetPipsSprite(regiment.pips[i, j]);
+        name.text = regiment.type.ToString();
         descr.text = $"Стоимость {regiment.cost.ToArmyCost()}\nСодержание {regiment.upkeep.ToArmyCost()}\nВремя {regiment.time}";
         bye.onClick.RemoveAllListeners();
         bye.onClick.AddListener(()=>RecruitMenu.AddToQueue(regiment));

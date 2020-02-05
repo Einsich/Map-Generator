@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -23,9 +23,9 @@ public class GameTimer
                 continue;
             action.DoAction();
         }
-        Battle.ProcessAllBattles();
+       // Battle.ProcessAllBattles();
         Army.ProcessAllArmy();
-        BattleInterface.needUpdate = true;
+        //BattleInterface.needUpdate = true;
         ProvinceMenu.needUpdate = true;
 
     }
@@ -38,5 +38,8 @@ public class GameTimer
         foreach (var army in Army.AllArmy)
             army.UpdateUpkeep();
         Army.ProcessAllArmyAI();
+        Diplomacy.DiplomacyUpdate();
+        FreeMonthUpdate?.Invoke();
     }
+    public static event System.Action FreeMonthUpdate;
 }

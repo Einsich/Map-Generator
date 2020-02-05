@@ -15,7 +15,7 @@ public class RecruitQueueElement : InitGO
         action = (RecruitAction)act;
         icon.sprite = action.regiment.Icon;
         fill.fillAmount = 0;
-        descr.text = action.regiment.name.ToString();
+        descr.text = action.regiment.type.ToString();
     }
     public void DeRecruit()
     {

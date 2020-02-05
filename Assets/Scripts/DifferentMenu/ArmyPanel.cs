@@ -35,7 +35,7 @@ public class ArmyPanel : MonoBehaviour
         Person person = curArmy.genegal;
         icon.sprite = person.icon;
         for (int i = 0; i < 3; i++)
-            pips[i].sprite = ProvinceMenu.GetPips(person.pips[i]);
+            pips[i].sprite = SpriteHandler.GetPipsSprite(person.pips[i]);
         expFill.fillAmount = person.expf;
         exp.text = $"{person.lvl} ур. {person.exp} / {person.nextLvl}";
         name.text = person.name;

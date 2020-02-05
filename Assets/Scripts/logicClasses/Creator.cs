@@ -634,14 +634,16 @@ static class Creator {
     {
         Diplomacy.InitDiplomacy(states.Count);
         for (int i = 0; i < states.Count; i++)
+        {
             states[i].ID = i;
+            states[i].diplomacy = new Diplomacy(states[i]);
+        }
         for (int i = 0; i < states.Count; i++)
             for (int j = i; j < states.Count; j++)
             {
-                Diplomacy dip = new Diplomacy(states[i], states[j]);
-                dip.alliance = Random.value > 0.66f;
-                dip.war = dip.alliance ? false : Random.value > 0.5f;
-                dip.forceaccess = dip.war ^ dip.alliance ? false : Random.value > 0.5f;
+                bool alliance = Random.value > 0.66f;
+                states[i].diplomacy.MakeAlliance(states[j].diplomacy, alliance);
+                states[i].diplomacy.DeclareWar(states[j].diplomacy, alliance ? false : Random.value > 0.5f);                
             }
     }
 }

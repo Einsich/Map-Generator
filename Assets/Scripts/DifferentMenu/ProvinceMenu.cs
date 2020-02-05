@@ -17,13 +17,12 @@ public class ProvinceMenu : MonoBehaviour {
     public static GameObject GetSpecialBuilding(int index) => instance.specialBuildings[index];
     public BuildingButtonInterface[] buildings;
     public GameObject buildPanel, diplomPanel;
-    public Sprite[] pips;
-    public static Sprite GetPips(int index) => instance.pips[index];
+    //public Sprite[] pips;
+   // public static Sprite GetPips(int index) => instance.pips[index];
     public RecruitMenu recruitMenu;
     [Header("diplomacy, buildings, army, navy")]
     public Button[] wievButtons;
-    const int ButtonCount = 4;
-    public bool[] buttonsSelect ;
+    public ButtonSelector buttonSelector;
     static int height;
     static int[] dx = { 0, 1, 2, 4, 5, 7, 11, 13, 14, 15, 16, 12 };
     private void Awake()
@@ -39,13 +38,8 @@ public class ProvinceMenu : MonoBehaviour {
         for (int frac = 0; frac < 2; frac++)
             for (int i = 0; i < dx.Length; i++)
                 BuildingSprite[frac,i] = Sprite.Create(build[frac], new Rect(height * dx[i], 0, height, height), new Vector2(0.5f, 0.5f));
-        buttonsSelect = new bool[ButtonCount];
-        for (int i = 0; i < ButtonCount; i++)
-        {
-            int k = i;
-            wievButtons[i].onClick.AddListener(() => SetMenuMod(k));
-        }
-        shows = new ShowSmth[] { ShowDiplomacy, ShowBuildings, ShowArmy, ShowNavy };
+        
+        buttonSelector = new ButtonSelector(wievButtons, new ShowSmth[] { ShowDiplomacy, ShowBuildings, ShowArmy, ShowNavy });
         gameObject.SetActive(false);
     }
     public static bool needUpdate;
@@ -78,11 +72,9 @@ public class ProvinceMenu : MonoBehaviour {
 
         wievButtons[0].gameObject.SetActive(r.owner != Player.curPlayer);
 
-        if (r.owner == Player.curPlayer && buttonsSelect[0])
-            SetMenuMod(0);
-        for (int i = 0; i < ButtonCount; i++)
-            if (buttonsSelect[i])
-                shows[i](true);
+        if (r.owner == Player.curPlayer)
+            buttonSelector.Hidden(0);
+        buttonSelector.Update();
         recruitMenu.UpdateGarnison();
     }
 
@@ -91,33 +83,6 @@ public class ProvinceMenu : MonoBehaviour {
         gameObject.SetActive(false);
         MenuManager.CheckExchangeRegiment();
     }
-    public void SetMenuMod(int k)
-    {
-        bool a = buttonsSelect[k];
-        for (int i = 0; i < ButtonCount; i++)
-            if (buttonsSelect[i])
-            {
-                SpriteState state = wievButtons[i].spriteState;
-                state.highlightedSprite = state.pressedSprite;
-                state.pressedSprite = wievButtons[i].image.sprite;
-                wievButtons[i].image.sprite = state.highlightedSprite;
-                wievButtons[i].spriteState = state;
-                buttonsSelect[i] = false;
-                shows[i](false);
-            }
-        if(!a)
-        {
-            SpriteState state = wievButtons[k].spriteState;
-            state.highlightedSprite = state.pressedSprite;
-            state.pressedSprite = wievButtons[k].image.sprite;
-            wievButtons[k].image.sprite = state.highlightedSprite;
-            wievButtons[k].spriteState = state;
-            buttonsSelect[k] = true;
-            shows[k](true);
-        }
-    }
-    public delegate void ShowSmth(bool show);
-    ShowSmth[] shows;
     public void ShowDiplomacy(bool show)
     {
 

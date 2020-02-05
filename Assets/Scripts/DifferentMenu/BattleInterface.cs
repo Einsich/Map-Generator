@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class BattleInterface : MonoBehaviour {
-    public Texture2D unitCounter, pips;
-    public static Sprite[] unitSprite, Pips, allRegimentType;
+    /*public Texture2D unitCounter, unitIcons, pips;
+    public static Sprite[] unitSprite, Pips;//, allRegimentType;
     public Image[] Lider, Random, Moral,Flags;
     public Text[]  Infantry, Cavalry, Artillery,General;
     public static Battle curBattle;
@@ -30,9 +30,13 @@ public class BattleInterface : MonoBehaviour {
     }
 	void Awake () {
         gameObject.SetActive(false);
-        allRegimentType = unitSprite = new Sprite[3];
+       // allRegimentType = new Sprite[3];
+        unitSprite = new Sprite[3];
         for (int i = 0; i < 3; i++)
+        {
             unitSprite[i] = Sprite.Create(unitCounter, new Rect(10f * i, 0, 10f, 10f), new Vector2(0.5f, 0.5f));
+           // allRegimentType[i] = Sprite.Create(unitIcons, new Rect(47 * i, 0, 47, 47), new Vector2(0.5f, 0.5f));
+        }
         Pips = new Sprite[3];
         for (int i = 0; i < 3; i++)
             Pips[i] = Sprite.Create(pips, new Rect(32f * i, 0, 32, 52), new Vector2(0.5f, 0.5f));
@@ -98,5 +102,5 @@ public class BattleInterface : MonoBehaviour {
         if (needUpdate && curBattle != null)
             Show(curBattle);
 
-	}
+	}*/
 }

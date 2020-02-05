@@ -6,7 +6,7 @@ public class Action: IComparable<Action> {
     public int time,startTime;
     protected float T;
     public bool actually;
-    public TypeAction type;
+    //public TypeAction type;
     protected delegate void Method();
     protected event Method onAction;
     public float progress => (Date.curdate - startTime) * T;
@@ -40,7 +40,7 @@ public class BuildAction:Action
 {
     public BuildAction(ProvinceData reg,int dt):base(dt)
     {
-        type = TypeAction.BuildAction;
+        //type = TypeAction.BuildAction;
         onAction += () => reg.BuildComplete();
     }
 }
@@ -49,7 +49,7 @@ public class RecruitAction : Action
     public BaseRegiment regiment;
     public RecruitAction(ProvinceData prov,BaseRegiment reg, int dt) : base(dt)
     {
-        type = TypeAction.RecruitAction;
+        //type = TypeAction.RecruitAction;
         regiment = reg;
         onAction += () =>  prov.RecruitRegiment(this);
     }
@@ -59,7 +59,7 @@ public class PersonAliveAction : Action
 {
     public PersonAliveAction(Person person, int dt) : base(dt)
     {
-        type = TypeAction.PersonAliveAction;
+        //type = TypeAction.PersonAliveAction;
         onAction += () => person.Alive();
     }
 }
@@ -67,7 +67,14 @@ public class SiegeAction : Action
 {
     public SiegeAction(Region region, int dt) : base(dt)
     {
-        type = TypeAction.SiegeAction;
+        //type = TypeAction.SiegeAction;
         onAction += () => region.WinSiege();
+    }
+}
+public class ResearchAction : Action
+{
+    public ResearchAction(Tech tech,int dt):base(dt)
+    {
+        onAction += () => tech.research();
     }
 }

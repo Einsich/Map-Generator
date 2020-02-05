@@ -21,7 +21,7 @@ public class PersonInformation : InitGO
         icon.sprite = person.icon;
         icon.color = person.die ? new Color(0.1f,0.1f,0.1f) : Color.white;
         for (int i = 0; i < 3; i++)
-            pips[i].sprite = ProvinceMenu.GetPips(person.pips[i]);
+            pips[i].sprite = SpriteHandler.GetPipsSprite(person.pips[i]);
         type.text = person.personType.ToString();
         toAlive.gameObject.SetActive(person.die && person.alive == null);
         toCapital.gameObject.SetActive(cantoCapital);

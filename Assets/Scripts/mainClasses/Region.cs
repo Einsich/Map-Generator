@@ -1,14 +1,14 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Region :ITarget
+public class Region :ITarget, IFightable
 {
     public static Material[] borderMaterial;
     public string name;
     State _owner;
-    Transform flag;
+    public Transform flag;
     MeshRenderer flagrenderer;
     MaterialPropertyBlock block = new MaterialPropertyBlock();
     public State owner { get => _owner;set {
@@ -37,6 +37,9 @@ public class Region :ITarget
     public ProvinceData data;
     BorderState bordState;
     bool selected;
+    public float LastAttack { get; set; } = 0;
+    public float AttackPeriod { get; set; } = 1;
+    public Vector2 position => pos;
     public Vector2Int curPosition => Capital;
 
     public bool HiddenBord
@@ -72,6 +75,7 @@ public class Region :ITarget
         }
     }
 
+    public float AttackRange { get; set; } = 2f;
 
     public Region()
     {
@@ -195,7 +199,11 @@ public class Region :ITarget
         }
         GameObject t0 = GameObject.Instantiate(Fraction.TownPrefab[(int)data.fraction].transform.GetChild(lvl).gameObject, town);
         t0.transform.localPosition = Vector3.zero;
-        flag = Town.transform.GetChild(1);
+        if (data.wallsLevel > 0)
+        {
+            t0 = GameObject.Instantiate(Fraction.WallsPrefab[(int)data.fraction], town);
+            t0.transform.localPosition = Vector3.zero;
+        }
         flagrenderer = flag.GetChild(1).GetComponent<MeshRenderer>();
         owner = _owner;//для настройки флага
     }
@@ -263,8 +271,7 @@ public class Region :ITarget
     {
         if (siegeby == catcher)
             return;
-        Diplomacy dip = Diplomacy.GetDiplomacy(curOwner, catcher.owner);
-        if (!dip.canAttack)
+        if (!curOwner.diplomacy.canAttack(catcher.owner.diplomacy))
             return;
         siegeby = catcher;
         siegeby.navAgent.Stop(false);
@@ -298,6 +305,38 @@ public class Region :ITarget
             if (insider.inTown && insider.curReg == this)
                 return true;
         return false;
+    }
+
+    public DamageInfo GetDamage(DamageType damageType)
+    {
+        DamageInfo info = new DamageInfo();
+        foreach (Regiment regiment in data.garnison)
+        {
+            if (damageType <= regiment.baseRegiment.damageType)
+                info.damage[(int)regiment.baseRegiment.damageType] += regiment.NormalCount * regiment.baseRegiment.damage;
+        }
+        info.SiegeDamage += 100;
+        return info;
+    }
+
+    public void Hit(DamageInfo damage)
+    {
+        if (data.garnison.Count == 0)
+            return;
+        Regiment[] targets = new Regiment[4];
+        for (int i = 0; i < targets.Length; i++)
+            targets[i] = data.garnison[Random.Range(0, data.garnison.Count)];
+        float q = 1f / targets.Length;
+
+        foreach (var target in targets)
+        {
+            float d = 0;
+            for (int i = 0; i < (int)DamageType.Count; i++)
+                d += damage.damage[i];
+            d *= q;
+            target.count -= d;
+        }
+        data.garnison.RemoveAll(x => x.count <= 0);
     }
 }
 

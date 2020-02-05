@@ -903,7 +903,6 @@ MonoBehaviour:
   backGround: {fileID: 297742047}
   MainPanel: {fileID: 1447220447}
   GeneratorPanel: {fileID: 1675160577}
-  GameMenuPanel: {fileID: 0}
   SaveLoadPanel: {fileID: 842904797}
   Sea: {fileID: 1738928354}
   Hei: {fileID: 1727717822}

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Army:MonoBehaviour,ITarget
+public class Army:MonoBehaviour,ITarget,IFightable
 {
     public State owner;
     public State curOwner => owner;
@@ -10,11 +10,11 @@ public class Army:MonoBehaviour,ITarget
     Region curReg_;
     public Region curReg => curReg_ != null ? curReg_ : MapMetrics.GetRegion(navAgent.curCell);
     public bool inTown;
-    public Battle curBattle;
+    public ActionType ActionState;
     public List<Regiment> army;
     public Person genegal;
     public Vector2Int curPosition => navAgent.curCell;
-    public bool retreat;
+    //public bool retreat;
     public Region besiege;
     public ArmyAI AI;
     public GameObject selectia,siegeModel;
@@ -24,6 +24,10 @@ public class Army:MonoBehaviour,ITarget
     GameObject cube;
     public NavAgent navAgent;
     Animation animator;
+    public float Speed;
+    public float AttackRange { get;  set; }
+    public Vector2 position => NavAgent.FromV3(transform.position);
+    public DamageType damageType;
     private void Start()
     {
         UpdateRegion(curReg);
@@ -39,8 +43,46 @@ public class Army:MonoBehaviour,ITarget
         cube.transform.position = MapMetrics.GetCellPosition(navAgent.curCell);
         if (inTown)
             cube.transform.position += Vector3.up * 2;
-    }
+        StateLogic();
 
+    }
+    private void StateLogic()
+    {
+        IFightable target= navAgent.target;
+        bool inRadius = target != null && (target.position - position).magnitude <= AttackRange;
+        switch (ActionState)
+        {
+            case ActionType.Idle:
+            case ActionType.Move:if(inRadius && LastAttack + AttackPeriod <= Time.time) {
+                    navAgent.Stop();
+                    Fight(target);
+                }break;
+            case ActionType.Attack:if (inRadius)
+                {
+                    if (LastAttack + AttackPeriod <= Time.time)
+                    {
+                        target.Hit(GetDamage(damageType));
+                        LastAttack = Time.time;
+                    }
+                    navAgent.RotateTo(target.position);
+                }
+                else
+                {
+                    if (target != null)
+                    {
+                        if (!TryMoveToTarget(target, damageType))
+                            Stop();
+                    }
+                    else
+                    {
+                        Stop();
+                    }
+                }
+                break;
+            case ActionType.Effect:
+                break;
+        }
+    }
     void UpdateRotation()
     {
         if (selectia.activeSelf)
@@ -97,8 +139,8 @@ public class Army:MonoBehaviour,ITarget
     {
         selectia.SetActive(selected);
         navAgent.ShowPath(selected);
-        if (curBattle != null)
-            MenuManager.ShowBattle(selected?curBattle:null);
+       // if (curBattle != null)
+        //    MenuManager.ShowBattle(selected?curBattle:null);
     }
     bool active;
     public bool Active
@@ -128,6 +170,8 @@ public class Army:MonoBehaviour,ITarget
         navAgent.curCell = home.Capital;
         inTown = true;
         AI.army = this;
+        UpdateSpeed();
+
         AllArmy.Add(this);
         AllArmyAI.Add(AI);
     }
@@ -144,6 +188,7 @@ public class Army:MonoBehaviour,ITarget
         }
         remove.Remove(regiment);
         add.Add(regiment);
+        UpdateSpeed();
     }
     static public List<Army> AllArmy = new List<Army>();
     static public List<ArmyAI> AllArmyAI = new List<ArmyAI>();
@@ -164,19 +209,30 @@ public class Army:MonoBehaviour,ITarget
         return army;
        
     }
-    public bool TryMoveToTarget(ITarget target)
+    public bool TryMoveToTarget(IFightable target, DamageType damageType)
     {
         if (inTown && curReg.siegeby)
             return false;
-        Diplomacy dip = Diplomacy.GetDiplomacy(owner, target.curOwner);
-        if (dip != null && !dip.canAttack)
+        if (!owner.diplomacy.canAttack(target.curOwner.diplomacy))
             return false;
-        bool res = navAgent.MoveToTarget(target);
-        if (res)
+        bool inRadius = target != null && (target.position - position).magnitude <= AttackRange;
+        if (inRadius)
         {
-            MoveAction();
+            Fight(target);
+            navAgent.target = target;
+            return false;
         }
-        return res;
+        else
+        {
+            bool res = navAgent.MoveToTarget(target);
+            this.damageType = damageType;
+            if (res)
+            {
+                Move();
+            }
+
+            return res;
+        }
     }
     public bool TryMoveTo(Vector3 p)=> TryMoveTo(new Vector2Int((int)p.x, (int)p.z), p);
     public bool TryMoveTo(Vector2Int to)=> TryMoveTo(to, MapMetrics.GetCellPosition(to));
@@ -187,105 +243,28 @@ public class Army:MonoBehaviour,ITarget
         bool res =  navAgent.MoveTo(new Vector2(p.x, p.z), to);
         if (res)
         {
-            MoveAction();
+            navAgent.target = null;
+            Move();
         }
         return res;
     }
-    void MoveAction()
+    void Move()
     {
         if (besiege != null)
         {
             besiege.SiegeEnd();
         }
         animator.Play("walk");
+        ActionState = ActionType.Move;
     }
     public void Stop()
     {
         animator.Play("idle");
-        retreat = false;
-    }
-    public void WasCatch(Army catcher)
-    {
-        if (owner == catcher.owner)
-        {
-           // catcher.Stop();
-        }
-        Diplomacy dip = Diplomacy.GetDiplomacy(owner, catcher.owner);
-        if (dip.canAttack)
-        {
-            if (curReg.Capital == navAgent.curCell)
-                curReg.WasCatch(catcher);
-            else
-                TryStartBattle(this, catcher);
-        }
-    }
-    public static bool TryStartBattle(Army attacker,Army defender)
-    {
-        if (attacker.retreat || !defender || defender.retreat || attacker.curBattle != null ||
-            defender.curBattle != null ||attacker == defender) 
-            return false;
-        attacker.Stop();
-        defender.Stop();
-        attacker.Fight(defender);
-        defender.Fight(attacker);
-        Battle battle = attacker.curBattle = defender.curBattle = new Battle(attacker, defender);
-        if (Player.army == attacker || Player.army == defender)
-            MenuManager.ShowBattle(battle);
-        return true;
-    }
-    public void EndBattle()
-    {
-        if (curBattle != null)
-        {
-            curBattle = null;
-            Stop();
-        }
-    }
-    public void Retreat(Vector2Int p)
-    {
-        if (TryMoveTo(p))
-        {
-            retreat = true;
-        }
-        else
-            DestroyArmy();
-    }
-    public static Queue<Region> queueRetreat = new Queue<Region>();
-    public static Stack<Region> stackRetreat = new Stack<Region>();
-    public Region FindRetreatRegion()
-    {
-        queueRetreat.Clear();
-        stackRetreat.Clear();
-        Region cur = curReg;
-        queueRetreat.Enqueue(cur);
-        stackRetreat.Push(cur);
-        cur.retreatused = true;
-        while (queueRetreat.Count > 0)
-        {
-            cur = queueRetreat.Dequeue();
-            foreach (Region neib in cur.neib)
-                if (!neib.retreatused && neib.iswater == cur.iswater)
-                {
-                    if (neib.owner == owner && neib.ocptby == null)
-                    {
-                        while (stackRetreat.Count > 0)
-                            stackRetreat.Pop().retreatused = false;
-                        
-                        return neib;
-                    }
-                    queueRetreat.Enqueue(neib);
-                    stackRetreat.Push(neib);
-                    neib.retreatused = true;
-                }
-        }
-        while (stackRetreat.Count > 0)
-            stackRetreat.Pop().retreatused = false;
-        
-        return null;
+        ActionState = ActionType.Idle;
     }
 
-    public float retreatChance => 0.5f + genegal.lvl * 0.1f;
-    public bool retreatAble => Random.value < retreatChance;
+    public float LastAttack { get; set; } = 0;
+    public float AttackPeriod { get; set; } = 1;
 
     public void DestroyArmy()
     {
@@ -295,11 +274,13 @@ public class Army:MonoBehaviour,ITarget
         bar.gameObject.SetActive(false);
         navAgent.ResetNavAgent();
     }
-    public void Fight(Army enemy)
+    public void Fight(IFightable enemy)
     {
-        navAgent.RotateTo(enemy.navAgent.pos);
+        LastAttack = Time.time;
+        ActionState = ActionType.Attack;
         animator.Play("attack");
     }
+
     public static Army ArmyInPoint(Vector2Int point)
     {
         foreach (Army a in AllArmy)
@@ -307,31 +288,27 @@ public class Army:MonoBehaviour,ITarget
                 return a;
         return null;
     }
-    public float MediumMoral()
-    {
-        float m = 0;
-        foreach (Regiment r in army)
-            m += r.moralF;
-        return m / army.Count;
-    }
+   
     public float MediumCount()
     {
-        float c = 0;
+        float count = 0, max=0;
         foreach (Regiment r in army)
-            c += r.countF;
-        return c / army.Count ;
+        {
+            count += r.count;
+            max += r.baseRegiment.maxcount;
+        }
+        return count / max;
     }
     public static void ProcessAllArmy()
     {
         AllArmy.RemoveAll(a => a.destoyed);
         foreach (Army army in AllArmy)
         {
-            if (army.curBattle == null)
-            {
-                army.UpdateManpower();
-                army.UpdateMoral();
-            }
-            army.bar.UpdateInformation();
+           // if (army.curBattle == null)
+           // {
+           //     army.UpdateManpower();
+           // }
+           // army.bar.UpdateInformation();
         }
     }
     public static void ProcessAllArmyAI()
@@ -351,34 +328,73 @@ public class Army:MonoBehaviour,ITarget
             foreach (Regiment regiment in army)
                 if (owner.treasury.Manpower >= mp)
                 {
-                    int d = regiment.count + mp > 1000 ? 1000 - regiment.count : mp;
+                    float d = regiment.count + mp > regiment.baseRegiment.maxcount ? regiment.baseRegiment.maxcount - regiment.count : mp;
                     owner.treasury -= new Treasury(0, d,0,0,0);
                     regiment.count += d;
                 }
                 else
                     break;
         }
+        bar.UpdateInformation();
+
     }
-    public void UpdateMoral()
-    {
-        float d = curReg.Capital == navAgent.curCell ? GameConst.MoralInHome : GameConst.MoralInForeign;
-        foreach (Regiment regiment in army)
-            regiment.moral = Mathf.Clamp(regiment.moral + d, 0, regiment.maxmoral);
-    }
+
     public void UpdateUpkeep()
     {
         Treasury upkeep = new Treasury(0);
         foreach (var g in army)
-            upkeep += g.baseRegiment.upkeep;
+            upkeep += g.baseRegiment.upkeep * owner.technology.UpkeepBonus;
         owner.treasury -= upkeep;
     }
+    void UpdateSpeed()
+    {
+     bool[] HaveRegimentType = new bool[(int)RegimentType.Count];
+        bool[] HaveDamageTupe = new bool[(int)DamageType.Count];
+        for (int i = 0; i < army.Count; i++)
+        {
+            HaveRegimentType[(int)army[i].baseRegiment.type] = true;
+            HaveDamageTupe[(int)army[i].baseRegiment.damageType] = true;
+        }
+        Speed = HaveRegimentType[(int)RegimentType.Artillery] ? 0.5f : HaveRegimentType[(int)RegimentType.Infantry] ? 1 : 2f;
+        AttackRange = HaveDamageTupe[(int)DamageType.Siege] ? 3f : HaveDamageTupe[(int)DamageType.Range] ? 2f : 1f;
+    }
+    public DamageInfo GetDamage(DamageType damageType)
+    {
+        DamageInfo info = new DamageInfo();
+        foreach (Regiment regiment in army)
+        {
+            if (damageType <= regiment.baseRegiment.damageType)
+                info.damage[(int)regiment.baseRegiment.damageType] += regiment.NormalCount * regiment.baseRegiment.damage;
+        }
+        return info;
+    }
+
+    public void Hit(DamageInfo damage)
+    {
+        if (army.Count == 0)
+            return;
+        Regiment[] targets = new Regiment[4] { army[Random.Range(0, army.Count)], army[Random.Range(0, army.Count)], army[Random.Range(0, army.Count)], army[Random.Range(0, army.Count)] };
+        float q = 1f / targets.Length;
+
+        foreach(var target in targets)
+        {
+            float d = 0;
+            for (int i = 0; i < (int)DamageType.Count; i++)
+                d += damage.damage[i];
+            d *= q;
+            target.count -= d;
+        }
+        army.RemoveAll(x => x.count <= 0);
+        UpdateSpeed();
+        bar.UpdateInformation();
+
+    }
 }
-public enum ArmyAction
+public enum ActionType
 {
     Idle,
     Move,
-    Siege,
-    Retreat,
-    Fight
+    Attack,
+    Effect
 }
 

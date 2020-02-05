@@ -27,7 +27,7 @@ public class Date : MonoBehaviour {
     static int[] sday = new int[] { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
     static string[] nday = new string[] { "Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля",
         "Августа", "Сентября", "Октября", "Ноября", "Декабря" };
-    static bool play = false;
+    public static bool play = false;
     public static int curdate, deltadate;
     static int cd, cm, cy, totalM, speed;
     public static double fdate;
@@ -70,6 +70,8 @@ public class Date : MonoBehaviour {
     {
         play = !play;
         UpdateIndicator();
+        foreach (var x in Army.AllArmy)
+            x.enabled = play;
     }
     void UpdateIndicator()
     {
