@@ -9,61 +9,45 @@ public class Date : MonoBehaviour {
     public Image indicator;
     public Texture2D ind;
     public static bool cheat = false;
-	void Update () {
-        if (Input.GetKeyDown(KeyCode.Space)&&!cheat)
+    void Update() {
+        if (Input.GetKeyDown(KeyCode.Space) && !cheat)
             Pause();
+    }
+    private void FixedUpdate()
+    {
 		if(play)
         {
-            fdate += speed*Time.deltaTime;
-            if (fdate-curdate>=1)
+            GameTimer.time += speed * 0.2f * Time.fixedDeltaTime;
+            GameTimer.RealTimeUpdate();
+            if (LastDeciUpdate + 0.1f <= GameTimer.time)
             {
-                deltadate = (int)fdate - curdate;
-                curdate =(int)fdate;
+                GameTimer.DeciSecondUpdate();
                 UpdateDate();
+                LastDeciUpdate = GameTimer.time;
+            }
+            if (LastDecaUpdate + 10f <= GameTimer.time)
+            {
+                GameTimer.DecaSecondUpdate();
+                LastDecaUpdate = GameTimer.time;
+
             }
 
         }
 	}
-    static int[] sday = new int[] { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
-    static string[] nday = new string[] { "Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля",
-        "Августа", "Сентября", "Октября", "Ноября", "Декабря" };
-    public static bool play = false;
-    public static int curdate, deltadate;
-    static int cd, cm, cy, totalM, speed;
-    public static double fdate;
-    public static int dayPerSecond { get { return play ? speed : 0; } }
-    public void StartTimer(int d,int m,int y)
+    public static bool play = true;
+    int speed;
+    static float LastDeciUpdate, LastDecaUpdate;
+    public void StartTimer()
     {
-        curdate = DateToDay(d,m,y);
-        fdate = curdate;
-        cd = d-1;cm = m-1;cy = y;
-        totalM = 0;
-        speed  = 0;
-        AddSpeed(12);
-        datetext.text = string.Format("{0}-ого {1} {2}", cd + 1, nday[cm], cy);
+        AddSpeed(5);
+        UpdateDate();
         GameTimer.Start();
-    }
-    static int DateToDay(int d,int m,int y)
-    {
-       return y * 365 + sday[m - 1] + d-1;
-    }
-    static void DayToDate(int t,out int d, out int m, out int y)
-    {
-        y = t / 365;
-        t %= 365;
-        d = m = 0;
-        for(int i=0;i<12;i++)
-            if(i+1==12||sday[i+1]>t)
-            {
-                m = i;
-                d = t - sday[i];
-                return;
-            }
+
     }
     public void AddSpeed(int delta)
     {
-        //day per second
-        speed = Mathf.Clamp(speed + delta, 2, 10);
+        speed = Mathf.Clamp(speed + delta, 1, 5);
+        GameTimer.timeScale = speed * 0.2f;
         UpdateIndicator();
     }
     public void Pause()
@@ -75,19 +59,20 @@ public class Date : MonoBehaviour {
     }
     void UpdateIndicator()
     {
-        int b = (play ? 0 : 315) + (speed / 2 - 1) * 63;
+        int b = (play ? 0 : 315) + (speed-1) * 63;
         indicator.sprite = Sprite.Create(ind, new Rect(b, 0, 63, 63), new Vector2(0.5f, 0.5f));
     }
     public void UpdateDate()
     {
-        DayToDate(curdate, out cd, out cm, out cy);
-        datetext.text = string.Format("{0}-ого {1} {2}", cd + 1, nday[cm], cy);
-        if (deltadate > 0)
-            GameTimer.DayUpdate(curdate);
-        if(cd==0)
-        {
-            totalM++;
-            GameTimer.MonthUpdate();
-        }
+        int s = (int)GameTimer.time;
+        int m = s / 60;
+        s %= 60;
+        int h = m / 60;
+        m %= 60;
+        if (h != 0)
+            datetext.text = string.Format("{0}:{1:D2}:{2:D2}", h, m, s);
+        else
+            datetext.text = string.Format("{0}:{1:D2}", m, s);
+
     }
 }

@@ -3,23 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Action: IComparable<Action> {
-    public int time,startTime;
+    public float time,startTime;
     protected float T;
     public bool actually;
-    //public TypeAction type;
     protected delegate void Method();
     protected event Method onAction;
-    public float progress => (Date.curdate - startTime) * T;
+    public float progress => (GameTimer.time - startTime) * T;
 
     public int CompareTo(Action other)
     {
-        return time - other.time;
+        return time.CompareTo(other.time);
     }
-    public Action(int dt)
+    public Action(float dt)
     {
-        time = Date.curdate + dt;
+        time = GameTimer.time + dt;
         actually = true;
-        startTime = Date.curdate;
+        startTime = GameTimer.time;
         T = 1f / dt;
         GameTimer.actionQueue.Enqueue(this);
     }
@@ -38,7 +37,7 @@ public enum TypeAction
 }
 public class BuildAction:Action
 {
-    public BuildAction(ProvinceData reg,int dt):base(dt)
+    public BuildAction(ProvinceData reg, float dt):base(dt)
     {
         //type = TypeAction.BuildAction;
         onAction += () => reg.BuildComplete();
@@ -47,7 +46,7 @@ public class BuildAction:Action
 public class RecruitAction : Action
 {
     public BaseRegiment regiment;
-    public RecruitAction(ProvinceData prov,BaseRegiment reg, int dt) : base(dt)
+    public RecruitAction(ProvinceData prov,BaseRegiment reg, float dt) : base(dt)
     {
         //type = TypeAction.RecruitAction;
         regiment = reg;
@@ -57,7 +56,7 @@ public class RecruitAction : Action
 
 public class PersonAliveAction : Action
 {
-    public PersonAliveAction(Person person, int dt) : base(dt)
+    public PersonAliveAction(Person person, float dt) : base(dt)
     {
         //type = TypeAction.PersonAliveAction;
         onAction += () => person.Alive();
@@ -65,7 +64,7 @@ public class PersonAliveAction : Action
 }
 public class SiegeAction : Action
 {
-    public SiegeAction(Region region, int dt) : base(dt)
+    public SiegeAction(Region region, float dt) : base(dt)
     {
         //type = TypeAction.SiegeAction;
         onAction += () => region.WinSiege();
@@ -73,7 +72,7 @@ public class SiegeAction : Action
 }
 public class ResearchAction : Action
 {
-    public ResearchAction(Tech tech,int dt):base(dt)
+    public ResearchAction(Tech tech, float dt):base(dt)
     {
         onAction += () => tech.research();
     }

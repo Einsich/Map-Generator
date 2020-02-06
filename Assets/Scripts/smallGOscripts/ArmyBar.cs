@@ -11,7 +11,7 @@ public class ArmyBar : MonoBehaviour
     private MaterialPropertyBlock Block;
     Army army;
     RectTransform trans;
-    private float Health = 1f, Hit = 1f;
+    private float Health = 1f, Hit = 1f, Count = 1f;
     private void Awake()
     {
         trans = GetComponent<RectTransform>();
@@ -25,7 +25,6 @@ public class ArmyBar : MonoBehaviour
             if (army != null)
                 army.bar = null;
             army = value;
-            army.bar = this;
             flag.sprite = army.owner.flagSprite;
             UpdateInformation();
         }
@@ -41,6 +40,8 @@ public class ArmyBar : MonoBehaviour
             Health = hp;
             LastHit = Time.time;
         }
+        Count = army.army.Count == 0 ? 0 : 2f / army.army.Count;
+        count.color = new Color(Health, Hit, Count);
     }    
 
     void Update()
@@ -54,6 +55,6 @@ public class ArmyBar : MonoBehaviour
         {
             Hit -= 0.5f * Time.deltaTime;
         }
-        count.color = new Color(Health, Hit, 2f / army.army.Count);
+        count.color = new Color(Health, Hit, Count);
     }
 }

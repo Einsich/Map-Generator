@@ -13,7 +13,7 @@ public class PersonInformation : InitGO
     public Image progress;
     public GameObject aliveProgress;
     public Person person;
-    bool cantoCapital => !person.die && person.curArmy == null && person.owner.Capital.ocptby == null && !person.owner.Capital.isBusy();
+    bool cantoCapital => !person.die && person.inTavern  && person.owner.Capital.ocptby == null && !person.owner.Capital.isBusy();
     public override void Init(object initElement)
     {
         person = (Person)initElement;

@@ -39,6 +39,7 @@ public class Region :ITarget, IFightable
     bool selected;
     public float LastAttack { get; set; } = 0;
     public float AttackPeriod { get; set; } = 1;
+    public bool Destoyed { get; set; } = false;
     public Vector2 position => pos;
     public Vector2Int curPosition => Capital;
 
@@ -274,7 +275,7 @@ public class Region :ITarget, IFightable
         if (!curOwner.diplomacy.canAttack(catcher.owner.diplomacy))
             return;
         siegeby = catcher;
-        siegeby.navAgent.Stop(false);
+        siegeby.navAgent.Stop();
         siegeby.besiege = this;
         siegeAction = new SiegeAction(this, 30);
         Debug.Log("Началась осада " + name);
@@ -295,7 +296,7 @@ public class Region :ITarget, IFightable
         foreach (Army insider in curOwner.army)
             if (insider.inTown && insider.curReg == this)
                 insider.DestroyArmy();
-        curOwner.army.RemoveAll(a => a.destoyed);
+        curOwner.army.RemoveAll(a => a.Destoyed);
         Player.instance.Occupated(this, siegeby.owner);
         SiegeEnd();
     }
@@ -313,30 +314,56 @@ public class Region :ITarget, IFightable
         foreach (Regiment regiment in data.garnison)
         {
             if (damageType <= regiment.baseRegiment.damageType)
-                info.damage[(int)regiment.baseRegiment.damageType] += regiment.NormalCount * regiment.baseRegiment.damage;
+            {
+                float d = regiment.baseRegiment.damageType >= DamageType.Range ? 50 : 0;
+                info.damage[(int)regiment.baseRegiment.damageType] += (regiment.NormalCount + 1) * 0.5f * (regiment.baseRegiment.damage+ d);
+            }
         }
-        info.SiegeDamage += 100;
+        int walls = data.buildings[(int)Building.Walls];
+        info.RangeDamage += 50 * walls;
+        info.SiegeDamage += 100* walls;
         return info;
     }
 
-    public void Hit(DamageInfo damage)
+    public DamageInfo Hit(DamageInfo damage)
     {
-        if (data.garnison.Count == 0)
-            return;
+        List<Regiment> garnison = new List<Regiment>(data.garnison);
+        foreach (Army insider in curOwner.army)
+            if (insider.inTown && insider.curReg == this)
+                garnison.AddRange(insider.army);
+
+        if (garnison.Count == 0)
+        {
+            Destoyed = true;
+
+            return null;
+        }
         Regiment[] targets = new Regiment[4];
         for (int i = 0; i < targets.Length; i++)
-            targets[i] = data.garnison[Random.Range(0, data.garnison.Count)];
+            targets[i] = garnison[Random.Range(0, garnison.Count)];
         float q = 1f / targets.Length;
-
+        int walls = data.buildings[(int)Building.Walls];
         foreach (var target in targets)
         {
             float d = 0;
             for (int i = 0; i < (int)DamageType.Count; i++)
-                d += damage.damage[i];
+                d += damage.damage[i] * DamageInfo.Armor(target.baseRegiment.armor[i] + walls * 2);
             d *= q;
             target.count -= d;
         }
         data.garnison.RemoveAll(x => x.count <= 0);
+        foreach (Army insider in curOwner.army)
+            if (insider.inTown && insider.curReg == this)
+            {
+                insider.army.RemoveAll(x => x.count <= 0);
+                insider.ArmyListChange();
+            }
+        if(damage.MeleeDamage>0||damage.ChargeDamage>0)
+        {
+            return GetDamage(DamageType.Melee);
+            
+        }
+        return null;
     }
 }
 

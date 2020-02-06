@@ -42,14 +42,14 @@ public class NavAgent : MonoBehaviour
         if (path == null)
             return;
 
-        Vector2 direction = DirectionInPoint(pos, next, nextpl).normalized;
+        Vector2 direction = DirectionInPoint(pos, next, nextpl);
         Vector2 possave = pos;
-        float delta = Date.dayPerSecond * Time.deltaTime * army.Speed * SpeedLandCoef;
+        float delta = Time.fixedDeltaTime* GameTimer.timeScale * army.Speed * SpeedLandCoef;
         pos += delta * direction;
 
         needAngle = Vector3.SignedAngle(transform.forward, new Vector3(direction.x, 0, direction.y), Vector3.up);
         float dist = (next - pos).sqrMagnitude;
-        if (dist < 1f)
+        if (dist < .01f)
         {
 
             next = nextpl;
@@ -173,25 +173,25 @@ public class NavAgent : MonoBehaviour
             {
                 next = path[0];
                 nextpl = path[1];
+                pathIndex = 2;
             }
             else
                 if (path.Count > 0)
             {
                 next = path[0];
                 nextpl = to;
+                pathIndex = 1;
             }
             else
                 next = nextpl = to;
         }
         return path != null;
     }
-    public void Stop(bool lookForward = true)
+    public void Stop()
     {
         ClearWayPoints();
         path = null;
         lastCollidedTown = null;
-        if (lookForward)
-            needAngle = Vector3.SignedAngle(transform.forward, Vector3.back, Vector3.up);
         army.Stop();
     }
     int wayIndex;
@@ -217,7 +217,7 @@ public class NavAgent : MonoBehaviour
         for (; iter < 1000;)
         {
             point = Navigation.GetWayPoint();
-            pos += DirectionInPoint(pos, next, nextpl).normalized * 0.4f;
+            pos += DirectionInPoint(pos, next, nextpl) * 0.4f;
             point.transform.position = MapMetrics.GetPosition(pos);
             //point.SetActive(selectia.activeSelf);
             waypoints.Add(point);
@@ -245,6 +245,8 @@ public class NavAgent : MonoBehaviour
     }
     static Vector2 DirectionInPoint(Vector2 pos, Vector2 next, Vector2 nextpl)
     {
-        return 0.66f * (next - pos).normalized + 0.33f * (nextpl - pos).normalized;
+        Vector2 a = (next - pos).normalized, b = (nextpl - pos).normalized;
+        
+        return (0.8f * a + 0.2f * b).normalized;
     }
 }

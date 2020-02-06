@@ -11,6 +11,7 @@
 		_HealthColor("_HealthColor", Color) = (0,.72,.12,1)
 		_HitColor("_HitColor", Color) = (1,.8,.8,1)
 		_LoseColor("_LoseColor", Color) = (.7,0,0,1)
+		_VoidColor("_VoidColor", Color) = (0,0,0,1)
 		_StripeColor("_StripeColor", Color) = (.5,0.5,0.3,1)
 	}
 
@@ -59,9 +60,8 @@
 				};
 
 				sampler2D _MainTex;
-				float4 _HealthColor, _HitColor, _LoseColor, _StripeColor,_Color;
-				float _Health, _Hit;
-				int _Count ;
+				float4 _HealthColor, _HitColor, _LoseColor, _StripeColor,_Color, _VoidColor;
+				
 
 				v2f vert(appdata_t v)
 				{
@@ -74,22 +74,22 @@
 				}
 				float Stripe(float t, float d)
 				{
-					//d = 1./19;
 					float a = 0.02;
 					while (t - a >= 0)
 						t -= d;
 					if (t <= -a)
 						return 0;
-					//return 1;
 					return -t * t / (a * a) + 1;
 				}
 
 				fixed4 frag(v2f IN) : SV_Target
 				{
-					float4 color;
+				float4 color;
 				float Health = IN.color.x;
 				float Hit = IN.color.y;
 				float Count = IN.color.z;
+				if (Count == 0)
+					return _VoidColor;
 					float t = IN.texcoord.x;
 					if (t < Health)
 						color = _HealthColor;

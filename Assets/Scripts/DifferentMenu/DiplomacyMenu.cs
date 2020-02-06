@@ -19,11 +19,11 @@ public class DiplomacyMenu : MonoBehaviour
     public static Diplomacy player, select;
     private void OnEnable()
     {
-        GameTimer.FreeMonthUpdate += UpdateCasusBelliStatistic;
+        GameTimer.SeldomUpdate += UpdateCasusBelliStatistic;
     }
     private void OnDisable()
     {
-        GameTimer.FreeMonthUpdate -= UpdateCasusBelliStatistic;
+        GameTimer.SeldomUpdate -= UpdateCasusBelliStatistic;
     }
     public void SchowDiplomacy(State pl, State sel)
     {

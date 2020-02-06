@@ -34,10 +34,10 @@ public class State
         persons = new List<Person>();
         treasury_.Gold = 100; treasury_.Manpower = 1000;treasury_.Science = 500;
         regiments =
-        new List<BaseRegiment>() { new BaseRegiment(this, RegimentType.Infantry, DamageType.Melee, 1, 1, 1, 1, 10,1000, new Treasury(100,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),20),
-        new BaseRegiment(this, RegimentType.Infantry, DamageType.Range, 1, 1, 1, 1, 10,1000, new Treasury(400,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),30),
-        new BaseRegiment(this, RegimentType.Cavalry, DamageType.Melee, 1, 1, 1, 1, 10,1000, new Treasury(400,1000,10,10,0), new Treasury(20, 0, 0, 0, 0),50),
-        new BaseRegiment(this, RegimentType.Artillery, DamageType.Siege, 1, 1, 1, 1, 10,1000, new Treasury(500,1000,50,50,10), new Treasury(40, 0, 0, 0, 0),70) };
+        new List<BaseRegiment>() { new BaseRegiment(this, RegimentType.Infantry, DamageType.Melee, 3, 1, 0, 0, 1,1000, new Treasury(100,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1),
+        new BaseRegiment(this, RegimentType.Infantry, DamageType.Range, 0, 0, 1, 0, 0,1000, new Treasury(400,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1.5f),
+        new BaseRegiment(this, RegimentType.Cavalry, DamageType.Melee, 1, 3, 0, 0, 4,1000, new Treasury(400,1000,10,10,0), new Treasury(20, 0, 0, 0, 0),2),
+        new BaseRegiment(this, RegimentType.Artillery, DamageType.Siege, 0, 0, 0, 0, 6,1000, new Treasury(500,1000,50,50,10), new Treasury(40, 0, 0, 0, 0),4) };
         technology = new Technology(this, 0);
     }
     public void SetName()
@@ -115,9 +115,10 @@ public class State
         return r;
     }
     public List<BaseRegiment> regiments;
-    public BaseRegiment infantry => regiments[0];
-    public BaseRegiment cavalry => regiments[1];
-    public BaseRegiment artillery => regiments[2];
+    public BaseRegiment melee => regiments[0];
+    public BaseRegiment ranger => regiments[1];
+    public BaseRegiment cavalry => regiments[2];
+    public BaseRegiment artillery => regiments[3];
     public List<Regiment> defaultArmy()
     {
         List<Regiment> list = new List<Regiment>();
@@ -127,7 +128,7 @@ public class State
         int c = i / 4;
         i -= c;
         for (int j = 0; j < i; j++)
-            list.Add(new Regiment(infantry));
+            list.Add(new Regiment(ranger));
         for (int j = 0; j < c; j++)
             list.Add(new Regiment(cavalry));
         for (int j = 0; j < a; j++)

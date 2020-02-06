@@ -19,15 +19,17 @@ public class Army:MonoBehaviour,ITarget,IFightable
     public ArmyAI AI;
     public GameObject selectia,siegeModel;
     public ArmyBar bar;
-    public bool CanExchangeRegimentWith(Region region)=> navAgent.curCell == region?.Capital && owner == region.owner; 
-    public bool destoyed;
+    public bool CanExchangeRegimentWith(Region region)=> navAgent.curCell == region?.Capital && owner == region.owner;
+    public bool Destoyed { get; set; } = false;
+    public System.Action HitAction;
     GameObject cube;
     public NavAgent navAgent;
     Animation animator;
-    public float Speed;
-    public float AttackRange { get;  set; }
+    public float Speed, MaxRange;
+    public float AttackRange { get => Mathf.Min(MaxRange, DamageInfo.AttackRange(damageType)); set => MaxRange = value; }
     public Vector2 position => NavAgent.FromV3(transform.position);
     public DamageType damageType;
+    public System.Action ArmyListChange;
     private void Start()
     {
         UpdateRegion(curReg);
@@ -53,16 +55,28 @@ public class Army:MonoBehaviour,ITarget,IFightable
         switch (ActionState)
         {
             case ActionType.Idle:
-            case ActionType.Move:if(inRadius && LastAttack + AttackPeriod <= Time.time) {
+            case ActionType.Move:if(inRadius && LastAttack + AttackPeriod <= GameTimer.time) {
                     navAgent.Stop();
                     Fight(target);
                 }break;
             case ActionType.Attack:if (inRadius)
                 {
-                    if (LastAttack + AttackPeriod <= Time.time)
+                    if (LastAttack + AttackPeriod <= GameTimer.time)
                     {
-                        target.Hit(GetDamage(damageType));
-                        LastAttack = Time.time;
+                        var back = target.Hit(GetDamage(damageType));
+                        LastAttack = GameTimer.time;
+                        if (back != null)
+                            Hit(back);
+                        if(target.Destoyed)
+                        {
+                            navAgent.target = null;
+                            Stop();
+                            if(target is Region region)
+                            {
+
+                                Player.instance.Occupated(region, owner);
+                            }
+                        }
                     }
                     navAgent.RotateTo(target.position);
                 }
@@ -139,14 +153,15 @@ public class Army:MonoBehaviour,ITarget,IFightable
     {
         selectia.SetActive(selected);
         navAgent.ShowPath(selected);
-       // if (curBattle != null)
-        //    MenuManager.ShowBattle(selected?curBattle:null);
+
     }
     bool active;
     public bool Active
     {
         get { return active; }
         set { active = value;
+            if (Destoyed)
+                return;
             bool sel = selectia.activeSelf;
             foreach (Transform t in transform)
                 t.gameObject.SetActive(active);
@@ -160,6 +175,7 @@ public class Army:MonoBehaviour,ITarget,IFightable
     }
     public void InitArmy(List<Regiment>list,Region home,Person person)
     {
+        gameObject.SetActive(true);
         army = list;        
         genegal = person;
         genegal.curArmy = this;
@@ -167,13 +183,18 @@ public class Army:MonoBehaviour,ITarget,IFightable
         navAgent = gameObject.AddComponent<NavAgent>();
         navAgent.SetToArmy();
         navAgent.pos = home.Capital + new Vector2(0.5f, 0.5f);
+        transform.position = MapMetrics.GetCellPosition(home.Capital);
         navAgent.curCell = home.Capital;
         inTown = true;
         AI.army = this;
+        Destoyed = false;
+        Active = !Fogged;
+        ArmyListChange += UpdateRange;
+        ArmyListChange += UpdateSpeed;
+        ArmyListChange += () => bar.UpdateInformation();
+        // ArmyListChange();
+        UpdateRange();
         UpdateSpeed();
-
-        AllArmy.Add(this);
-        AllArmyAI.Add(AI);
     }
     public void ExchangeRegiment(Regiment regiment)
     {
@@ -183,12 +204,12 @@ public class Army:MonoBehaviour,ITarget,IFightable
         { remove = list; add = army; }
         else
         { remove = army; add = list;
-            if (army.Count == 1)
-                return;
+           // if (army.Count == 1)
+             //   return;
         }
         remove.Remove(regiment);
         add.Add(regiment);
-        UpdateSpeed();
+        ArmyListChange();
     }
     static public List<Army> AllArmy = new List<Army>();
     static public List<ArmyAI> AllArmyAI = new List<ArmyAI>();
@@ -198,14 +219,16 @@ public class Army:MonoBehaviour,ITarget,IFightable
 
         GameObject def = Instantiate(Main.instance.ArmyPrefab[(int)state.fraction]);
         Army army = def.GetComponent<Army>();
-        def.transform.position = MapMetrics.GetCellPosition(home.Capital);
         army.AI = def.AddComponent<ArmyAI>();
         army.siegeModel = Instantiate(Main.instance.SiegePrefab, Main.instance.Towns);
         army.siegeModel.SetActive(false);
         state.army.Add(army);
-        army.InitArmy(list, home, person);
         ArmyBar bar = Instantiate(Main.instance.ArmyBarPrefab, Main.instance.mainCanvas);
+        army.bar = bar;
+        army.InitArmy(list, home, person);
         bar.currentArmy = army;
+        AllArmy.Add(army);
+        AllArmyAI.Add(army.AI);
         return army;
        
     }
@@ -215,6 +238,7 @@ public class Army:MonoBehaviour,ITarget,IFightable
             return false;
         if (!owner.diplomacy.canAttack(target.curOwner.diplomacy))
             return false;
+        this.damageType = damageType;
         bool inRadius = target != null && (target.position - position).magnitude <= AttackRange;
         if (inRadius)
         {
@@ -225,7 +249,6 @@ public class Army:MonoBehaviour,ITarget,IFightable
         else
         {
             bool res = navAgent.MoveToTarget(target);
-            this.damageType = damageType;
             if (res)
             {
                 Move();
@@ -264,11 +287,13 @@ public class Army:MonoBehaviour,ITarget,IFightable
     }
 
     public float LastAttack { get; set; } = 0;
-    public float AttackPeriod { get; set; } = 1;
+    public float AttackPeriod { get; set; } = 0.5f;
 
     public void DestroyArmy()
     {
-        destoyed = true;
+        if (Destoyed)
+            return;
+        Destoyed = true;
         genegal.Die();
         gameObject.SetActive(false);
         bar.gameObject.SetActive(false);
@@ -276,7 +301,7 @@ public class Army:MonoBehaviour,ITarget,IFightable
     }
     public void Fight(IFightable enemy)
     {
-        LastAttack = Time.time;
+        LastAttack = GameTimer.time;
         ActionState = ActionType.Attack;
         animator.Play("attack");
     }
@@ -297,11 +322,12 @@ public class Army:MonoBehaviour,ITarget,IFightable
             count += r.count;
             max += r.baseRegiment.maxcount;
         }
-        return count / max;
+        
+        return max ==0? 0:count / max;
     }
     public static void ProcessAllArmy()
     {
-        AllArmy.RemoveAll(a => a.destoyed);
+        AllArmy.RemoveAll(a => a.Destoyed);
         foreach (Army army in AllArmy)
         {
            // if (army.curBattle == null)
@@ -314,7 +340,7 @@ public class Army:MonoBehaviour,ITarget,IFightable
     public static void ProcessAllArmyAI()
     {
         return;
-        AllArmyAI.RemoveAll(a => a.army.destoyed);
+        AllArmyAI.RemoveAll(a => a.army.Destoyed);
         foreach (var ai in AllArmyAI)
             if (ai.enabled)
                 ai.DoRandomMove();
@@ -348,15 +374,22 @@ public class Army:MonoBehaviour,ITarget,IFightable
     }
     void UpdateSpeed()
     {
-     bool[] HaveRegimentType = new bool[(int)RegimentType.Count];
-        bool[] HaveDamageTupe = new bool[(int)DamageType.Count];
+        bool[] HaveRegimentType = new bool[(int)RegimentType.Count];
         for (int i = 0; i < army.Count; i++)
         {
             HaveRegimentType[(int)army[i].baseRegiment.type] = true;
-            HaveDamageTupe[(int)army[i].baseRegiment.damageType] = true;
         }
-        Speed = HaveRegimentType[(int)RegimentType.Artillery] ? 0.5f : HaveRegimentType[(int)RegimentType.Infantry] ? 1 : 2f;
-        AttackRange = HaveDamageTupe[(int)DamageType.Siege] ? 3f : HaveDamageTupe[(int)DamageType.Range] ? 2f : 1f;
+        Speed = HaveRegimentType[(int)RegimentType.Artillery] ? 2.5f : HaveRegimentType[(int)RegimentType.Infantry] ? 5f : 10f;
+    }
+    void UpdateRange()
+    {
+        DamageType maxType = DamageType.Melee;
+        for (int i = 0; i < army.Count; i++)
+        {
+            if (army[i].baseRegiment.damageType > maxType)
+                maxType = army[i].baseRegiment.damageType;
+        }
+        MaxRange = DamageInfo.AttackRange(maxType);
     }
     public DamageInfo GetDamage(DamageType damageType)
     {
@@ -364,15 +397,23 @@ public class Army:MonoBehaviour,ITarget,IFightable
         foreach (Regiment regiment in army)
         {
             if (damageType <= regiment.baseRegiment.damageType)
-                info.damage[(int)regiment.baseRegiment.damageType] += regiment.NormalCount * regiment.baseRegiment.damage;
+                info.damage[(int)regiment.baseRegiment.damageType] += (regiment.NormalCount+1)*0.5f * regiment.baseRegiment.damage;
         }
         return info;
     }
 
-    public void Hit(DamageInfo damage)
+    public DamageInfo Hit(DamageInfo damage)
     {
+
         if (army.Count == 0)
-            return;
+        {
+            DestroyArmy();
+            return null;
+        }
+        if (inTown)
+        {
+            return curReg.Hit(damage);
+        }
         Regiment[] targets = new Regiment[4] { army[Random.Range(0, army.Count)], army[Random.Range(0, army.Count)], army[Random.Range(0, army.Count)], army[Random.Range(0, army.Count)] };
         float q = 1f / targets.Length;
 
@@ -380,14 +421,15 @@ public class Army:MonoBehaviour,ITarget,IFightable
         {
             float d = 0;
             for (int i = 0; i < (int)DamageType.Count; i++)
-                d += damage.damage[i];
+                d += damage.damage[i] * DamageInfo.Armor(target.baseRegiment.armor[i] ); 
             d *= q;
             target.count -= d;
         }
         army.RemoveAll(x => x.count <= 0);
-        UpdateSpeed();
-        bar.UpdateInformation();
 
+        ArmyListChange();
+        HitAction?.Invoke();
+        return null;
     }
 }
 public enum ActionType

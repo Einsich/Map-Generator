@@ -2300,8 +2300,8 @@ RectTransform:
   m_Father: {fileID: 3472519578119174000}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.016566813}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0, y: 0.016565833}
+  m_AnchorMax: {x: 1, y: 0.9999964}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2647,7 +2647,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3472519576914705948
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4562,8 +4562,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3472519576754063917}
   m_HandleRect: {fileID: 3472519576754063916}
   m_Direction: 2
-  m_Value: 1.000041
-  m_Size: 0.9834332
+  m_Value: 0.9997826
+  m_Size: 0.98343056
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -7389,20 +7389,6 @@ MonoBehaviour:
   - {fileID: 3472519576132356894}
   buildPanel: {fileID: 3472519577754611688}
   diplomPanel: {fileID: 3472519576914705937}
-  pips:
-  - {fileID: -4251500462205618670, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: 4972998509772782035, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: 8973532502106736683, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: 7585289502421137175, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: 7302564566975531435, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: -5030538010635251340, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: -2039739547136903651, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: -5292142263246460107, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: -7634634946288029748, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: 6816907806641704383, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: -6586093758997576563, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: 948977773329266581, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
-  - {fileID: -628426984883270809, guid: f11697e9b5a2c6349bc48974033a599f, type: 3}
   recruitMenu: {fileID: 3472519576820680849}
   wievButtons:
   - {fileID: 3472519577280572756}
@@ -8528,7 +8514,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -8601,7 +8587,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}

@@ -45,13 +45,16 @@ public class GarnisonIcon : InitGO,IPointerClickHandler
         {
             if(delete)
             {
-                if(Player.army.army.Count == 1 || !Player.army.army.Remove(garnison))
+                if (Player.army.army.Count == 1 || !Player.army.army.Remove(garnison))
                 {
-                    if(Player.curRegion.data.garnison.Remove(garnison))
+                    if (Player.curRegion.data.garnison.Remove(garnison))
                         MenuManager.UpdateGarnisonList();
                 }
                 else
+                {
+                    Player.army.ArmyListChange();
                     MenuManager.UpdateArmyList();
+                }
             }
             else
             {

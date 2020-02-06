@@ -2,18 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public static class SpriteHandler
 {
-
-    static Sprite[] RegimentTypes = new Sprite[3];
     static Sprite[] PersonIcons;
     static Sprite[] Dots = new Sprite[13];
-    static SpriteHandler()
+    static SpriteDataBase SpriteDataBase;
+     static SpriteHandler()
     {
-        Texture2D unitIcons = Resources.Load<Texture2D>("Texture/UnitTypes");
+        SpriteDataBase = Resources.Load<SpriteDataBase>("SpriteDataBase");
         Texture2D dots = Resources.Load<Texture2D>("Texture/Dots");
-        for (int i = 0; i < RegimentTypes.Length; i++)        
-            RegimentTypes[i] = Sprite.Create(unitIcons, new Rect(47 * i, 0, 47, 47), new Vector2(0.5f, 0.5f));
         for (int i = 0; i < Dots.Length; i++)
             Dots[i] = Sprite.Create(dots, new Rect(32 * i, 0, 32, 20), new Vector2(0.5f, 0.5f));
 
@@ -22,13 +20,14 @@ public static class SpriteHandler
     }
     public static Sprite GetRegimentSprite(BaseRegiment regiment)
     {
-        Sprite s = null;
+        Sprite[] RegimentTypes = SpriteDataBase.RegimentTypes;
         RegimentType type = regiment.type;
+        Sprite s = null;
         switch(type)
         {
-            case RegimentType.Artillery:s = RegimentTypes[2];break;
-            case RegimentType.Cavalry:s = RegimentTypes[1];break;
-            case RegimentType.Infantry:s = RegimentTypes[0];break;
+            case RegimentType.Artillery:s = RegimentTypes[3];break;
+            case RegimentType.Cavalry:s = RegimentTypes[2];break;
+            case RegimentType.Infantry:s =regiment.damageType == DamageType.Range? RegimentTypes[1] : RegimentTypes[0]; break;
         }
         return s;
     }
@@ -51,3 +50,4 @@ public static class SpriteHandler
         return s;
     }
 }
+

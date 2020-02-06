@@ -47,9 +47,9 @@ public class MenuManager : MonoBehaviour
     {
         instance.miniMap.SetMiniMap();
     }
-    public static void StartTimer(int d,int m,int y)
+    public static void StartTimer()
     {
-        instance.datePanel.StartTimer(d, m, y);
+        instance.datePanel.StartTimer();
     }
     public static void SetState(State state)
     {

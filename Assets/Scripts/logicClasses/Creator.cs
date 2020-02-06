@@ -639,7 +639,7 @@ static class Creator {
             states[i].diplomacy = new Diplomacy(states[i]);
         }
         for (int i = 0; i < states.Count; i++)
-            for (int j = i; j < states.Count; j++)
+            for (int j = i+1; j < states.Count; j++)
             {
                 bool alliance = Random.value > 0.66f;
                 states[i].diplomacy.MakeAlliance(states[j].diplomacy, alliance);

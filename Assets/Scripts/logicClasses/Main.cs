@@ -85,7 +85,7 @@ public class Main : MonoBehaviour
         CreateArmy();
         SetMapMode(MapMode.Politic);
         CameraController.SetPosition(new Vector3(w / 2, seaLevelf, h / 2));
-        MenuManager.StartTimer(1, 1, 1387);
+        MenuManager.StartTimer();
         Player.SetState(st[0]);
     }
 
@@ -293,7 +293,9 @@ public class Main : MonoBehaviour
     {
         Army.AllArmy.Clear();
         foreach (var state in states)
-                Army.CreateArmy(state.Capital, state.defaultArmy(), state.persons[0]);
+        {
+            state.persons[0].SetToCapital();
+        }//  Army.CreateArmy(state.Capital, state.defaultArmy(), state.persons[0]);
         
     }
 

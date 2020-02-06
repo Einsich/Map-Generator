@@ -10,7 +10,7 @@ public class Person
     public int[] pips = new int[3];
     public string name;
     public PersonType personType;
-    public bool die;
+    public bool die, inTavern = true;
     public PersonAliveAction alive = null;
     public Army curArmy;
     public State owner;
@@ -19,16 +19,21 @@ public class Person
     {
         (this as Trader)?.UpdateInfluence(curArmy.curReg, false);
         die = true;
-        curArmy = null;
+        inTavern = true;
     }
     public void Alive()
     {
         die = false;
         alive = null;
+        //curArmy
     }
     public void SetToCapital()
     {
-        Army.CreateArmy(owner.Capital, new List<Regiment>() { new Regiment(owner.infantry) }, this);
+        if (curArmy == null)
+            curArmy = Army.CreateArmy(owner.Capital, owner.defaultArmy(), this);
+        else
+            curArmy.InitArmy(new List<Regiment>(), owner.Capital, this);
+        inTavern = false;
     }
     public Person(State state)
     {

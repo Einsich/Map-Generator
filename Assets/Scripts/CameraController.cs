@@ -52,7 +52,7 @@ public class CameraController : MonoBehaviour {
     public static Vector3 target;
     public static float t;
     public static bool showstate,cheat=false;
-    void Update()
+    private void FixedUpdate()
     {
         if (locked)
             return;

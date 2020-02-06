@@ -22,12 +22,17 @@ public class ArmyPanel : MonoBehaviour
     }
     public static void Show(bool show)
     {
-        curArmy = Player.army;
+        curArmy = Player.army == null? curArmy : Player.army;
         show &= curArmy != null;
         instance.gameObject.SetActive(show);
         MenuManager.CheckExchangeRegiment();
         if (show)
             instance.Show();
+        if(curArmy)
+        if (show)
+            curArmy.HitAction += instance.UpdateArmy;
+        else
+            curArmy.HitAction -= instance.UpdateArmy;
     }
     public void Show()
     {

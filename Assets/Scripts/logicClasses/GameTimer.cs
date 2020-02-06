@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameTimer 
+public static class GameTimer 
 {
+    public static float time, timeScale = 1;
     public static void Start()
     {
         foreach (var state in Main.states)
@@ -14,22 +15,24 @@ public class GameTimer
 
     public static PriorityQueue<Action> actionQueue = new PriorityQueue<Action>();
 
-    public static void DayUpdate(int curdate)
+    public static void RealTimeUpdate()
     {
-        while (actionQueue.Count > 0 && actionQueue.Peek().time <= curdate)
+        while (actionQueue.Count > 0 && actionQueue.Peek().time <= time)
         {
             Action action = actionQueue.Dequeue();
             if (!action.actually)
                 continue;
             action.DoAction();
         }
-       // Battle.ProcessAllBattles();
+    }
+    public static void DeciSecondUpdate()
+    {
+       
         Army.ProcessAllArmy();
-        //BattleInterface.needUpdate = true;
-        ProvinceMenu.needUpdate = true;
+        OftenUpdate?.Invoke();
 
     }
-    public static void MonthUpdate()
+    public static void DecaSecondUpdate()
     {
         foreach (var state in Main.states)
             state.CalculatePersonImpact();
@@ -39,7 +42,8 @@ public class GameTimer
             army.UpdateUpkeep();
         Army.ProcessAllArmyAI();
         Diplomacy.DiplomacyUpdate();
-        FreeMonthUpdate?.Invoke();
+        SeldomUpdate?.Invoke();
     }
-    public static event System.Action FreeMonthUpdate;
+    public static event System.Action SeldomUpdate;
+    public static event System.Action OftenUpdate;
 }

@@ -42,37 +42,40 @@ public class ProvinceMenu : MonoBehaviour {
         buttonSelector = new ButtonSelector(wievButtons, new ShowSmth[] { ShowDiplomacy, ShowBuildings, ShowArmy, ShowNavy });
         gameObject.SetActive(false);
     }
-    public static bool needUpdate;
-     void Update()
-    {
-        if (needUpdate)
-            ShowProvinceMenu(current);
-        needUpdate = false;
-    }
     public void ShowProvinceMenu(Region r)
     {
-        if (r != null)
-            current = r;
-        else
-            r = current;
-        if (r == null) return;
+
+        if (current != null)
+            current.data.SomeChanges -= UpdateMenu;
+        current = r;
+        if (r == null)
+        {
+            HiddenProvinceMenu();
+        } else
+        {
+            current.data.SomeChanges += UpdateMenu;
+        }
+        UpdateMenu();
+    }
+    public void UpdateMenu()
+    { 
         gameObject.SetActive(true);
         MenuManager.CheckExchangeRegiment();
-        Name.text = r.name + " (" + r.id + ") ";
+        Name.text = current.name + " (" + current.id + ") ";
 
         Info.text = string.Format("distance = {0:N2}\ndist coef = {1:N2}\norder coef = {2:N2}\ntrader impact = {3:N2}",
-            Mathf.Sqrt(r.sqrDistanceToCapital), r.data.IncomeCoefFromDistance(), r.data.IncomeCoefFromOrder(),r.data.traderImpact);
-        Treasury t = r.data.income;
-        Treasury tc = r.data.incomeclear;
+            Mathf.Sqrt(current.sqrDistanceToCapital), current.data.IncomeCoefFromDistance(), current.data.IncomeCoefFromOrder(),current.data.traderImpact);
+        Treasury t = current.data.income;
+        Treasury tc = current.data.incomeclear;
         gold.text = string.Format("{0:N1}\n({1:N1})", t.Gold, tc.Gold);
         manPower.text = string.Format("{0:N1}\n({1:N1})", t.Manpower, tc.Manpower);
         wood.text = string.Format("{0:N1}\n({1:N1})", t.Wood, tc.Wood);
         iron.text = string.Format("{0:N1}\n({1:N1})", t.Iron, tc.Iron); 
         science.text = string.Format("{0:N1}\n({1:N1})", t.Science, tc.Science); 
 
-        wievButtons[0].gameObject.SetActive(r.owner != Player.curPlayer);
+        wievButtons[0].gameObject.SetActive(current.owner != Player.curPlayer);
 
-        if (r.owner == Player.curPlayer)
+        if (current.owner == Player.curPlayer)
             buttonSelector.Hidden(0);
         buttonSelector.Update();
         recruitMenu.UpdateGarnison();

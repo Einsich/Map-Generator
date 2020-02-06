@@ -89,12 +89,11 @@ public class Player : MonoBehaviour {
                 SelectArmy(tap);
         }
         else
-        if (army)
+        if (army && army!= tap)
         {
             if (army.owner.diplomacy.haveWar(tap.owner.diplomacy))
             {
                 Region reg = tap.curReg;
-                if (army.besiege != reg || !tap.inTown)
                 {
                     army.TryMoveToTarget(tap, TargetType);
                 }

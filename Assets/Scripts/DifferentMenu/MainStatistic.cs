@@ -20,11 +20,6 @@ public class MainStatistic : MonoBehaviour {
         instance = this;
         buttonSelector = new ButtonSelector(ModeButton, new ShowSmth[] { Nope, Nope, Nope, ShowTechnology, Nope, ShowPersons }) ;
     }
-    private void Update()
-    {
-       // if (state != null && panel.activeSelf)
-         //   buttonSelector.Update();
-    }
     public void SetState(State state)
     {
         flagbut.sprite = state.flagSprite;
@@ -62,4 +57,13 @@ public class MainStatistic : MonoBehaviour {
         buttonSelector.Update();
     }
     public void Nope(bool show) { }
+    private void OnEnable()
+    {
+        GameTimer.OftenUpdate += () => buttonSelector.Update();   
+    }
+    private void OnDisable()
+    {
+        GameTimer.OftenUpdate -= () => buttonSelector.Update();
+
+    }
 }

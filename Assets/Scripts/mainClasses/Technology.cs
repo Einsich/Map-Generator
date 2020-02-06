@@ -28,40 +28,40 @@ public class Technology
         }
     }
     int Era_;
-    static GetCost EraCost = (lvl) => { return new TimeCost(100, 100 + lvl * 50); };
+    static GetCost EraCost = (lvl) => { return new TimeCost(15, 100 + lvl * 50); };
 
     public Tech ArmyBranchTech;
     public bool ArmyBranch = false;
-    static GetCost ArmyBranchCost = (lvl)=>{ return new TimeCost(100, 100); };
+    static GetCost ArmyBranchCost = (lvl)=>{ return new TimeCost(15, 100); };
 
     public List<BaseRegiment> regiments;
     public int Pips;
-    static GetCost PipsCost = (lvl) => { return new TimeCost(4 + lvl * 10, 10 + lvl * 5); };
+    static GetCost PipsCost = (lvl) => { return new TimeCost(2 + lvl * 2, 10 + lvl * 5); };
     public float pipsCostBonus = 1f;
     public int MaxPipsInEra => (1 << Era) * 10 + (ArmyBranch ? 10 * Era : 0);
 
     public Tech UpkeepBonusTech;
     public float UpkeepBonus = 1f;
-    static GetCost UpkeepBonusCost = (lvl) => { return new TimeCost(100, 50 + lvl * 20); };
+    static GetCost UpkeepBonusCost = (lvl) => { return new TimeCost(15, 50 + lvl * 20); };
     static float[] UpkeepBonusData = new float[maxUpkeepBonus] { 0.9f, 0.8f, 0.7f };
 
     public Tech MoralBonusTech;
     public float MoralBonus = 0f;
-    static GetCost MoralBonusCost = (lvl) => { return new TimeCost(100, 50 + lvl * 20); };
+    static GetCost MoralBonusCost = (lvl) => { return new TimeCost(15, 50 + lvl * 20); };
     static float[] MoralBonusData = new float[maxMoralBonus] { 0.5f, 1f, 1.25f };
 
     public Tech EconomyBranchTech;
     public bool EconomyBranch = false;
-    static GetCost EconomyBranchCost = (lvl) => { return new TimeCost(100, 100); };
+    static GetCost EconomyBranchCost = (lvl) => { return new TimeCost(15, 100); };
 
     public Tech BuildCostBonusTech;
     public float BuildCostBonus = 1f;
-    static GetCost BuildCostBonusCost = (lvl) => { return new TimeCost(100, 50 + lvl * 20); };
+    static GetCost BuildCostBonusCost = (lvl) => { return new TimeCost(15, 50 + lvl * 20); };
     static float[] BuildCostBonusData = new float[maxBuildCostBonus] { 0.9f, 0.8f, 0.7f };
 
     public Tech[] TreasureBonusTech;
     public Treasury TreasureBonus = new Treasury(1f);
-    static GetCost TreasureBonusCost = (lvl) => { return new TimeCost(100, 50 + lvl * 20); };
+    static GetCost TreasureBonusCost = (lvl) => { return new TimeCost(15, 50 + lvl * 20); };
     static float[] TreasureBonusData = new float[maxTreasureBonus] { 1.2f, 1.35f, 1.45f, 1.5f };
 
 
@@ -78,20 +78,22 @@ public class Technology
                 (lvl) => BuildLvl[ProvinceData.buildCount + i] = 1, this) ;
         ArmyBranchTech = new Tech("Военная ветка", ArmyBranchCost, 1, (lvl) => { ArmyBranch = true; pipsCostBonus = 0.5f;
             Pips += Era * 10; MenuManager.ShowTechnology(); }, this);
-        
-        /*for (int k = 0; k < regiments.Count; k++)
-            regiments[k].teches = new Tech[BaseRegiment.NM];
-        for (int k = 0; k < regiments.Count; k++)
-            for (int i = 0; i < BaseRegiment.PipsN; i++)
-                for (int j = 0; j < BaseRegiment.PipsM; j++)
-                {
-                    int q = k, w = i, e = j ;
-                    regiments[k].teches[i * BaseRegiment.PipsM + j] =
-                              new Tech("", PipsCost, maxPips - regiments[k].pips[i, j], 
-                              (lvl) => { regiments[q].pips[w, e]++; MenuManager.ShowTechnology(); }, this) { pips = true };
 
-                }
-                */
+        foreach (var regiment in regiments)
+        {
+            for (int i = 0; i < regiment.armTeches.Length; i++)
+            {
+                int j = i;
+                regiment.armTeches[i] =
+                              new Tech("", PipsCost, maxPips - regiment.armor[j],
+                              (lvl) => { regiment.armor[j]++; MenuManager.ShowTechnology(); }, this)
+                              { pips = true };
+
+            }
+            regiment.damTech = new Tech("", PipsCost, maxPips,
+            (lvl) => { regiment.damageLvl++; MenuManager.ShowTechnology(); }, this)
+            { pips = true };
+        }
         UpkeepBonusTech = new Tech("Снижение содержания", UpkeepBonusCost, maxUpkeepBonus, (lvl) => UpkeepBonus = UpkeepBonusData[lvl], this);
         MoralBonusTech = new Tech("Увеличение морали", MoralBonusCost, maxMoralBonus, (lvl) => MoralBonus = MoralBonusData[lvl], this);
         BuildCostBonusTech = new Tech("Удешевление зданий", BuildCostBonusCost, maxBuildCostBonus, (lvl) => BuildCostBonus = BuildCostBonusData[lvl], this);
@@ -114,9 +116,9 @@ public class Technology
 }
 public struct TimeCost
 {
-    public int time;
+    public float time;
     public float science;
-    public TimeCost(int time, float science)
+    public TimeCost(float time, float science)
     {
         this.time = time;
         this.science = science;
@@ -133,7 +135,7 @@ public class Tech
     public bool able => lvl < maxlvl && (pips ? lvl <= (Technology.maxPips / Technology.maxEra) * technology.Era : lvl <= technology.Era);
     public bool ableResearch => lvl < maxlvl;
     public TimeCost timeScience => cost(lvl);
-    public int time => cost(lvl).time;
+    public float time => cost(lvl).time;
     public float science => cost(lvl).science;
     Technology technology;
     public bool pips;

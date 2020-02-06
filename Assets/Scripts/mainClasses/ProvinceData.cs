@@ -57,6 +57,7 @@ public class ProvinceData {
     static Treasury defaultTreasure = new Treasury(10, 50, 0, 0, 0);
     public List<RecruitAction> recruitQueue = new List<RecruitAction>();
     public int wallsLevel => buildings[(int)Building.Walls];
+    public System.Action SomeChanges, TreasureChanges;
     public void AddRecruit(RecruitAction act)
     {
         region.owner.treasury -= act.regiment.cost;
@@ -110,9 +111,11 @@ public class ProvinceData {
                 action.actually = false;
             action = null;
         }
-        if (Player.curPlayer == null || Player.curPlayer == region.owner) 
-        MenuManager.ShowResources();
-        ProvinceMenu.needUpdate = true;
+       // if (Player.curPlayer == null || Player.curPlayer == region.owner) 
+        //MenuManager.ShowResources();
+        TreasureChanges?.Invoke();
+        SomeChanges?.Invoke();
+       // ProvinceMenu.needUpdate = true;
     }
     public void BuildComplete()
     {
@@ -122,15 +125,15 @@ public class ProvinceData {
         
         isBuildInd = -1;
         action = null;
-        if (ProvinceMenu.current == region) 
-        ProvinceMenu.needUpdate = true;
+        SomeChanges?.Invoke();
+
     }
     public void RecruitRegiment(RecruitAction recact)
     {
         recruitQueue.Remove(recact);
         garnison.Add(new Regiment(recact.regiment));
-        if (Player.curRegion == region)
-            ProvinceMenu.needUpdate = true;
+        SomeChanges?.Invoke();
+
     }
     bool CanBuild(Building build)
     {
@@ -186,6 +189,9 @@ public class ProvinceData {
             incomeclear += Income((Building)build, buildings[build]);
 
         income = incomeclear * IncomeCoefFromDistance() * IncomeCoefFromOrder() * traderImpact * region.owner.technology.TreasureBonus;
+        SomeChanges?.Invoke();
+        
+
     }
     public void EconomyUpdate()
     {
