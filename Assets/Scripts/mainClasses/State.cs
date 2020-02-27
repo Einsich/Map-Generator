@@ -22,7 +22,7 @@ public class State
     Treasury treasury_ = new Treasury(1000);
     Treasury DeltaIncome;
     public Treasury Income;
-    public System.Action TreasureChange;
+    public System.Action TreasureChange, IncomeChanges;
     public Treasury treasury { get => treasury_; set { treasury_ = value; if (this == Player.curPlayer) MenuManager.ShowResources(); TreasureChange?.Invoke(); } }
     public float Gold { get => treasury_.Gold; set => treasury_.Gold = value; }
     public float Manpower { get => treasury_.Manpower; set => treasury_.Manpower = value; }

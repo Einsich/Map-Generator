@@ -11,6 +11,7 @@ public class MainStatistic : MonoBehaviour {
     public GameObject panel, personPanel;
     public ListFiller PersonFiller;
     public TechnologyPanel technologyPanel;
+    public EconomicPanel economicPanel;
     [Header("State, diplomacy, army, research, economy, persons")]
     public Button[] ModeButton;
     public ButtonSelector buttonSelector;
@@ -38,6 +39,12 @@ public class MainStatistic : MonoBehaviour {
         wood.text = t.Wood.ToString("N1");
         iron.text = t.Iron.ToString("N1");
         science.text = t.Science.ToString("N1");
+    }
+    public void ShowEconomic(bool show)
+    {
+        if (show)
+            economicPanel.ShowEconomic(state);
+        economicPanel.gameObject.SetActive(show);
     }
     public void ShowPersons(bool show)
     {

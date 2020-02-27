@@ -239,6 +239,8 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         UpdateRange();
         UpdateSpeed();
         UpdateAttackSpeed();
+
+        owner.IncomeChanges?.Invoke();
         if (Player.curPlayer == curOwner)
         {
             MapMetrics.UpdateAgentVision(navAgent.curCell, navAgent.curCell, VisionRadius, 1);
@@ -471,8 +473,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         bar.UpdateInformation();
 
     }
-
-    public void UpdateUpkeep()
+    public Treasury GetUpkeep()
     {
         Treasury upkeep = new Treasury(0);
         Effect effect;
@@ -482,10 +483,15 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         foreach (var g in army)
         {
             float t = 1f;
-            t *= debt != null? debt.ReductionUpkeep(g.baseRegiment.type) : 1f;
+            t *= debt != null ? debt.ReductionUpkeep(g.baseRegiment.type) : 1f;
             upkeep += g.baseRegiment.upkeep * owner.technology.UpkeepBonus * t;
         }
-        owner.Income -= upkeep;
+        return upkeep;
+    }
+    public void UpdateUpkeep()
+    {
+
+        owner.Income -= GetUpkeep();
     }
     public void UpdateSpeed()
     {
@@ -599,7 +605,11 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
             d *= q;
             target.count -= d;
         }
+        int regimentCount = army.Count;
         army.RemoveAll(x => x.count <= 0);
+
+        if(army.Count != regimentCount)
+            owner.IncomeChanges?.Invoke();
 
         ArmyListChange();
         HitAction?.Invoke();

@@ -124,6 +124,7 @@ public class ProvinceData {
             region.RebuildTown();
         
         SomeChanges?.Invoke();
+        region.owner.IncomeChanges?.Invoke();
 
     }
     public void RecruitRegiment(RecruitAction recact)
@@ -131,6 +132,7 @@ public class ProvinceData {
         recruitQueue.Remove(recact);
         garnison.Add(new Regiment(recact.regiment));
         SomeChanges?.Invoke();
+        region.owner.IncomeChanges?.Invoke();
 
     }
     bool CanBuild(BuildingType build)
