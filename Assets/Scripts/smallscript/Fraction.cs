@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class Fraction {
 
-    public FractionName fraction;
+    public FractionType fraction;
     public static GameObject[] TownPrefab;
     public static GameObject[] WallsPrefab;
 }
-public enum FractionName
+public enum FractionType
 {
     People,
-    Orcs
+    Orcs,
+    Count
 }

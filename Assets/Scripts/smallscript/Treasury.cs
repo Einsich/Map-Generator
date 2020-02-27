@@ -6,6 +6,7 @@ public struct Treasury
 {
     public const int ResourceCount = 5;
     public float Gold, Manpower, Wood, Iron, Science;
+    public static Treasury zero => new Treasury();
     public Treasury(float Gold, float Manpower, float Wood, float Iron, float Science)
     {
         this.Gold = Gold;
@@ -50,6 +51,17 @@ public struct Treasury
             default: return "Наука";
         }
     }
+    public static TechType ToTechType(int i)
+    {
+        switch (i)
+        {
+            case 0: return TechType.GoldBonus;
+            case 1: return TechType.ManPowerBonus;
+            case 2: return TechType.WoodBonus;
+            case 3: return TechType.IronBonus;
+            default: return TechType.ScienceBonus;
+        }
+    }
     public string ToArmyCost()
     {
         return $"({Gold}, {Wood}, {Iron})";
@@ -90,5 +102,20 @@ public struct Treasury
     {
         return (a.Gold > b.Gold && a.Manpower > b.Manpower && a.Wood > b.Wood && a.Iron > b.Iron && a.Science > b.Science);
     }
-    
+    public bool isEmpty => Gold == 0 && Manpower == 0 && Wood == 0 && Iron == 0 && Science == 0;
+    static string[] toStr = { "зол", "рек", "древ", "жел", "науки" };
+    public override string ToString()
+    {
+        string s = "";
+        bool z = false;
+        for (int i = 0; i < 5; i++)
+            if (this[i] != 0)
+            {
+                if (z)
+                    s += ", ";
+                s += $"{this[i]} {toStr[i]}";
+                z = true;
+            }
+        return s;
+    }
 }

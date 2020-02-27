@@ -24,7 +24,7 @@ public class Region :ITarget, IFightable
     public SiegeAction siegeAction;
     public State ocptby;
     public State curOwner => ocptby == null ? owner : ocptby;
-    public Army siegeby;
+    public Siege CurrentSiege;
     public int id, portIdto = -1, Continent;
     public Region[] neib;
     public bool haveWood, haveIron, haveGrassland;
@@ -33,7 +33,8 @@ public class Region :ITarget, IFightable
     public Vector2Int Capital;
     public float sqrDistanceToCapital => (Capital - _owner.Capital.Capital).sqrMagnitude;
     public Vector2 pos;
-    public GameObject Text,Town,Port,Corona;
+    public GameObject Text,Town,Corona;
+    public Port Port;
     public ProvinceData data;
     BorderState bordState;
     bool selected;
@@ -101,12 +102,12 @@ public class Region :ITarget, IFightable
             bool hidfrompl = neib[i].HiddenFrom(Player.curPlayer) && HiddenFrom(Player.curPlayer);
             if (portIdto == neib[i].id)
             {
-                if (Port == null)
+                if (data.portLevel==0)
                 {
-                    Debug.Log("! " + owner.name + " " + id + " " + neib[i].id);
+                   // Debug.Log("! " + owner.name + " " + id + " " + neib[i].id);
                 }
                 else
-                    Port.SetActive(bordState != BorderState.ShowStateBorder && !hidfrompl);
+                    Port.gameObject.SetActive(bordState != BorderState.ShowStateBorder && !hidfrompl);
             }
         }
     }
@@ -134,15 +135,15 @@ public class Region :ITarget, IFightable
     public void UpdateSplateState(State curPlayer)
     {
         if(curPlayer==null)
-            MapMetrics.SetRegionState(territory, LandShowMode.Visible);
+            MapMetrics.SetRegionSplatState(territory, LandShowMode.Visible);
         else
         if (HiddenFrom(curPlayer))
-            MapMetrics.SetRegionState(territory, LandShowMode.TerraIncognito);
+            MapMetrics.SetRegionSplatState(territory, LandShowMode.TerraIncognito);
         else
         if(InFogFrom(curPlayer))
-            MapMetrics.SetRegionState(territory, LandShowMode.ForOfWar);
+            MapMetrics.SetRegionSplatState(territory, LandShowMode.ForOfWar);
         else
-        MapMetrics.SetRegionState(territory, LandShowMode.Visible);
+        MapMetrics.SetRegionSplatState(territory, LandShowMode.Visible);
 
     }
 
@@ -156,6 +157,7 @@ public class Region :ITarget, IFightable
         if (state == null) return false;
         if (!(NotNeib(state) && ocptby != state && owner != state))
             return false;
+        return true;
         foreach (Army army in state.army)
         {
             if (army.curReg == this)
@@ -205,6 +207,12 @@ public class Region :ITarget, IFightable
             t0 = GameObject.Instantiate(Fraction.WallsPrefab[(int)data.fraction], town);
             t0.transform.localPosition = Vector3.zero;
         }
+        if(Port!=null)
+        {
+            Port.gameObject.SetActive(data.buildings[(int)BuildingType.Port] > 0);
+           // Debug.Log(data.buildings[(int)BuildingType.Port]);
+        }
+        
         flagrenderer = flag.GetChild(1).GetComponent<MeshRenderer>();
         owner = _owner;//для настройки флага
     }
@@ -268,28 +276,21 @@ public class Region :ITarget, IFightable
             upkeep += g.baseRegiment.upkeep;
         _owner.treasury -= upkeep * GameConst.GarnisonUpkeepSale;
     }
-    public void WasCatch(Army catcher)
+
+    public void SiegeBegin(Siege siege)
     {
-        if (siegeby == catcher)
-            return;
-        if (!curOwner.diplomacy.canAttack(catcher.owner.diplomacy))
-            return;
-        siegeby = catcher;
-        siegeby.navAgent.Stop();
-        siegeby.besiege = this;
-        siegeAction = new SiegeAction(this, 30);
-        Debug.Log("Началась осада " + name);
-        siegeby.siegeModel.SetActive(true);
-        siegeby.siegeModel.transform.position = MapMetrics.GetCellPosition(Capital);
+        CurrentSiege = siege;
+        siege.sieger.besiege = this;
+        siege.sieger.siegeModel.SetActive(true);
+        siege.sieger.siegeModel.transform.position = MapMetrics.GetCellPosition(Capital);
     }
     public void SiegeEnd()
     {
-        
-        siegeby.besiege = null;
-        siegeby.siegeModel.SetActive(false);
-        siegeby = null;
-        if(siegeAction!=null)
-        siegeAction.actually = false;
+        CurrentSiege.EffectAction.actually = false;
+
+        CurrentSiege.sieger.besiege = null;
+        CurrentSiege.sieger.siegeModel.SetActive(false);
+        CurrentSiege = null;
     }
     public void WinSiege()
     {
@@ -297,7 +298,7 @@ public class Region :ITarget, IFightable
             if (insider.inTown && insider.curReg == this)
                 insider.DestroyArmy();
         curOwner.army.RemoveAll(a => a.Destoyed);
-        Player.instance.Occupated(this, siegeby.owner);
+        Player.instance.Occupated(this, CurrentSiege.sieger.owner);
         SiegeEnd();
     }
     public bool isBusy()
@@ -316,10 +317,10 @@ public class Region :ITarget, IFightable
             if (damageType <= regiment.baseRegiment.damageType)
             {
                 float d = regiment.baseRegiment.damageType >= DamageType.Range ? 50 : 0;
-                info.damage[(int)regiment.baseRegiment.damageType] += (regiment.NormalCount + 1) * 0.5f * (regiment.baseRegiment.damage+ d);
+                info.damage[(int)regiment.baseRegiment.damageType] += (regiment.NormalCount + 1) * 0.5f * (regiment.baseRegiment.damage(0)+ d);
             }
         }
-        int walls = data.buildings[(int)Building.Walls];
+        int walls = data.buildings[(int)BuildingType.Walls];
         info.RangeDamage += 50 * walls;
         info.SiegeDamage += 100* walls;
         return info;
@@ -342,12 +343,12 @@ public class Region :ITarget, IFightable
         for (int i = 0; i < targets.Length; i++)
             targets[i] = garnison[Random.Range(0, garnison.Count)];
         float q = 1f / targets.Length;
-        int walls = data.buildings[(int)Building.Walls];
+        int walls = data.buildings[(int)BuildingType.Walls];
         foreach (var target in targets)
         {
             float d = 0;
             for (int i = 0; i < (int)DamageType.Count; i++)
-                d += damage.damage[i] * DamageInfo.Armor(target.baseRegiment.armor[i] + walls * 2);
+                d += damage.damage[i] * DamageInfo.Armor(target.baseRegiment.ArmorLvl((DamageType)i) + walls * 2);
             d *= q;
             target.count -= d;
         }

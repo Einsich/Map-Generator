@@ -7,19 +7,23 @@ public class State
 {
     public int ID;
     public string name;
-    public FractionName fraction;
+    public FractionType fraction;
     public List<Region> regions;
     public Texture2D flag;
     Sprite flagS = null;
-    public Sprite flagSprite => flagS ? flagS : Sprite.Create(flag, new Rect(0, 0, flag.width, flag.height), new Vector2(0.5f, 0.5f));        
+    public Sprite flagSprite => flagS ? flagS : flagS = Sprite.Create(flag, new Rect(0, 0, flag.width, flag.height), new Vector2(0.5f, 0.5f));        
     
     public List<Army> army;
+    public List<Ship> ships;
     public List<Person> persons;
     public Color mainColor;
     public Diplomacy diplomacy;
     public Technology technology;
-    Treasury treasury_ = new Treasury();
-    public Treasury treasury { get => treasury_; set { treasury_ = value; if (this == Player.curPlayer) MenuManager.ShowResources(); } }
+    Treasury treasury_ = new Treasury(1000);
+    Treasury DeltaIncome;
+    public Treasury Income;
+    public System.Action TreasureChange;
+    public Treasury treasury { get => treasury_; set { treasury_ = value; if (this == Player.curPlayer) MenuManager.ShowResources(); TreasureChange?.Invoke(); } }
     public float Gold { get => treasury_.Gold; set => treasury_.Gold = value; }
     public float Manpower { get => treasury_.Manpower; set => treasury_.Manpower = value; }
     public float Wood { get => treasury_.Wood; set => treasury_.Wood = value; }
@@ -32,12 +36,13 @@ public class State
         regions = new List<Region>();
         army = new List<Army>();
         persons = new List<Person>();
-        treasury_.Gold = 100; treasury_.Manpower = 1000;treasury_.Science = 500;
+        ships = new List<Ship>();
+        //treasury_.Gold = 1; treasury_.Manpower = 1000;treasury_.Science = 500;
         regiments =
-        new List<BaseRegiment>() { new BaseRegiment(this, RegimentType.Infantry, DamageType.Melee, 3, 1, 0, 0, 1,1000, new Treasury(100,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1),
-        new BaseRegiment(this, RegimentType.Infantry, DamageType.Range, 0, 0, 1, 0, 0,1000, new Treasury(400,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1.5f),
-        new BaseRegiment(this, RegimentType.Cavalry, DamageType.Melee, 1, 3, 0, 0, 4,1000, new Treasury(400,1000,10,10,0), new Treasury(20, 0, 0, 0, 0),2),
-        new BaseRegiment(this, RegimentType.Artillery, DamageType.Siege, 0, 0, 0, 0, 6,1000, new Treasury(500,1000,50,50,10), new Treasury(40, 0, 0, 0, 0),4) };
+        new List<BaseRegiment>() { new BaseRegiment(this,RegimentName.SimpleMelee, RegimentType.Infantry, DamageType.Melee, 3, 1, 0, 0, 1,1000, new Treasury(100,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1),
+        new BaseRegiment(this,RegimentName.SimpleRanger, RegimentType.Infantry, DamageType.Range, 0, 0, 1, 0, 0,1000, new Treasury(400,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1.5f),
+        new BaseRegiment(this,RegimentName.SimpleCavalry, RegimentType.Cavalry, DamageType.Charge, 1, 3, 0, 0, 4,1000, new Treasury(400,1000,10,10,0), new Treasury(20, 0, 0, 0, 0),2),
+        new BaseRegiment(this,RegimentName.SimpleArta, RegimentType.Artillery, DamageType.Siege, 0, 0, 0, 0, 6,1000, new Treasury(500,1000,50,50,10), new Treasury(40, 0, 0, 0, 0),4) };
         technology = new Technology(this, 0);
     }
     public void SetName()
@@ -138,15 +143,43 @@ public class State
 
     public Person defaultLeader()
     {
-        switch(Random.Range(0,2))
+        switch(Random.Range(0,(int)PersonType.Count))
         {
+            case 0: return new Warrior(this);
+            case 1: return new Knight(this);
+            case 2: return new Jaeger(this);
+            case 3: return new Archer(this);
+           // case 4: return new Wizard(this);
+           // case 5: return new Engineer(this);
+            case 6: return new Necromancer(this);
+            case 7: return new DeathKnight(this);
             default:return new Knight(this);
-            case 1:return new Trader(this);
         }
+    }
+    public void AddAllPerson()
+    {
+        new Warrior(this);
+        new Knight(this);
+        new Jaeger(this);
+        new Archer(this);
+       // new Wizard(this);
+       // new Engineer(this);
+        new Necromancer(this);
+        new DeathKnight(this);
+    }
+    public void CalculateIncome()
+    {
+        treasury += Income;
+        DeltaIncome = Income;
+        Income = new Treasury();
     }
     public void CalculatePersonImpact()
     {
 
+    }
+    public string ResourcesHelp(int t)
+    {
+        return string.Format("{0}. Ваш прирост {1}", Treasury.ToString(t),DeltaIncome[t].ToString("N2"));
     }
 }
 

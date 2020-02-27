@@ -6,8 +6,8 @@ public class Action: IComparable<Action> {
     public float time,startTime;
     protected float T;
     public bool actually;
-    protected delegate void Method();
-    protected event Method onAction;
+    //protected delegate void Method();
+    public System.Action  onAction;
     public float progress => (GameTimer.time - startTime) * T;
 
     public int CompareTo(Action other)
@@ -16,6 +16,15 @@ public class Action: IComparable<Action> {
     }
     public Action(float dt)
     {
+        time = GameTimer.time + dt;
+        actually = true;
+        startTime = GameTimer.time;
+        T = 1f / dt;
+        GameTimer.actionQueue.Enqueue(this);
+    }
+    public Action(float dt, System.Action action)
+    {
+        onAction = action;
         time = GameTimer.time + dt;
         actually = true;
         startTime = GameTimer.time;
@@ -40,7 +49,7 @@ public class BuildAction:Action
     public BuildAction(ProvinceData reg, float dt):base(dt)
     {
         //type = TypeAction.BuildAction;
-        onAction += () => reg.BuildComplete();
+        //onAction += () => reg.BuildComplete();
     }
 }
 public class RecruitAction : Action

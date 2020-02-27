@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,13 +17,21 @@ static class MapMetrics
     public static float SeaLevel;
     public static int[,] cellStateIndex;
     public static List<Region> regions;
-    public static Texture2D map,noise,splatmap,occupemap,provincemap;
+    public static Texture2D map,noise,occupemap,provincemap;
     public static int[] Odx = { 1, 1, 0, -1, -1, -1, 0, 1 },
                         Ody = { 0, -1, -1, -1, 0, 1, 1, 1 },
                         Qdx = { 1, 0, -1, 0 },Qdy = { 0, -1, 0, 1 };
     public static Vector2Int[] Qd = { new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1, 0), new Vector2Int(0, -1) };
     public static Vector2Int[] OctoDelta = { new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1, 0), new Vector2Int(0, -1),
     new Vector2Int(1,1),new Vector2Int(1,-1),new Vector2Int(-1,1),new Vector2Int(-1,-1)};
+    static Texture2D splatmap;
+    static sbyte[,] SplatState;
+    public static void SetSplatMap(Texture2D texture)
+    {
+        splatmap = texture;
+        SplatState = new sbyte[splatmap.width, splatmap.height];
+    }
+    public static Texture2D GetSplatMap() => splatmap;
     public static void SetHeights(byte[] height,int n,int m)
     {
         heights = height;
@@ -74,6 +82,7 @@ static class MapMetrics
     public static int[,] dy = { { 1, 0, 0, 1 }, { 0, -1, -1, 0 }, { 0, -1, -1, 0 }, { 1, 0, 0, 1 } };
     
     static Vector3 half = new Vector3(0.5f, 0, 0.5f);
+    public static float Height(float x, float y, bool iswater = false) => Height(new Vector2(x, y), iswater);
     public static float Height(Vector2 p, bool iswater = false)
     {
         float h = HeightTexture.GetPixelBilinear(p.x/SizeM, p.y/SizeN).r * MaxHeight;
@@ -143,10 +152,83 @@ static class MapMetrics
         occupemap.Apply();
     }
     static Color[] SplatColor = { Color.red, Color.green, Color.blue };
-    public static void SetRegionState(List<Vector2Int> l,LandShowMode ind)
+    public static bool Visionable(Vector2Int p) => SplatState[p.x, p.y] > 0;
+    public static void SetRegionSplatState(List<Vector2Int> l,LandShowMode ind)
     {
         for (int i = 0; i < l.Count; i++)
-            splatmap.SetPixel(l[i].x, l[i].y, SplatColor[(int)ind]);
+        {
+            switch (ind)
+            {
+
+                case LandShowMode.TerraIncognito: SplatState[l[i].x, l[i].y] = -1;break;
+                case LandShowMode.Visible:if (SplatState[l[i].x, l[i].y] <= 0)
+                        SplatState[l[i].x, l[i].y] = 1;
+                    else
+                        SplatState[l[i].x, l[i].y]++;
+                    break;
+                case LandShowMode.ForOfWar: if (SplatState[l[i].x, l[i].y] <= 0)
+                        SplatState[l[i].x, l[i].y] = 0;
+                    else
+                        SplatState[l[i].x, l[i].y]--;
+                    break;
+            }
+            int k = SplatState[l[i].x, l[i].y];
+            k = k < 0 ? 1 : k == 0 ? 0 : 2;
+            splatmap.SetPixel(l[i].x, l[i].y, SplatColor[k]);
+        }
+    }
+    public static void UpdateAgentVision(Vector2Int old, Vector2Int cur, float r ,int firstly = 0)
+    {
+        int xMax = Math.Max(old.x, cur.x) + (int)r;
+        int yMax = Math.Max(old.y, cur.y) + (int)r;
+        int xMin = Math.Min(old.x, cur.x) - (int)r;
+        int yMin = Math.Min(old.y, cur.y) - (int)r;
+        xMax = xMax >= SizeM ? SizeM - 1 : xMax;
+        yMax = yMax >= SizeN ? SizeN - 1 : yMax;
+        xMin = xMin < 0 ? 0 : xMin;
+        yMin = yMin < 0 ? 0 : yMin;
+        r *= r;
+        for(int x = xMin;x<=xMax;x++)
+            for(int y = yMin;y<=yMax;y++)
+            {
+                bool inold = (old.x - x) * (old.x - x) + (old.y - y) * (old.y - y) <= r;
+                bool incur = (cur.x - x) * (cur.x - x) + (cur.y - y) * (cur.y - y) <= r;
+                if(firstly ==1)
+                {
+                    if(incur)
+                    {
+                        if (SplatState[x, y] < 0)
+                            SplatState[x, y] = 0;
+                        SplatState[x, y]++;
+                        splatmap.SetPixel(x, y, SplatColor[2]);
+                    }
+                } else
+                if(firstly ==-1)
+                {
+                    if (inold)
+                    {
+                        SplatState[x, y]--;
+                        int k = SplatState[x, y] > 0 ? 2 : 0;
+                        splatmap.SetPixel(x, y, SplatColor[k]);
+                    }
+                } else
+                {
+                    if(inold != incur)
+                    {
+                        if(incur)
+                        {
+                            if (SplatState[x, y] < 0)
+                                SplatState[x, y] = 0;
+                            SplatState[x, y]++;
+                        } else
+                        {
+                            SplatState[x, y]--;
+                        }
+                        int k = SplatState[x, y] > 0 ? 2 : 0;
+                        splatmap.SetPixel(x, y, SplatColor[k]);
+                    }
+                }
+            }
     }
     public static void UpdateSplatMap()
     {

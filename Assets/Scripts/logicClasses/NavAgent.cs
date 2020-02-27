@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class NavAgent : MonoBehaviour
 {
+    const float WayPointStep = 0.4f;
     public IFightable target;
     //public Vector2Int curCell => Navigation.GetFixedPosition(pos_);
     public Vector2Int curCell;
@@ -13,27 +14,37 @@ public class NavAgent : MonoBehaviour
         get => pos_;
         set
         {
-            Navigation.GetNavList(pos_).Remove(this);
+            var l1 = Navigation.GetNavList(pos_);
+            var l2 = Navigation.GetNavList(value);
+            if (l1 != l2)
+            {
+                Navigation.GetNavList(pos_).Remove(this);
+                Navigation.GetNavList(value).Add(this);
+            }
             pos_ = value;
-            Navigation.GetNavList(pos_).Add(this);
         }
     }
     public State owner;
-    public Army army;
+    public IMovable Movable;
+    public bool InTown { get => Movable is Army a ? a.inTown : false; set { if (Movable is Army a) a.inTown = value; } }
     float needAngle, dAngle = 2.5f;
     public Region lastCollidedTown;
-    public void SetToArmy()
+    public void SetToMovable(IMovable movable)
     {
-        army = GetComponent<Army>();
-        owner = army.owner;
+        Movable = movable;
+        owner = movable.curOwner ;
         Navigation.AddNavAgent(this);
+        UpdateCellInformation(curCell);
     }
     public void ResetNavAgent() => Navigation.GetNavList(pos_).Remove(this);
+    public TerrainType TerrainType { get; private set; }
     Vector2 next, nextpl, end;
+    public Vector2 CollideForce;
     List<Vector2Int> path;
     Vector2Int lastPathCell => path != null ?path.Count>0? path[path.Count - 1]:ToInt(end) : Vector2Int.zero;
     int pathIndex;
     private float SpeedLandCoef = 1;
+    public Vector2 Speed { get; private set; }
     void FixedUpdate()
     {
         if (!Date.play)
@@ -42,10 +53,11 @@ public class NavAgent : MonoBehaviour
         if (path == null)
             return;
 
-        Vector2 direction = DirectionInPoint(pos, next, nextpl);
+        Vector2 direction = DirectionIndex();
         Vector2 possave = pos;
-        float delta = Time.fixedDeltaTime* GameTimer.timeScale * army.Speed * SpeedLandCoef;
-        pos += delta * direction;
+        float delta = Time.fixedDeltaTime* GameTimer.timeScale * Movable.Speed * SpeedLandCoef;
+        Speed = delta * direction;
+        pos += Speed;
 
         needAngle = Vector3.SignedAngle(transform.forward, new Vector3(direction.x, 0, direction.y), Vector3.up);
         float dist = (next - pos).sqrMagnitude;
@@ -56,13 +68,13 @@ public class NavAgent : MonoBehaviour
             if (pathIndex < path.Count)
             {
                 nextpl = path[pathIndex] + Vector2.one * 0.5f;
-                SpeedLandCoef = 1f / Main.CellMoveCost(path[pathIndex]);
+                UpdateCellInformation(path[pathIndex]);
                 pathIndex++;
             }
             else
             {
                 nextpl = end;
-                SpeedLandCoef = 1f / Main.CellMoveCost(Navigation.GetFixedPosition(end));
+                UpdateCellInformation(Navigation.GetFixedPosition(end));
             }
 
         }
@@ -74,11 +86,29 @@ public class NavAgent : MonoBehaviour
             Stop();
         }
         UpdateWayPoints();
-        Navigation.CalculateTownCollide(this);
+        CollideForce = Vector2.zero;
+        if (Movable is Army)
+            Navigation.CalculateTownCollide(this);
         Navigation.CalculateArmyCollide(this);
-        direction = (pos - possave).normalized;
-        pos = possave +  direction * delta;
-        Vector3 position = MapMetrics.GetPosition(pos);
+        pos += CollideForce * Time.fixedDeltaTime * GameTimer.timeScale;
+        if(CollideForce.magnitude > WayPointStep)
+        {
+            int j = wayIndex;
+            float l = 100000000;
+            for(int i = j;i<waypoints.Count;i++)
+            {
+                float d = (FromV3(waypoints[i].transform.position) - pos).sqrMagnitude;
+                if(d < l)
+                {
+                    l = d;
+                    j = i;
+                }
+            }
+            wayIndex = j;
+        }
+        //direction = (pos - possave).normalized;
+        //pos = possave +  direction * delta;
+        Vector3 position = MapMetrics.GetPosition(pos,true);
         if(delta > 0 && (position - transform.position).sqrMagnitude < 0.000001f)
         {
             if (target == null)
@@ -90,12 +120,8 @@ public class NavAgent : MonoBehaviour
         Vector2Int cell = Navigation.GetFixedPosition(pos);
         if (cell != curCell)
         {
-
-            Vector2Int buf = curCell;
+            Movable.CellChange(curCell, cell);
             curCell = cell;
-            army.UpdateRegion(MapMetrics.GetRegion(cell));
-            army.UpdateFog(buf, cell);
-            Army.FoggedArmy();
         }
         if (target != null)
         {
@@ -122,13 +148,10 @@ public class NavAgent : MonoBehaviour
         if (wayIndex >= waypoints.Count)
             return;
         float dist = (FromV3(waypoints[wayIndex].transform.position) - pos).sqrMagnitude;
-        if (lastDist < dist)//dist < 0.16f)
+        if (dist < 0.01f)
         {
             waypoints[wayIndex++].SetActive(false);
-            lastDist = 10000f;
         }
-        else
-        lastDist = dist;
     }
     void UpdateRotation()
     {
@@ -139,6 +162,12 @@ public class NavAgent : MonoBehaviour
             transform.Rotate(Vector3.up, d);
             needAngle -= d;
         }
+    }
+    private void UpdateCellInformation(Vector2Int cell)
+    {
+
+        SpeedLandCoef = 1f / Main.CellMoveCost(cell);
+        TerrainType = Main.GetTerrainType(cell);
     }
     public void RecalculatePath()
     {
@@ -192,7 +221,7 @@ public class NavAgent : MonoBehaviour
         ClearWayPoints();
         path = null;
         lastCollidedTown = null;
-        army.Stop();
+        Movable.Stop();
     }
     int wayIndex;
     List<GameObject> waypoints = new List<GameObject>();
@@ -217,8 +246,8 @@ public class NavAgent : MonoBehaviour
         for (; iter < 1000;)
         {
             point = Navigation.GetWayPoint();
-            pos += DirectionInPoint(pos, next, nextpl) * 0.4f;
-            point.transform.position = MapMetrics.GetPosition(pos);
+            pos += DirectionInPoint(pos, next, nextpl) * WayPointStep;
+            point.transform.position = MapMetrics.GetPosition(pos,true);
             //point.SetActive(selectia.activeSelf);
             waypoints.Add(point);
             float dist = (next - pos).sqrMagnitude;
@@ -239,7 +268,7 @@ public class NavAgent : MonoBehaviour
         for (float d = 0.4f; d < l; d += 0.4f)
         {
             point = Navigation.GetWayPoint();
-            point.transform.position = MapMetrics.GetPosition(pos + dir * d);
+            point.transform.position = MapMetrics.GetPosition(pos + dir * d, true);
             waypoints.Add(point);
         }
     }
@@ -248,5 +277,15 @@ public class NavAgent : MonoBehaviour
         Vector2 a = (next - pos).normalized, b = (nextpl - pos).normalized;
         
         return (0.8f * a + 0.2f * b).normalized;
+    }
+    private Vector2 DirectionIndex()
+    {
+        Vector2 to;
+        if (wayIndex < waypoints.Count)
+            to = FromV3(waypoints[wayIndex].transform.position);
+        else
+            to = end;
+        return (to - pos_).normalized;
+
     }
 }

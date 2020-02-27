@@ -76,6 +76,7 @@ public static class Navigation
     {
         
         Vector2 p = agent.pos;
+        
         Vector2Int cell = NavAgent.ToInt(p);
         Region region = agent.lastCollidedTown;
         bool Collide()
@@ -84,20 +85,11 @@ public static class Navigation
             {
                 if (region.curOwner == agent.owner)
                 {
-                    agent.army.inTown = true;
+                    agent.InTown = true;
                     return true;
                 }
-
-                agent.pos = region.pos + (p - region.pos).normalized * townRadius;
-               /* if (agent.lastCollidedTown != region)
-                {
-                    agent.lastCollidedTown = region;
-                    if (agent.target == region || (agent.target is Army targ && targ.inTown && targ.curReg == region))
-                    {
-                        agent.CatchTarget();
-                        region.WasCatch(agent.army);
-                    }
-                }*/
+                Vector2 n = (p - region.pos);
+                agent.CollideForce += n.normalized * (1f - n.sqrMagnitude / townRadiusSqr);
 
                 return true;
             }
@@ -114,7 +106,7 @@ public static class Navigation
             if ((region = MapMetrics.GetRegion(cell + d)).Capital == cell + d)
                 if (Collide())
                     return;
-        agent.army.inTown = false;
+        agent.InTown = false;
         agent.lastCollidedTown = null;
     }
     public static void CalculateArmyCollide(NavAgent agent)
@@ -123,17 +115,12 @@ public static class Navigation
         Vector2Int cell = navIndex(p);
         void Collide(NavAgent other)
         {
-            if (other == agent)
+            if (other == agent || !other.isActiveAndEnabled)
                 return;
             if ((other.pos - p).sqrMagnitude <= armyRadiusSqr)
             {
-                p = other.pos + (p - other.pos).normalized * armyRadius;
-                //if (agent.target == (object)other.army)
-               // {
-                //    Debug.Log("catch");
-               //     agent.CatchTarget();
-               // }
-               // other.army.WasCatch(agent.army);
+                Vector2 n = (p - other.pos);
+                agent.CollideForce += n.normalized * (1f - n.sqrMagnitude / armyRadiusSqr);
             }
         }
         bool InsideNavList(int x, int y) => 0 <= x && x < navListM && 0 <= y && y < navListN;
@@ -142,7 +129,7 @@ public static class Navigation
                 if (InsideNavList(cell.x + x, cell.y + y))
                     foreach (var other in navList[cell.y + y, cell.x + x])
                         Collide(other);
-        agent.pos = p;
+        
     }
     
 }

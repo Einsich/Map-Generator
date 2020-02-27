@@ -32,6 +32,11 @@ public static class GameTimer
         OftenUpdate?.Invoke();
 
     }
+    public static void EverySecondUpdate()
+    {
+        foreach (var army in Army.AllArmy)
+            army.UpdateManpower();
+    }
     public static void DecaSecondUpdate()
     {
         foreach (var state in Main.states)
@@ -40,6 +45,8 @@ public static class GameTimer
             Main.regions[i].MonthUpdate();
         foreach (var army in Army.AllArmy)
             army.UpdateUpkeep();
+        foreach (var state in Main.states)
+            state.CalculateIncome();
         Army.ProcessAllArmyAI();
         Diplomacy.DiplomacyUpdate();
         SeldomUpdate?.Invoke();

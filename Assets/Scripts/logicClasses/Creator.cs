@@ -581,7 +581,6 @@ static class Creator {
         int k = 0;
         foreach(var state in states)
         {
-
             state.mainColor = normcolor[idstate[k]];
             state.name = names[idstate[k]].TrimEnd('\r');
             state.flag = Resources.Load<Texture2D>("FlagTexture/(" + idstate[k] + ")");
@@ -589,11 +588,9 @@ static class Creator {
                 state.Capital = state.regions[0];
             else Debug.LogErrorFormat("states[{0}] without regions!", k);
 
-            state.fraction = (FractionName)(k % 2);
-            state.defaultLeader();
-            state.defaultLeader();
-            state.defaultLeader();
+            state.fraction = (FractionType)(k % 2);
             k++;
+            state.AddAllPerson();
         }
     }
    static void AddRegions(int i0, List<int>st, int size)

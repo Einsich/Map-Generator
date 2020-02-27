@@ -30,6 +30,7 @@ public class ListFiller : MonoBehaviour
             else
                 list.Add(element = Instantiate(prefab, transform));
             i++;
+            element.gameObject.SetActive(false);
             element.gameObject.SetActive(true);
             element.Init(x);
         }

@@ -14,6 +14,9 @@ TextureImporter:
   - first:
       213: -5847314549475422344
     second: SiegeMachine
+  - first:
+      213: -3743279101129020751
+    second: Skeletons
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -106,7 +109,7 @@ TextureImporter:
         width: 90
         height: 91
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -127,7 +130,7 @@ TextureImporter:
         width: 88
         height: 88
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -148,7 +151,7 @@ TextureImporter:
         width: 90
         height: 88
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -169,7 +172,7 @@ TextureImporter:
         width: 88
         height: 89
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -177,6 +180,27 @@ TextureImporter:
       bones: []
       spriteID: edbeb5a3893cc5548988d9220249232a
       internalID: -5847314549475422344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Skeletons
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 269
+        width: 91
+        height: 90
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 90a434ae2f580394b96c3775725e5a0e
+      internalID: -3743279101129020751
       vertices: []
       indices: 
       edges: []

@@ -72,38 +72,47 @@ public class Technology
         owner = state;
         regiments = owner.regiments;
         
-        EraTech = new Tech("Технологическая эра",EraCost, maxEra, (lvl) => { Era++;MenuManager.ShowTechnology(); }, this);
+        EraTech = new Tech(TechType.TechnologyEra,EraCost, maxEra, (lvl) => { Era++;MenuManager.ShowTechnology(); }, this);
         for (int i = 0; i < specialBuildCount; i++)
-            BuildTech[i] = new Tech(((Building)(ProvinceData.buildCount + i)).ToString(), BuildCost, maxSpecBuildLvl, 
+            BuildTech[i] = new Tech(TechType.Buildings, BuildCost, maxSpecBuildLvl, 
                 (lvl) => BuildLvl[ProvinceData.buildCount + i] = 1, this) ;
-        ArmyBranchTech = new Tech("Военная ветка", ArmyBranchCost, 1, (lvl) => { ArmyBranch = true; pipsCostBonus = 0.5f;
+        ArmyBranchTech = new Tech(TechType.ArmyBranch, ArmyBranchCost, 1, (lvl) => { ArmyBranch = true; pipsCostBonus = 0.5f;
             Pips += Era * 10; MenuManager.ShowTechnology(); }, this);
 
         foreach (var regiment in regiments)
         {
-            for (int i = 0; i < regiment.armTeches.Length; i++)
-            {
-                int j = i;
-                regiment.armTeches[i] =
-                              new Tech("", PipsCost, maxPips - regiment.armor[j],
-                              (lvl) => { regiment.armor[j]++; MenuManager.ShowTechnology(); }, this)
+           
+                regiment.armTeches[0] =
+                              new Tech( TechType.MeleeArmor, PipsCost, maxPips - regiment.MeleeArmor,
+                              (lvl) => { regiment.MeleeArmor++; MenuManager.ShowTechnology(); }, this)
+                              { pips = true };
+            regiment.armTeches[1] =
+                             new Tech(TechType.ChargeArmor, PipsCost, maxPips - regiment.ChargeArmor,
+                             (lvl) => { regiment.ChargeArmor++; MenuManager.ShowTechnology(); }, this)
+                             { pips = true };
+            regiment.armTeches[2] =
+                              new Tech(TechType.RangeArmor, PipsCost, maxPips - regiment.RangeArmor,
+                              (lvl) => { regiment.RangeArmor++; MenuManager.ShowTechnology(); }, this)
+                              { pips = true };
+            regiment.armTeches[3] =
+                              new Tech(TechType.SiegeArmor, PipsCost, maxPips - regiment.SiegeArmor,
+                              (lvl) => { regiment.SiegeArmor++; MenuManager.ShowTechnology(); }, this)
                               { pips = true };
 
-            }
-            regiment.damTech = new Tech("", PipsCost, maxPips,
+            regiment.damTech = new Tech(TechType.Damage, PipsCost, maxPips,
             (lvl) => { regiment.damageLvl++; MenuManager.ShowTechnology(); }, this)
             { pips = true };
         }
-        UpkeepBonusTech = new Tech("Снижение содержания", UpkeepBonusCost, maxUpkeepBonus, (lvl) => UpkeepBonus = UpkeepBonusData[lvl], this);
-        MoralBonusTech = new Tech("Увеличение морали", MoralBonusCost, maxMoralBonus, (lvl) => MoralBonus = MoralBonusData[lvl], this);
-        BuildCostBonusTech = new Tech("Удешевление зданий", BuildCostBonusCost, maxBuildCostBonus, (lvl) => BuildCostBonus = BuildCostBonusData[lvl], this);
-        EconomyBranchTech = new Tech("Экономическая ветка", EconomyBranchCost, 1, (lvl) => { EconomyBranch = true; MenuManager.ShowTechnology(); }, this);
+        UpkeepBonusTech = new Tech(TechType.UpkeepBonus, UpkeepBonusCost, maxUpkeepBonus, (lvl) => UpkeepBonus = UpkeepBonusData[lvl], this);
+        //MoralBonusTech = new Tech("Увеличение морали", MoralBonusCost, maxMoralBonus, (lvl) => MoralBonus = MoralBonusData[lvl], this);
+        BuildCostBonusTech = new Tech(TechType.BuildCostBonus, BuildCostBonusCost, maxBuildCostBonus, (lvl) => BuildCostBonus = BuildCostBonusData[lvl], this);
+        EconomyBranchTech = new Tech(TechType.EconomicBranch, EconomyBranchCost, 1, (lvl) => { EconomyBranch = true; MenuManager.ShowTechnology(); }, this);
 
         TreasureBonusTech = new Tech[Treasury.ResourceCount];
         for (int i = 0; i < Treasury.ResourceCount; i++)
-            TreasureBonusTech[i] = new Tech(Treasury.ToString(i), TreasureBonusCost, maxTreasureBonus, (lvl) => TreasureBonus[i] = TreasureBonusData[lvl], this);
+            TreasureBonusTech[i] = new Tech(Treasury.ToTechType(i), TreasureBonusCost, maxTreasureBonus, (lvl) => TreasureBonus[i] = TreasureBonusData[lvl], this);
 
-        armyTeches = new List<Tech>() { UpkeepBonusTech, MoralBonusTech };
+        armyTeches = new List<Tech>() { UpkeepBonusTech };
         economyTeches = new List<Tech>() { BuildCostBonusTech };
         for (int i = 0; i < Treasury.ResourceCount; i++)
             economyTeches.Add(TreasureBonusTech[i]);
@@ -129,7 +138,7 @@ public class Tech
     public Research research;
     public Research buttonEvent;
     public ResearchAction researchAction;
-    string descr;
+    //string descr;
     GetCost cost;
     public int lvl, maxlvl;
     public bool able => lvl < maxlvl && (pips ? lvl <= (Technology.maxPips / Technology.maxEra) * technology.Era : lvl <= technology.Era);
@@ -139,18 +148,80 @@ public class Tech
     public float science => cost(lvl).science;
     Technology technology;
     public bool pips;
-
-    public Tech(string descr, GetCost cost, int maxlvl, LevelUp action, Technology technology)
+    TechType type;
+    public Tech(TechType type, GetCost cost, int maxlvl, LevelUp action, Technology technology)
     {
         this.cost = cost;
         this.maxlvl = maxlvl;
-        this.descr = descr;
+        this.type = type;
         lvl = 0;
         research += () => { action(lvl++); researchAction = null; buttonEvent?.Invoke(); };
         this.technology = technology;
     }
     public override string ToString()
     {
-        return string.Format("{0} ({1} {2}ур.)", descr, lvl, ableResearch ? "" : "*");
+        string s = "";
+        switch (type)
+        {
+            case TechType.ArmyBranch:s = "Военные технологии";break;
+            case TechType.EconomicBranch: s = "Экономические технологии"; break;
+            case TechType.TechnologyEra: s = "Технологическая эра"; break;
+            case TechType.UpkeepBonus: s = "Уменьшение содержания"; break;
+            case TechType.BuildCostBonus: s = "Удешевление строительства"; break;
+            case TechType.GoldBonus: s = "Золото"; break;
+            case TechType.ManPowerBonus: s = "Рекруты"; break;
+            case TechType.WoodBonus: s = "Древесина"; break;
+            case TechType.IronBonus: s = "Железо"; break;
+            case TechType.ScienceBonus: s = "Наука"; break;
+            case TechType.MeleeArmor:s = "";break;
+            case TechType.ChargeArmor:s = "";break;
+            case TechType.RangeArmor:s = "";break;
+            case TechType.SiegeArmor:s = "";break;
+            case TechType.Damage:s = "";break;
+            case TechType.Buildings:s = "Здания";break;
+        }
+        return string.Format("{0} ({1} {2}ур.)", s, lvl, ableResearch ? "" : "*");
     }
+    public string GetDescribe()
+    {
+        switch(type)
+        {
+            case TechType.ArmyBranch: return "Позволяет исследовать технологии, которые сделают вашу армию сильнее."; 
+            case TechType.EconomicBranch: return "Позволяет исследовать технологии, которые дадут вашей державе экономическое преимущество";
+            case TechType.TechnologyEra: return "Технологическая эра поднимает максимальный уровень ваших технологий, а также дает некоторое количество очков улучшения отрядов.";
+            case TechType.UpkeepBonus: return "Уменьшает содержание армии.";
+            case TechType.BuildCostBonus: return "Уменьшает стоимость постройки зданий.";
+            case TechType.GoldBonus: return "Увеличивает поступления золота в казну.";
+            case TechType.ManPowerBonus: return "Увеличивает прирост рекрутов.";
+            case TechType.WoodBonus: return "Увеличивает дереводобычу.";
+            case TechType.IronBonus: return "Увеличивает добычу железа.";
+            case TechType.ScienceBonus: return "Увеличивает выработку очков науки";
+            case TechType.MeleeArmor: return "Повышает защиту от ближних атак всех ваших  подразделений этого типа.";
+            case TechType.ChargeArmor: return "Повышает защиту от атак кавалерии всех ваших  подразделений этого типа.";
+            case TechType.RangeArmor: return "Повышает защиту от стрелковых атак всех ваших  подразделений этого типа.";
+            case TechType.SiegeArmor: return "Повышает защиту от осадных орудий всех ваших  подразделений этого типа.";
+            case TechType.Damage: return "Повышает уровень урона всех ваших  подразделений этого типа.";
+            case TechType.Buildings: return "Улучшает здание";
+            default: return "";
+        }
+    }
+}
+public enum TechType
+{
+    TechnologyEra,
+    ArmyBranch,
+    EconomicBranch,
+    UpkeepBonus,
+    BuildCostBonus,
+    GoldBonus,
+    ManPowerBonus,
+    WoodBonus,
+    IronBonus,
+    ScienceBonus,
+    MeleeArmor,
+    ChargeArmor,
+    RangeArmor,
+    SiegeArmor,
+    Damage,
+    Buildings
 }

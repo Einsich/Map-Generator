@@ -138,7 +138,7 @@ public class SaveLoad : MonoBehaviour {
                 states[i].flag.LoadImage(File.ReadAllBytes("Assets/Texture/flags/(" + a0 + ").png"));              
 
                 states[i].Capital = regions[reader.ReadInt16()];
-                states[i].fraction = (FractionName)reader.ReadByte();
+                states[i].fraction = (FractionType)reader.ReadByte();
 
                 int l = reader.ReadInt16();
                 for (int j = 0; j < l; j++)
@@ -151,7 +151,7 @@ public class SaveLoad : MonoBehaviour {
 
             for(int i=0;i<regions.Count;i++)
             {
-                FractionName frac = regions[i].owner.fraction;
+                FractionType frac = regions[i].owner.fraction;
                 regions[i].data = new ProvinceData(frac,regions[i]);
                 regions[i].data.Load(reader);
             }

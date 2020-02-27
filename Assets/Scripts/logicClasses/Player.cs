@@ -10,19 +10,20 @@ public class Player : MonoBehaviour {
     public static List<Region> regions;
     public static List<State> states;
     public static Region curRegion;
+    public static Port curPort;
     public static Army army;
+    public static Ship ship;
     public static State curPlayer;
     public static Player instance;
+    public static Skill CastSkill;
+    public static bool CastingSkill => CastSkill != null;
     private void Awake()
     {
         instance = this;
-        curPlayer = null;
-        curRegion = null;
-        army = null;
     }
     public void Occupated(Region r, State occupant)
     {
-
+        r.Destoyed = false;
         if (occupant != r.owner)
         {
             r.ocptby = occupant;
@@ -36,9 +37,9 @@ public class Player : MonoBehaviour {
             Debug.Log(string.Format("Страна {0} вернула {1}", occupant.name, r.name));
         }
 
-        if (!r.InFogFrom(occupant))
+        if (!r.InFogFrom(curPlayer))
         {
-            MapMetrics.SetRegionState(r.territory, LandShowMode.Visible);
+            MapMetrics.SetRegionSplatState(r.territory, LandShowMode.Visible);
         }
         MapMetrics.UpdateOccupedMap();
         MapMetrics.UpdateSplatMap();
@@ -49,6 +50,9 @@ public class Player : MonoBehaviour {
             MenuManager.SetState(state);
 
         curPlayer = state;
+        foreach (var r in curPlayer.regions)
+            if (r.data.portLevel!=0)
+                Ship.CreateShip(r);
         foreach (Region r in regions)
         {
             r.UpdateSplateState(curPlayer);
@@ -59,7 +63,17 @@ public class Player : MonoBehaviour {
             states[i].SetNameStatus(!CameraController.showstate);
         }
         foreach (var army in Army.AllArmy)
+        {
             army.GetComponent<ArmyAI>().enabled = army.owner != state;
+        }
+        foreach (var army in state.army)
+        {
+            MapMetrics.UpdateAgentVision(army.curPosition, army.curPosition, army.VisionRadius, 1);
+        }
+        foreach (var ship in state.ships)
+        {
+            MapMetrics.UpdateAgentVision(ship.curPosition, ship.curPosition, ship.VisionRadius, 1);
+        }
         Army.FoggedArmy();
         MapMetrics.UpdateSplatMap();
         MenuManager.HiddenProvinceMenu();
@@ -69,12 +83,27 @@ public class Player : MonoBehaviour {
         army = sel;
         army.Selected(true);
         ArmyPanel.Show(true);
+        DeselectShip();
     }
     public static void DeselectArmy()
     {
-        army.Selected(false);
+        army?.Selected(false);
         army = null;
+        if (CastingSkill)
+            StopCastSkill();
         ArmyPanel.Show(false);
+    }
+    public static void SelectShip(Ship tap)
+    {
+        ship = tap;
+        ship.Select(true);
+        curPort = null;
+        DeselectArmy();
+    }
+    public static void DeselectShip()
+    {
+        ship?.Select(false);
+        ship = null;
     }
     public static void ArmyTap(Army tap, bool leftClick)
     {
@@ -91,15 +120,52 @@ public class Player : MonoBehaviour {
         else
         if (army && army!= tap)
         {
-            if (army.owner.diplomacy.haveWar(tap.owner.diplomacy))
+            if (CastingSkill)
             {
-                Region reg = tap.curReg;
+                if (CastSkill is IArmyCastable cast)
                 {
-                    army.TryMoveToTarget(tap, TargetType);
+                    if (cast.CanCastOnArmy(tap) && cast.CastOnArmy(tap))
+                        StopCastSkill();
                 }
-            } else
+            }
+            else
             {
-                army.TryMoveTo(tap.curPosition);
+                if (army.owner.diplomacy.haveWar(tap.owner.diplomacy))
+                {
+                    Region reg = tap.curReg;
+                    {
+                        army.TryMoveToTarget(tap, TargetType);
+                    }
+                }
+                else
+                {
+                    army.TryMoveTo(tap.curPosition);
+                }
+            }
+        }
+    }
+    public static void ShipTap(Ship tap, bool leftClick)
+    {
+        if (leftClick)
+        {
+            if (ship != null && ship != tap)
+                DeselectShip();
+            if (ship == tap)
+            {
+                DeselectShip();
+            }
+            else
+            if (curPlayer == null || tap.curOwner == curPlayer)
+            {
+                SelectShip(tap);
+            }
+        } else
+        {
+            if(army && tap.CanSetOn(army))
+            {
+                tap.SetOnArmy(army);
+                DeselectArmy();
+                SelectShip(tap);
             }
         }
     }
@@ -121,9 +187,27 @@ public class Player : MonoBehaviour {
             }
             else
             {
-                tap.Selected = true;
-                curRegion = tap;
-                MenuManager.ShowProvinceMenu(curRegion);
+                if (CastingSkill)
+                {
+                    if (CastSkill is IRegionCastable cast)
+                    {
+                            if (cast.CanCastOnRegion(tap) && cast.CastOnRegion(tap))
+                            {
+                                StopCastSkill();
+                            }
+                        
+                    }
+                    else
+                    {
+                        StopCastSkill();
+                    }
+                }
+                else
+                {
+                    tap.Selected = true;
+                    curRegion = tap;
+                    MenuManager.ShowProvinceMenu(curRegion);
+                }
             }
         }
         else if (curRegion != null)
@@ -132,9 +216,29 @@ public class Player : MonoBehaviour {
             curRegion = null;
         }
     }
+    public static void StartCastSkill(Skill skill)
+    {
+        CastSkill = skill;
+        InputManager.Instance.SpaceAction += StopCastSkill;
+        cursorType =  CursorType.CastSkill;
+        CursorHandler.SetCursor(cursorType);
+    }
+    public static void StopCastSkill()
+    {
+        CastSkill = null;
+        InputManager.Instance.SpaceAction -= StopCastSkill;
+    }
+    static CursorType cursorType = CursorType.Default;
+    private void Start()
+    {
+        CursorHandler.SetCursor(cursorType);
+    }
     void Update() {
-        if (!EventSystem.current.IsPointerOverGameObject() && (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)))
+        CursorType cursor = CursorType.Default;
+        if (!EventSystem.current.IsPointerOverGameObject())
         {
+            if (CastingSkill)
+                cursor = CursorType.CastSkill;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(ray, out hit))
@@ -159,31 +263,113 @@ public class Player : MonoBehaviour {
                         }
                     }
 
-                    if (Input.GetMouseButtonDown(1) && army)
+                    if (Input.GetMouseButtonDown(1))
                     {
-                        army.TryMoveTo(hit.point);
+                        army?.TryMoveTo(hit.point);
+                        ship?.TryMoveTo(hit.point);
+                        if(curPort)
+                        {
+                            curPort.ShipOut(hit.point);
+                        }
                     }
                 }
+                State other = null;
                 if (hit.transform.tag == "Unit")
                 {
                     Army sel = hit.transform.GetComponent<Army>();
-                    ArmyTap(sel, Input.GetMouseButtonDown(0));
+                    if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+                    {
+                        ArmyTap(sel, Input.GetMouseButtonDown(0));
+                    }
+                    other = sel.curOwner;
+                    if (CastingSkill)
+                    {
+                        if (CastSkill is IArmyCastable cast)
+                        {
+                            if (cast.CanCastOnArmy(sel))
+                                cursor = CursorType.CanCastSkill;                            
+                        }
+                    }
+                    else
+                    {
+                        if (other == curPlayer && sel != army)
+                            cursor = CursorType.Select;
+                    }                   
+                }
+                if (hit.transform.tag == "Ship")
+                {
+                    Ship sel = hit.transform.GetComponent<Ship>();
+                    if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+                    {
+                        ShipTap(sel, Input.GetMouseButtonDown(0));
+                    }
+                    other = sel.curOwner;
+                    if (CastingSkill)
+                    {
+                    }
+                    else
+                    {
+                        if (other == curPlayer && sel != ship)
+                            cursor = CursorType.Select;
+                    }
                 }
                 if (hit.transform.tag == "Town")
                 {
                     Region reg = MapMetrics.regions[int.Parse(hit.transform.name)];
-                    if (Input.GetMouseButtonDown(0))
-                        RegionTap(reg);
-                    if (army && Input.GetMouseButtonDown(1))
+                    if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
                     {
-
-                        if (reg.curOwner == army.owner)
-                            army.TryMoveTo(reg.Capital);
-                        else
+                        if (Input.GetMouseButtonDown(0))
+                            RegionTap(reg);
+                        if (army && Input.GetMouseButtonDown(1))
                         {
-                            if (army.besiege != reg)
-                                army.TryMoveToTarget(reg, TargetType);
+
+                            if (reg.curOwner == army.owner)
+                                army.TryMoveTo(reg.Capital);
+                            else
+                            {
+                                if (army.besiege != reg)
+                                    army.TryMoveToTarget(reg, TargetType);
+                            }
                         }
+                    }
+                    other = reg.curOwner;
+                    if (CastingSkill)
+                    {
+                        if(CastSkill is IRegionCastable cast)
+                        {
+                            if (cast.CanCastOnRegion(reg))
+                                cursor = CursorType.CanCastSkill;
+                            
+                        }
+                    }
+                    else
+                    {
+                        if (other == curPlayer && reg != curRegion)
+                            cursor = CursorType.Select;
+                    }
+                }
+                if (hit.transform.GetComponent<Port>())
+                {
+                    Port port = hit.transform.GetComponent<Port>();
+                    if(Input.GetMouseButtonDown(0) && port.curOwner == curPlayer && port.Ship)
+                    {
+                        curPort = port;
+                        DeselectShip();
+                    }
+                    if(Input.GetMouseButtonDown(1) && ship && port.CanshipOn(ship))
+                    {
+                        ship.TryMoveTo(port);
+                    }
+
+                }
+                if (!CastingSkill && other !=null && other.diplomacy.canAttack(curPlayer.diplomacy))
+                {
+                    switch (TargetType)
+                    {
+                        case DamageType.Melee:
+                        case DamageType.Charge: cursor = CursorType.MeleeAttack; break;
+                        case DamageType.Range: cursor = CursorType.RangeAttack; break;
+                        case DamageType.Siege: cursor = CursorType.SiegeAttack; break;
                     }
                 }
             }
@@ -191,6 +377,11 @@ public class Player : MonoBehaviour {
         if (curRegion == null)
         {
             MenuManager.HiddenProvinceMenu();
+        }
+        if(cursor != cursorType)
+        {
+            cursorType = cursor;
+            CursorHandler.SetCursor(cursorType);
         }
     }
 

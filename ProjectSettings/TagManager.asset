@@ -7,6 +7,7 @@ TagManager:
   - Map
   - Unit
   - Town
+  - Ship
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - 
   - Top
   - MapItems
-  - 
+  - Helper
   - 
   - 
   - 
@@ -43,4 +44,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Helper
+    uniqueID: 727863199
     locked: 0

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ab9e88a309bb76469b5b0a4f7cef2be, type: 3}
+  m_Name: PrefabData
+  m_EditorClassIdentifier: 
+  Persons:
+  - {fileID: 1148633570868516, guid: 74c7bd43059e9564eaa76f9e9e426b38, type: 3}
+  - {fileID: 1712904288633570, guid: 692251a272674ab4691a87407a39a772, type: 3}
+  - {fileID: 1773682495324138, guid: ff04ad1bda4c10648ad12740fdde900c, type: 3}
+  - {fileID: 1850835770471250, guid: d20999e93a0f7fd4fb73fae07aa6f6d7, type: 3}
+  - {fileID: 1177154998678224, guid: 4ddbc96701922c445bf84ab171744328, type: 3}
+  SiegeBrefab: {fileID: 1235820174976025169, guid: b30c202b21e232b4b8cf9b09098662cb,
+    type: 3}
+  HPBarBrefab: {fileID: 7968798183061681790, guid: 661e621359928dd49b2541b65564cee6,
+    type: 3}
+  Ports:
+  - {fileID: -8874037693992944548, guid: 336f53b65a877c74b945a6c72aa8c7f3, type: 3}
+  - {fileID: 8931138230579649597, guid: f62e8487acd68f24f98d208a3c1e61e9, type: 3}
+  ShipPrefab: {fileID: 4493193658130411110, guid: cee34f914ee00e142abf416537249c3d,
+    type: 3}

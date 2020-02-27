@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Army:MonoBehaviour,ITarget,IFightable
+public class Army:MonoBehaviour,ITarget,IFightable, IMovable
 {
     public State owner;
     public State curOwner => owner;
@@ -12,24 +12,26 @@ public class Army:MonoBehaviour,ITarget,IFightable
     public bool inTown;
     public ActionType ActionState;
     public List<Regiment> army;
-    public Person genegal;
+    public Person Person;
     public Vector2Int curPosition => navAgent.curCell;
-    //public bool retreat;
     public Region besiege;
     public ArmyAI AI;
     public GameObject selectia,siegeModel;
     public ArmyBar bar;
-    public bool CanExchangeRegimentWith(Region region)=> navAgent.curCell == region?.Capital && owner == region.owner;
+    public bool CanExchangeRegimentWith(Region region)=> navAgent.curCell == region?.Capital && owner == region.curOwner;
     public bool Destoyed { get; set; } = false;
     public System.Action HitAction;
     GameObject cube;
     public NavAgent navAgent;
     Animation animator;
-    public float Speed, MaxRange;
+    public float Speed { get; set; }
+    public float VisionRadius { get; set; } = 5;
+    public float MaxRange;
     public float AttackRange { get => Mathf.Min(MaxRange, DamageInfo.AttackRange(damageType)); set => MaxRange = value; }
     public Vector2 position => NavAgent.FromV3(transform.position);
     public DamageType damageType;
     public System.Action ArmyListChange;
+
     private void Start()
     {
         UpdateRegion(curReg);
@@ -63,11 +65,29 @@ public class Army:MonoBehaviour,ITarget,IFightable
                 {
                     if (LastAttack + AttackPeriod <= GameTimer.time)
                     {
+                        int RegimentWas = 0, RegimentNow = 0;
+                        if (target is Army x)
+                            RegimentWas = x.army.Count;
+                        else if (target is Region y)
+                            RegimentWas = y.data.garnison.Count;
+
                         var back = target.Hit(GetDamage(damageType));
                         LastAttack = GameTimer.time;
                         if (back != null)
                             Hit(back);
-                        if(target.Destoyed)
+
+                        if (target is Army xx)
+                            RegimentNow = xx.army.Count;
+                        else if (target is Region yy)
+                            RegimentNow = yy.data.garnison.Count;
+                        Effect effect;
+                        Skill skill;
+                        if(RegimentWas > RegimentNow && Person.HaveSkill(SkillType.SkeletonArmy, out skill))
+                        {
+                            (skill as SkeletonArmySkill).KilledRegiment += RegimentWas - RegimentNow;
+                            skill.ButtonUpdate?.Invoke();
+                        }
+                        if (target.Destoyed)
                         {
                             navAgent.target = null;
                             Stop();
@@ -75,6 +95,16 @@ public class Army:MonoBehaviour,ITarget,IFightable
                             {
 
                                 Player.instance.Occupated(region, owner);
+                            }
+                        } else
+                        if(target is Army enemy)
+                        {
+                            if(Person.HaveEffect(EffectType.Fear, out effect))
+                            {
+                                if(Random.value < (effect as Fear).StunPropability(damageType))
+                                {
+                                    //todo stun
+                                }
                             }
                         }
                     }
@@ -97,6 +127,16 @@ public class Army:MonoBehaviour,ITarget,IFightable
                 break;
         }
     }
+    public void CellChange(Vector2Int oldCell, Vector2Int newCell)
+    {
+
+        UpdateRegion(MapMetrics.GetRegion(newCell));
+        if (owner == Player.curPlayer)
+        {
+            UpdateFog(oldCell, newCell);
+        }
+            Army.FoggedArmy();
+    }
     void UpdateRotation()
     {
         if (selectia.activeSelf)
@@ -106,18 +146,18 @@ public class Army:MonoBehaviour,ITarget,IFightable
     {
         if (cur != curReg_)
         {
-            if (genegal is Trader trader)
-            {
-                if (curReg_ != null)
-                    trader.UpdateInfluence(curReg_, false);
-                trader.UpdateInfluence(cur, true);
-            }
             curReg_ = cur;
         }
+        MenuManager.CheckExchangeRegiment();
+        if (Person is Jaeger)
+            UpdateSpeed();
     }
     
     public void UpdateFog(Vector2Int prev,Vector2Int next)
     {
+        MapMetrics.UpdateAgentVision(prev, next, VisionRadius);
+        MapMetrics.UpdateSplatMap();
+        return;
         if(Player.curPlayer==owner)
         {
             Region r1 = MapMetrics.GetRegion(prev)
@@ -139,14 +179,20 @@ public class Army:MonoBehaviour,ITarget,IFightable
         if (Player.curPlayer == null)
             return;
         foreach (State st in Main.states)
-            foreach (Army army in st.army)
-                if (Player.curPlayer != army.owner && !CameraController.showstate)
-                {
-                    if (army.Fogged )
-                        army.Active = false;
-                    else
-                        army.Active = true;
-                }
+        {
+            if (Player.curPlayer != st)
+            {
+                foreach (Army army in st.army)
+                    if (!CameraController.showstate)
+                    {
+                        army.Active = !army.Fogged;
+                    }
+            } else
+            {
+                foreach (Army army in st.army)
+                    army.Active = true;
+            }
+        }
     }
 
     public void Selected(bool selected)
@@ -169,22 +215,19 @@ public class Army:MonoBehaviour,ITarget,IFightable
             Selected(sel);
         }
     }
-    public bool Fogged
-    {
-        get { return curReg.HiddenFrom(Player.curPlayer) || curReg.InFogFrom(Player.curPlayer); }
-    }
+    public bool Fogged => !MapMetrics.Visionable(curPosition);
     public void InitArmy(List<Regiment>list,Region home,Person person)
     {
         gameObject.SetActive(true);
-        army = list;        
-        genegal = person;
-        genegal.curArmy = this;
+        army = list;
+        Person = person;
+        Person.curArmy = this;
         owner = home.owner;
         navAgent = gameObject.AddComponent<NavAgent>();
-        navAgent.SetToArmy();
         navAgent.pos = home.Capital + new Vector2(0.5f, 0.5f);
         transform.position = MapMetrics.GetCellPosition(home.Capital);
         navAgent.curCell = home.Capital;
+        navAgent.SetToMovable(this);
         inTown = true;
         AI.army = this;
         Destoyed = false;
@@ -195,6 +238,11 @@ public class Army:MonoBehaviour,ITarget,IFightable
         // ArmyListChange();
         UpdateRange();
         UpdateSpeed();
+        UpdateAttackSpeed();
+        if (Player.curPlayer == curOwner)
+        {
+            MapMetrics.UpdateAgentVision(navAgent.curCell, navAgent.curCell, VisionRadius, 1);
+        }
     }
     public void ExchangeRegiment(Regiment regiment)
     {
@@ -217,13 +265,13 @@ public class Army:MonoBehaviour,ITarget,IFightable
     {
         State state = home.owner;
 
-        GameObject def = Instantiate(Main.instance.ArmyPrefab[(int)state.fraction]);
+        GameObject def = Instantiate(PrefabHandler.GetArmyPrefab(person.personType));
         Army army = def.GetComponent<Army>();
         army.AI = def.AddComponent<ArmyAI>();
-        army.siegeModel = Instantiate(Main.instance.SiegePrefab, Main.instance.Towns);
+        army.siegeModel = Instantiate(PrefabHandler.GetSiegePrefab, Main.instance.Towns);
         army.siegeModel.SetActive(false);
         state.army.Add(army);
-        ArmyBar bar = Instantiate(Main.instance.ArmyBarPrefab, Main.instance.mainCanvas);
+        ArmyBar bar = Instantiate(PrefabHandler.GethpBarPrefab, Main.instance.mainCanvas);
         army.bar = bar;
         army.InitArmy(list, home, person);
         bar.currentArmy = army;
@@ -234,7 +282,7 @@ public class Army:MonoBehaviour,ITarget,IFightable
     }
     public bool TryMoveToTarget(IFightable target, DamageType damageType)
     {
-        if (inTown && curReg.siegeby)
+        if (inTown && curReg.CurrentSiege!= null)
             return false;
         if (!owner.diplomacy.canAttack(target.curOwner.diplomacy))
             return false;
@@ -242,6 +290,11 @@ public class Army:MonoBehaviour,ITarget,IFightable
         bool inRadius = target != null && (target.position - position).magnitude <= AttackRange;
         if (inRadius)
         {
+            if (ActionState == ActionType.Move)
+            {
+                navAgent.Stop();
+                Stop();
+            }
             Fight(target);
             navAgent.target = target;
             return false;
@@ -261,7 +314,7 @@ public class Army:MonoBehaviour,ITarget,IFightable
     public bool TryMoveTo(Vector2Int to)=> TryMoveTo(to, MapMetrics.GetCellPosition(to));
     public bool TryMoveTo(Vector2Int to,Vector3 p)
     {
-        if (inTown && curReg.siegeby)
+        if (inTown && curReg.CurrentSiege!=null)
             return false;
         bool res =  navAgent.MoveTo(new Vector2(p.x, p.z), to);
         if (res)
@@ -276,6 +329,12 @@ public class Army:MonoBehaviour,ITarget,IFightable
         if (besiege != null)
         {
             besiege.SiegeEnd();
+        }
+        Effect effect;
+        if(Person.HaveEffect(EffectType.Paling, out effect))
+        {
+            (effect as Paling).EffectAction.actually = false;
+            effect.EffectAction.onAction();
         }
         animator.Play("walk");
         ActionState = ActionType.Move;
@@ -294,7 +353,7 @@ public class Army:MonoBehaviour,ITarget,IFightable
         if (Destoyed)
             return;
         Destoyed = true;
-        genegal.Die();
+        Person.Die();
         gameObject.SetActive(false);
         bar.gameObject.SetActive(false);
         navAgent.ResetNavAgent();
@@ -345,21 +404,69 @@ public class Army:MonoBehaviour,ITarget,IFightable
             if (ai.enabled)
                 ai.DoRandomMove();
     }
+    public void Heal(float heal)
+    {
+        if (army.Count == 0)
+            return;
+        int Count = 5;
+        for (int i = 0, j; i < Count; i++)
+        {
+            j = Random.Range(0, army.Count);
+            army[j].count = Mathf.Clamp(army[j].count + heal / Count, 0, army[j].baseRegiment.maxcount);
+        }
+
+        bar.UpdateInformation();
+        HitAction?.Invoke();
+    }
     public void UpdateManpower()
     {
         Region region = curReg;
-        if(curReg.owner == owner&& curReg.ocptby==null)
+        int manpowerBonus = 0;
+        Effect effect;
+        if((navAgent.TerrainType == TerrainType.ForestLeaf || navAgent.TerrainType == TerrainType.ForestSpire) && Person.HaveEffect(EffectType.ForestBrothers,out effect))
         {
-            int mp = curReg.Capital == navAgent.curCell ? GameConst.RecruitInTown : GameConst.RecruitInCountry;
+            manpowerBonus += (effect as ForestBrothers).ManpowerIncrease;
+        }
+        if ( Person.HaveEffect(EffectType.Sabotage, out effect))
+        {
+            manpowerBonus -= (effect as Sabotage).Deplention;
+        }
+        if (Person.HaveEffect(EffectType.DeadMarch, out effect))
+        {
+            manpowerBonus += (effect as DeadMarch).RegenBonus;
+        }
+        TheBats bats = null;
+        float vamrirism = 0;
+        if(Person.HaveEffect(EffectType.TheBats, out effect))
+        {
+            bats = effect as TheBats;
+        }
+        if (curReg.curOwner == owner && inTown)
+            manpowerBonus += GameConst.RecruitInTown;
+        if (manpowerBonus != 0)
+        {
             foreach (Regiment regiment in army)
-                if (owner.treasury.Manpower >= mp)
+                if (owner.treasury.Manpower >= manpowerBonus || manpowerBonus < 0 || bats !=null)
                 {
-                    float d = regiment.count + mp > regiment.baseRegiment.maxcount ? regiment.baseRegiment.maxcount - regiment.count : mp;
+                    float d = regiment.count + manpowerBonus > regiment.baseRegiment.maxcount ? regiment.baseRegiment.maxcount - regiment.count : manpowerBonus;
+                    float v = bats != null ? bats.ArmoredVampirism(regiment.baseRegiment.ArmorLvl(DamageType.Melee)) : 0; ;
+                    d -= v;
+                    vamrirism += v;
                     owner.treasury -= new Treasury(0, d,0,0,0);
                     regiment.count += d;
                 }
                 else
                     break;
+        }
+        if(manpowerBonus <0 || bats != null)
+        {
+            army.RemoveAll(x => x.count <= 0);
+            ArmyListChange();
+            HitAction?.Invoke();
+        }
+        if(bats !=null)
+        {
+            bats.Vampir.curArmy.Heal(vamrirism * bats.VampirismQuality);
         }
         bar.UpdateInformation();
 
@@ -368,18 +475,56 @@ public class Army:MonoBehaviour,ITarget,IFightable
     public void UpdateUpkeep()
     {
         Treasury upkeep = new Treasury(0);
+        Effect effect;
+        VassalDebt debt = null;
+        if (Person.HaveEffect(EffectType.VassalDebt, out effect))
+            debt = effect as VassalDebt;
         foreach (var g in army)
-            upkeep += g.baseRegiment.upkeep * owner.technology.UpkeepBonus;
-        owner.treasury -= upkeep;
+        {
+            float t = 1f;
+            t *= debt != null? debt.ReductionUpkeep(g.baseRegiment.type) : 1f;
+            upkeep += g.baseRegiment.upkeep * owner.technology.UpkeepBonus * t;
+        }
+        owner.Income -= upkeep;
     }
-    void UpdateSpeed()
+    public void UpdateSpeed()
     {
         bool[] HaveRegimentType = new bool[(int)RegimentType.Count];
         for (int i = 0; i < army.Count; i++)
         {
             HaveRegimentType[(int)army[i].baseRegiment.type] = true;
         }
-        Speed = HaveRegimentType[(int)RegimentType.Artillery] ? 2.5f : HaveRegimentType[(int)RegimentType.Infantry] ? 5f : 10f;
+        RegimentType slowest;
+        slowest = HaveRegimentType[(int)RegimentType.Artillery] ? RegimentType.Artillery : HaveRegimentType[(int)RegimentType.Infantry] ? RegimentType.Infantry : RegimentType.Cavalry;
+
+        Effect effect;
+        switch(slowest)
+        {
+            case RegimentType.Artillery: Speed = 2.5f;break;
+            case RegimentType.Infantry: Speed = 5f;break;
+            case RegimentType.Cavalry: Speed = 10f;break;
+        }
+        if(Person.HaveEffect(EffectType.HeavyArmor, out effect))
+        {
+            Speed *= (effect as HeavyArmor).ReductionSpeed(slowest);
+
+        }
+        if (Person.HaveEffect(EffectType.Charge, out effect))
+        {
+            Speed *= (effect as Charge).SpeedBonus;
+        }
+        if ((navAgent.TerrainType == TerrainType.ForestLeaf || navAgent.TerrainType == TerrainType.ForestSpire) && Person.HaveEffect(EffectType.ForestTrails, out effect))
+        {
+            Speed *= (effect as ForestTrails).SpeedBonus;
+        }
+        if (Person.HaveEffect(EffectType.Sabotage, out effect))
+        {
+            Speed *= (effect as Sabotage).SpeedDebuff;
+        }
+        if (Person.HaveEffect(EffectType.DeadMarch, out effect))
+        {
+            Speed *= (effect as DeadMarch).SpeedBonus;
+        }
     }
     void UpdateRange()
     {
@@ -391,13 +536,37 @@ public class Army:MonoBehaviour,ITarget,IFightable
         }
         MaxRange = DamageInfo.AttackRange(maxType);
     }
+    public void UpdateAttackSpeed()
+    {
+        float t = Person.AttackSpeed;
+        Effect effect;
+        if((navAgent.TerrainType == TerrainType.ForestLeaf || navAgent.TerrainType == TerrainType.ForestSpire) && Person.HaveEffect(EffectType.ForestTrails, out effect))
+        {
+            t /= (effect as ForestTrails).AttackSpeedBonus;
+        }
+        AttackPeriod = GameConst.AttackPeriod * t;
+    }
     public DamageInfo GetDamage(DamageType damageType)
     {
         DamageInfo info = new DamageInfo();
+        
         foreach (Regiment regiment in army)
         {
             if (damageType <= regiment.baseRegiment.damageType)
-                info.damage[(int)regiment.baseRegiment.damageType] += (regiment.NormalCount+1)*0.5f * regiment.baseRegiment.damage;
+            {
+
+                info.damage[(int)regiment.baseRegiment.damageType] += (regiment.NormalCount + 1) * 0.5f *
+                    (regiment.baseRegiment.damage(Person.DamageLvlBuff(regiment.baseRegiment.type, regiment.baseRegiment.damageType) + Person.DamageTypeBuff(regiment.baseRegiment.damageType)) +
+                    Person.DamageBuff(regiment.baseRegiment.type, regiment.baseRegiment.damageType));
+            }
+
+        }
+        Effect effect;
+        if(Person.HaveEffect(EffectType.Charge, out effect))
+        {
+            (effect as Charge).EffectAction.actually = false;
+            Person.StopUseSkillOnHim(effect);
+            UpdateSpeed();
         }
         return info;
     }
@@ -414,6 +583,11 @@ public class Army:MonoBehaviour,ITarget,IFightable
         {
             return curReg.Hit(damage);
         }
+        Effect effect;
+        if(Person.HaveEffect(EffectType.Immortaly, out effect))
+        {
+            return null;
+        }
         Regiment[] targets = new Regiment[4] { army[Random.Range(0, army.Count)], army[Random.Range(0, army.Count)], army[Random.Range(0, army.Count)], army[Random.Range(0, army.Count)] };
         float q = 1f / targets.Length;
 
@@ -421,7 +595,7 @@ public class Army:MonoBehaviour,ITarget,IFightable
         {
             float d = 0;
             for (int i = 0; i < (int)DamageType.Count; i++)
-                d += damage.damage[i] * DamageInfo.Armor(target.baseRegiment.armor[i] ); 
+                d += damage.damage[i] * DamageInfo.Armor(target.baseRegiment.ArmorLvl((DamageType)i) + Person.ArmorLvlBuff(target.baseRegiment.type, (DamageType)i));
             d *= q;
             target.count -= d;
         }

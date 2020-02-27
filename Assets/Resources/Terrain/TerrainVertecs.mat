@@ -141,12 +141,12 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _SelectTime: 38.495663
+    - _SelectTime: 396.45618
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _Speed: 0.3
     - _SrcBlend: 1
-    - _TerrainMode: 0
+    - _TerrainMode: 1
     - _Tiling: 1
     - _UJump: 0.25
     - _UVSec: 0

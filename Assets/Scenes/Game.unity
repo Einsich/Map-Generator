@@ -191,7 +191,7 @@ Camera:
   m_Depth: 1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 32
+    m_Bits: 1056
   m_RenderingPath: 1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -448,13 +448,11 @@ MonoBehaviour:
     type: 3}
   codePanel: {fileID: 4969725606365502848, guid: 04587d9c1fd291643bee7f85ea43e07c,
     type: 3}
-  battlePanel: {fileID: 1793491459027725857, guid: c772723f0db56864885b3dc0ff930b83,
-    type: 3}
   provincePanel: {fileID: 3472519577864909636, guid: 0ae057e383081b74aabcc63a5c06df1c,
     type: 3}
   armyPanel: {fileID: 7102497816962068600, guid: 4bf1128125137f846aa6c4cf18474905,
     type: 3}
-  batResPref: {fileID: 5181125841955935742, guid: 54de9ecdbd51a2244aad5c5c3435556f,
+  HelpManager: {fileID: 5996435293676352951, guid: 6a38b9424714b8342b982a9d6564cb68,
     type: 3}
 --- !u!1 &519420028
 GameObject:
@@ -861,6 +859,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1371290427}
   - component: {fileID: 1371290426}
+  - component: {fileID: 1371290428}
   m_Layer: 0
   m_Name: DASMAIN
   m_TagString: Untagged
@@ -887,10 +886,6 @@ MonoBehaviour:
     type: 3}
   flagPrefab: {fileID: 1406898825258846, guid: 2cc1826e238a03f4484a5104c714524e, type: 3}
   WayPoint: {fileID: 1820316038017560, guid: b1f364ebdf2d40c4482f00d9d652528f, type: 3}
-  SiegePrefab: {fileID: 1235820174976025169, guid: b30c202b21e232b4b8cf9b09098662cb,
-    type: 3}
-  ArmyBarPrefab: {fileID: 7968798183061681790, guid: 661e621359928dd49b2541b65564cee6,
-    type: 3}
   terrainItem:
   - {fileID: 1683440329320424, guid: 7bb68b39a05eea74ebd300305b377e6f, type: 3}
   - {fileID: 1617806343934738, guid: c76ba912af86acc429a94e8f17659f35, type: 3}
@@ -903,12 +898,6 @@ MonoBehaviour:
   WallsPrefab:
   - {fileID: 1044448935764921527, guid: 8f07ccc24047cb94bb514b7bb85ba270, type: 3}
   - {fileID: 1044448935764921527, guid: 8f07ccc24047cb94bb514b7bb85ba270, type: 3}
-  ArmyPrefab:
-  - {fileID: 1148633570868516, guid: 74c7bd43059e9564eaa76f9e9e426b38, type: 3}
-  - {fileID: 1712904288633570, guid: 692251a272674ab4691a87407a39a772, type: 3}
-  - {fileID: 1773682495324138, guid: ff04ad1bda4c10648ad12740fdde900c, type: 3}
-  - {fileID: 1850835770471250, guid: d20999e93a0f7fd4fb73fae07aa6f6d7, type: 3}
-  - {fileID: 1177154998678224, guid: 4ddbc96701922c445bf84ab171744328, type: 3}
   Towns: {fileID: 1823500041}
   Ports: {fileID: 252584730}
   Trees: {fileID: 1972576857}
@@ -938,6 +927,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1371290428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1371290425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3c72ce5f4ee6ef4a86cecd3a8b7bb40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  KeyCodes: 1b000000200000000d00000073000000710000007700000065000000
 --- !u!1 &1823500040
 GameObject:
   m_ObjectHideFlags: 0

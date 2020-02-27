@@ -5,10 +5,9 @@ using UnityEngine.UI;
 
 public class Main : MonoBehaviour
 {
-    public GameObject Text, worldborder, CoronaPrefab, flagPrefab, WayPoint,SiegePrefab;
-    public ArmyBar ArmyBarPrefab;
+    public GameObject Text, worldborder, CoronaPrefab, flagPrefab, WayPoint;
     public GameObject[] terrainItem;
-    public GameObject[] Port,TownPrefab,WallsPrefab,ArmyPrefab;
+    public GameObject[] Port,TownPrefab,WallsPrefab;
     public Transform Towns, Ports, Trees, Names;
     public MapMesh mapMeshPrefab;
     public Material terrainMat,riverMat;
@@ -59,7 +58,7 @@ public class Main : MonoBehaviour
         terrainIndexes = terrain;
         River = river;
         MapMetrics.noise = noiseSorse;
-        MapMetrics.splatmap = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        MapMetrics.SetSplatMap(new Texture2D(w, h, TextureFormat.RGBA32, false));
         MapMetrics.SetHeights(HeightArr,h,w);
         Navigation.Init(h, w);
         regionIndex = Player.regionIndex = MapMetrics.cellStateIndex = regIndex;
@@ -84,7 +83,8 @@ public class Main : MonoBehaviour
         CreateTerrain();
         CreateArmy();
         SetMapMode(MapMode.Politic);
-        CameraController.SetPosition(new Vector3(w / 2, seaLevelf, h / 2));
+        
+        CameraController.SetPosition(new Vector3(st[0].Capital.position.x, seaLevelf, st[0].Capital.position.y));
         MenuManager.StartTimer();
         Player.SetState(st[0]);
     }
@@ -136,28 +136,30 @@ public class Main : MonoBehaviour
                 continent++;
             }
     }
-    void BuildPorts()
+    void BuildPort(Region r)
     {
-        foreach(var r in regions)
-        if(r.portIdto>=0)
-            {
-                Vector2Int loc = r.GetPortPosition();
-                Vector2 rot = Vector2.zero;
-                int n = 0;
-                if (MapMetrics.InsideMap(loc.y, loc.x) && regions[regionIndex[loc.y, loc.x]].iswater)
-                { n++; rot += new Vector2(1, 1); }
-                if (MapMetrics.InsideMap(loc.y, loc.x - 1) && regions[regionIndex[loc.y, loc.x - 1]].iswater)
-                { n++; rot += new Vector2(-1, 1); }
-                if (MapMetrics.InsideMap(loc.y - 1, loc.x) && regions[regionIndex[loc.y - 1, loc.x]].iswater)
-                { n++; rot += new Vector2(1, -1); }
-                if (MapMetrics.InsideMap(loc.y - 1, loc.x - 1) && regions[regionIndex[loc.y - 1, loc.x - 1]].iswater)
-                { n++; rot += new Vector2(-1, -1); }
-                rot /= n;
-                GameObject port = Instantiate(Port[(int)r.owner.fraction], Ports);
-                port.transform.position = MapMetrics.GetCornerPosition(loc.y, loc.x, true);
-                port.transform.rotation = Quaternion.Euler(0, Vector2.SignedAngle(rot, new Vector2(0, -1)), 0);
-                r.Port = port;
-            }
+
+
+        Vector2Int loc = r.GetPortPosition();
+        Vector2 rot = Vector2.zero;
+        int n = 0;
+        if (MapMetrics.InsideMap(loc.y, loc.x) && regions[regionIndex[loc.y, loc.x]].iswater)
+        { n++; rot += new Vector2(1, 1); }
+        if (MapMetrics.InsideMap(loc.y, loc.x - 1) && regions[regionIndex[loc.y, loc.x - 1]].iswater)
+        { n++; rot += new Vector2(-1, 1); }
+        if (MapMetrics.InsideMap(loc.y - 1, loc.x) && regions[regionIndex[loc.y - 1, loc.x]].iswater)
+        { n++; rot += new Vector2(1, -1); }
+        if (MapMetrics.InsideMap(loc.y - 1, loc.x - 1) && regions[regionIndex[loc.y - 1, loc.x - 1]].iswater)
+        { n++; rot += new Vector2(-1, -1); }
+        // rot /= n;
+        Port port = Instantiate(PrefabHandler.GetPort(r.owner.fraction), Ports);
+        port.transform.position = MapMetrics.GetCornerPosition(loc.y, loc.x, true);
+        port.transform.rotation = Quaternion.Euler(0, Vector2.SignedAngle(rot, new Vector2(0, -1)), 0);
+        port.CornerPosition = loc + rot.normalized * 0.5f;
+        port.Region = r;
+        r.Port = port;
+        port.gameObject.SetActive(false);
+
     }
       
     void BuildWorld()
@@ -177,7 +179,6 @@ public class Main : MonoBehaviour
         
         SetProvNames();
         SetTowns();
-        BuildPorts();
 
         foreach (var state in states)
         {
@@ -209,7 +210,7 @@ public class Main : MonoBehaviour
         terrainMat.SetTexture("_ProvincesMap", MapMetrics.provincemap);
         terrainMat.SetColor("_Select", Color.white);
 
-        Shader.SetGlobalTexture("_SplatMap", MapMetrics.splatmap);
+        Shader.SetGlobalTexture("_SplatMap", MapMetrics.GetSplatMap());
         Shader.SetGlobalVector("_Size", new Vector4(1f / w, 1f / h, w, h));
     }
 
@@ -247,6 +248,10 @@ public class Main : MonoBehaviour
                 reg.pos = NavAgent.FromV3(go.transform.position = MapMetrics.GetCellPosition(reg.Capital));
                 go.transform.rotation = Quaternion.Euler(0, UnityEngine.Random.Range(-90, 90), 0);
                 go.transform.GetChild(1).localRotation = Quaternion.Inverse(go.transform.rotation);
+                if (reg.portIdto >= 0)
+                    BuildPort(reg);
+                else
+                    reg.data.buildings[(int)BuildingType.Port] = 0;
                 reg.RebuildTown();
             }
     }
@@ -433,25 +438,31 @@ public class Main : MonoBehaviour
     static bool CanMoveTo(Vector2Int prev,Vector2Int cur, State goer,bool lastCell)
     {
         
-        Region reg = MapMetrics.GetRegion(cur);
+        Region reg = MapMetrics.GetRegion(cur),
+            prevreg= MapMetrics.GetRegion(prev);
+        if (reg.iswater != prevreg.iswater)
+            return false;
         State s = reg.ocptby == null ? reg.owner : reg.ocptby;
         if (goer == s) 
             return true;
-        if (s == null || !lastCell &&  reg.Capital == cur)
+        if (s == null)
+            return true;
+        if ( !lastCell &&  reg.Capital == cur)
             return false;
         Army army = Army.ArmyInPoint(cur);
         if (army != null && !goer.diplomacy.canAttack(army?.owner.diplomacy))
             return false;
 
-        return goer.diplomacy.canMove(s.diplomacy) || MapMetrics.GetRegion(prev).owner == s;
+        return goer.diplomacy.canMove(s.diplomacy) || prevreg.owner == s;
         
     }
+    public static TerrainType GetTerrainType(Vector2Int p) => (TerrainType)(terrainIndexes[p.y * w + p.x] & 31);
     public static float CellMoveCost(Vector2Int p)
     {
         uint t = terrainIndexes[p.y * w + p.x];
         TerrainType type = (TerrainType)(t & 31);
         float riv = (t & 0x80) != 0 ? 4 : 0;
-        if (t == 0) return 10000;
+        //if (t == 0) return 10000;
         if (TerrainType.ForestLeaf <= type && type <= TerrainType.ForestSpire)
             return 5 + riv;
         if (TerrainType.MountainDesert <= type && type <= TerrainType.MountainVerySnow)

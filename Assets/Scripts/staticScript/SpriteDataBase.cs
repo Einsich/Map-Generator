@@ -7,5 +7,10 @@ public class SpriteDataBase : ScriptableObject
 {
 
     [SerializeField] public Sprite[] RegimentTypes;
+    [SerializeField] public Sprite[] PersonTypes;
+    [SerializeField] public Sprite[] Skills;
+    [SerializeField] public Sprite[] Cursors;
+    [SerializeField] public Texture2D[] Buildings;
+    [SerializeField] public Sprite[] BuildFrames;
 }
 
