@@ -187,7 +187,7 @@ public class ProvinceData {
         return order;
     }
 
-    public void CalculateIncome()
+    public Treasury CalculateIncome()
     {
         incomeclear = defaultTreasure;
         for (int build = 0; build < specialCount; build++)
@@ -195,7 +195,7 @@ public class ProvinceData {
 
         income = incomeclear * IncomeCoefFromDistance() * IncomeCoefFromOrder() * region.owner.technology.TreasureBonus;
         SomeChanges?.Invoke();
-        
+        return income;
 
     }
     public void EconomyUpdate()

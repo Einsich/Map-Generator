@@ -34,10 +34,11 @@
 		LOD 200
 
 		CGPROGRAM
-		#pragma surface surf Standard vertex:vert
-
-		#pragma target 3.0
+		#pragma surface surf Standard addshadow fullforwardshadows vertex:vert tessellate:tessFixed nolightmap 
+		//	#pragma surface surf Standart addshadow fullforwardshadows vertex:vert  nolightmap
+		#pragma target 4.6
 		#include "MapData.cginc"
+#include "Tessellation.cginc"
 
 		sampler2D _MainTex,_MainTexNorm,_OccupeTex,_OccupeMap;
 		sampler2D _FogNoise, _MapBackgroung;
@@ -53,7 +54,6 @@
 	float _SelectTime, _BorderMod;
 		struct Input {
 			float2 uv_MainTex;
-			float2 ocuv;
 			float3 worldPos;
 		};
 
@@ -61,11 +61,16 @@
 		UNITY_INSTANCING_BUFFER_START(Props)
 		UNITY_INSTANCING_BUFFER_END(Props)
 
-			void vert(inout appdata_full v, out Input o) {
-			UNITY_INITIALIZE_OUTPUT(Input, o);
-			o.ocuv = v.texcoord1.xy;
+		float4 tessFixed()
+		{
+			return float4(3,3,3,3);
 		}
-
+		Input vert(inout appdata_full v) {
+			Input o;
+			v.vertex.y = GetHeight(v.vertex);
+			v.vertex.xyz += GetNoise(v.vertex);
+			return o;
+		}
 		float3 UnpackDerivativeHeight(float4 textureData) {
 			float3 dh = textureData.agb;
 			dh.xy = dh.xy * 2 - 1;
@@ -285,18 +290,18 @@
 			
 			float2 uv = IN.uv_MainTex;
 			float4 c = tex2D(_MainTex, uv);
-			
-			float4 d = tex2D(_OccupeTex, IN.ocuv*0.5f) * tex2D(_OccupeMap, uv);			
+			float2 ocuv = float2(IN.worldPos.x, IN.worldPos.z);
+			float4 d = tex2D(_OccupeTex, ocuv*0.5f) * tex2D(_OccupeMap, uv);			
 			c = c*(1 - d.a) + d;
 
 			float3 norm;
-			float4 water = Water(norm, IN.ocuv)*(1 - c.a);
+			float4 water = Water(norm, ocuv)*(1 - c.a);
 
-			o.Normal = norm*(1 - c.a)+ Normals(uv, IN.ocuv)*(c.a);
+			o.Normal = norm*(1 - c.a)+ Normals(uv, ocuv)*(c.a);
 
 			if (_TerrainMode > 0)
 			{
-				c = Terrain(uv, IN.ocuv);
+				c = Terrain(uv,ocuv);
 			}
 			c = c * (c.a) + water * (1 - c.a);
 			float2 world = float2(uv.x* _Size.z, uv.y* _Size.w);
@@ -307,7 +312,7 @@
 			{
 				c *= (0.5*sin((_Time.y - _SelectTime)*4) + 1.5);
 			}
-			float4 border =  Border(uv, IN.ocuv);
+			float4 border =  Border(uv, ocuv);
 			if (border.a > 0)
 				c *= border;
 			float4 fog = FogAndIncognito(IN.worldPos);

@@ -32,6 +32,7 @@ static class MapMetrics
         SplatState = new sbyte[splatmap.width, splatmap.height];
     }
     public static Texture2D GetSplatMap() => splatmap;
+    public static Texture2D GetHeightMap => HeightTexture;
     public static void SetHeights(byte[] height,int n,int m)
     {
         heights = height;

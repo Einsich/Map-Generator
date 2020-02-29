@@ -212,6 +212,10 @@ public class Main : MonoBehaviour
 
         Shader.SetGlobalTexture("_SplatMap", MapMetrics.GetSplatMap());
         Shader.SetGlobalVector("_Size", new Vector4(1f / w, 1f / h, w, h));
+        Shader.SetGlobalTexture("_HeightMap", MapMetrics.GetHeightMap);
+        Shader.SetGlobalTexture("_Noise", MapMetrics.noise);
+        Shader.SetGlobalFloat("_MaxHeight", MapMetrics.MaxHeight); 
+        Shader.SetGlobalFloat("_SeaLevel", MapMetrics.SeaLevel); 
     }
 
     void SetProvNames()

@@ -44,9 +44,9 @@ static class Creator {
     {
         if (!wasCreate)
         {
-            int w = 100, h = 100, seed = 1000;
+            int w = 100, h = 100, seed = 0;
             byte sea = 127;
-            byte[] ha = MyNoise.GetMap(h, w, seed, 0.5f, NoiseType.PerlinNoise);
+            byte[] ha = MyNoise.GetMap(h, w, seed, 0.5f, NoiseType.ContinentAlgorithm);
             MainMenu.CreateMiniMap(sea, ha, w, h);
             Create(h, w, seed, sea, ha);
         }
