@@ -54,30 +54,12 @@ public class NavAgent : MonoBehaviour
             return;
 
         Vector2 direction = DirectionIndex();
-        Vector2 possave = pos;
         float delta = Time.fixedDeltaTime* GameTimer.timeScale * Movable.Speed * SpeedLandCoef;
         Speed = delta * direction;
         pos += Speed;
 
         needAngle = Vector3.SignedAngle(transform.forward, new Vector3(direction.x, 0, direction.y), Vector3.up);
-        float dist = (next - pos).sqrMagnitude;
-        if (dist < .01f)
-        {
-
-            next = nextpl;
-            if (pathIndex < path.Count)
-            {
-                nextpl = path[pathIndex] + Vector2.one * 0.5f;
-                UpdateCellInformation(path[pathIndex]);
-                pathIndex++;
-            }
-            else
-            {
-                nextpl = end;
-                UpdateCellInformation(Navigation.GetFixedPosition(end));
-            }
-
-        }
+        
 
         if ((pos - end).sqrMagnitude < 0.001f)
         {
@@ -147,10 +129,12 @@ public class NavAgent : MonoBehaviour
     {
         if (wayIndex >= waypoints.Count)
             return;
-        float dist = (FromV3(waypoints[wayIndex].transform.position) - pos).sqrMagnitude;
+        Vector2 v = FromV3(waypoints[wayIndex].transform.position);
+        float dist = (v - pos).sqrMagnitude;
         if (dist < 0.01f)
         {
             waypoints[wayIndex++].SetActive(false);
+            UpdateCellInformation(Navigation.GetFixedPosition(v));
         }
     }
     void UpdateRotation()
