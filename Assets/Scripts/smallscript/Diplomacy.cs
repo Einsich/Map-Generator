@@ -92,9 +92,9 @@ public bool canDeclareWar(Diplomacy dip) => !haveWar(dip) && !haveAlliance(dip) 
             foreach(var x in state.fabricateCB)
             {
                 int i = x.Item1.state.ID;
-                if(state.state.Gold >= x.Item2)
+                if(state.state.treasury.Gold >= x.Item2)
                 {
-                    state.state.Gold -= x.Item2;
+                    state.state.SpendTreasure(new Treasury(x.Item2,0,0,0,0), BudgetType.OtherBudget);
                     state.casusbelli[i] += x.Item2;
                 }
 

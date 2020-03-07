@@ -5,24 +5,72 @@ using UnityEngine.UI;
 
 public class EconomicPanel : MonoBehaviour
 {
+    [SerializeField] private Slider armyBudget, buildBudget, techBudget, otherBudget;
+    [SerializeField] private Text armyBudgetText, buildBudgetText, techBudgetText, otherBudgetText, allBudgetText;
+    [SerializeField] private Toggle autoArmy, autoBuild, autoResearch;
+
     private State state;
 
     public void ShowEconomic(State state)
     {
         this.state = state;
         state.IncomeChanges += UpdateInformation;
+        state.TreasureChange += UpdateInformation;
+        armyBudget.onValueChanged.AddListener((x)=> SliderValueChange(x, BudgetType.ArmyBudget));
+        buildBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.BuildingBudget));
+        techBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.TechnologyBudget));
+
+        autoBuild.onValueChanged.AddListener(state.stateAI.autoBuilder.AutoBuilding);
+        autoResearch.onValueChanged.AddListener(state.stateAI.autoReasercher.AutoResearching);
+        SliderUpdate();
+        ToggleUpdate();
         UpdateInformation();
+    }
+    private void ToggleUpdate()
+    {
+        autoArmy.isOn = false;
+        autoBuild.isOn = state.stateAI.autoBuilder.IsOn;
+        autoResearch.isOn = state.stateAI.autoReasercher.IsOn; 
+    }
+    private void SliderUpdate()
+    {
+        armyBudget.value = state.stateAI.armyBudget;
+        buildBudget.value = state.stateAI.buildingBudget;
+        techBudget.value = state.stateAI.technologyBudget;
+        otherBudget.value = 1 - state.stateAI.armyBudget - state.stateAI.buildingBudget;
     }
     private void UpdateInformation()
     {
         //use it
         //state.regions[i].data.CalculateIncome(); - Доход провинции 
         //state.army[i].GetUpkeep();
+        StateAI ai = state.stateAI;
+        armyBudgetText.text = ai.GetArmyBudget.ToString();
+        buildBudgetText.text = ai.GetBuildingBudget.ToString();
+        techBudgetText.text = ai.GetTechnologyBudget.ToString();
+        otherBudgetText.text = ai.GetOtherBudget.ToString();
+        allBudgetText.text = ai.GetTreasure.ToString();
+    }
+    void SliderValueChange(float t, BudgetType budgetType)
+    {
+        state.stateAI.ChangeBudget(t, budgetType);
+        SliderUpdate();
+        UpdateInformation();
     }
     private void OnDisable()
     {
+        if (state == null)
+            return;
         state.IncomeChanges -= UpdateInformation;
+        state.TreasureChange -= UpdateInformation;
+        armyBudget.onValueChanged.RemoveAllListeners();
+        buildBudget.onValueChanged.RemoveAllListeners();
+        techBudget.onValueChanged.RemoveAllListeners();
+
+        autoBuild.onValueChanged.RemoveAllListeners();
+        autoResearch.onValueChanged.RemoveAllListeners();
     }
+
     
 }
 
@@ -31,6 +79,9 @@ class Block:MonoBehaviour
     [SerializeField] private int[] Color = new int[4];
     public static void Generate(Vector2Int pos, Block[] prefabs)
     {
+        Treasury GlobalIncome= default;//(gold =  100, wood = 10)
+        float Gold = 177;
+        float Wood = Gold * GlobalIncome.Wood / GlobalIncome.Gold;//Gold * 10/ 100 = Gold * 0.1;
         /*int n = 100, k = 0;
         Queue<Vector2Int> q = new Queue<Vector2Int>();
         Dictionary<Vector3Int, Block> dictionary = new Dictionary<Vector3Int, Block>();

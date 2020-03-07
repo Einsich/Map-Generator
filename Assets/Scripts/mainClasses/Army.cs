@@ -447,18 +447,23 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
             manpowerBonus += GameConst.RecruitInTown;
         if (manpowerBonus != 0)
         {
+            float mp = owner.treasury.Manpower,dmp = 0;
+
             foreach (Regiment regiment in army)
-                if (owner.treasury.Manpower >= manpowerBonus || manpowerBonus < 0 || bats !=null)
+                if (mp >= manpowerBonus || manpowerBonus < 0 || bats !=null)
                 {
                     float d = regiment.count + manpowerBonus > regiment.baseRegiment.maxcount ? regiment.baseRegiment.maxcount - regiment.count : manpowerBonus;
-                    float v = bats != null ? bats.ArmoredVampirism(regiment.baseRegiment.ArmorLvl(DamageType.Melee)) : 0; ;
+                    float v = bats != null ? bats.ArmoredVampirism(regiment.baseRegiment.ArmorLvl(DamageType.Melee)) : 0; 
                     d -= v;
                     vamrirism += v;
-                    owner.treasury -= new Treasury(0, d,0,0,0);
+                    dmp += d > 0 ? d : 0;
+                    mp -= dmp;
                     regiment.count += d;
                 }
                 else
                     break;
+
+            owner.SpendTreasure(new Treasury(0, dmp, 0, 0, 0), BudgetType.ArmyBudget);
         }
         if(manpowerBonus <0 || bats != null)
         {

@@ -11,8 +11,9 @@ public class Technology
         maxUpkeepBonus = 3, maxMoralBonus = 3, maxBuildCostBonus = 3, maxTreasureBonus = 4,
         specialBuildCount = ProvinceData.specialCount - ProvinceData.buildCount;
     public State owner;
-
-    public List<Tech> armyTeches, economyTeches;
+    public event System.Action TechWasResearchedEvent;
+    public void TechWasResearched()=> TechWasResearchedEvent?.Invoke();
+    public List<Tech> armyTeches, economyTeches,regimnetTeches, allTeches;
 
     public Tech[] BuildTech = new Tech[specialBuildCount];
     public int[] BuildLvl = new int[ProvinceData.specialCount];
@@ -72,41 +73,41 @@ public class Technology
         owner = state;
         regiments = owner.regiments;
         
-        EraTech = new Tech(TechType.TechnologyEra,EraCost, maxEra, (lvl) => { Era++;MenuManager.ShowTechnology(); }, this);
+        EraTech = new Tech(TechType.TechnologyEra,EraCost, maxEra, (lvl) => { Era++; }, this);
         for (int i = 0; i < specialBuildCount; i++)
             BuildTech[i] = new Tech(TechType.Buildings, BuildCost, maxSpecBuildLvl, 
                 (lvl) => BuildLvl[ProvinceData.buildCount + i] = 1, this) ;
         ArmyBranchTech = new Tech(TechType.ArmyBranch, ArmyBranchCost, 1, (lvl) => { ArmyBranch = true; pipsCostBonus = 0.5f;
-            Pips += Era * 10; MenuManager.ShowTechnology(); }, this);
+            Pips += Era * 10;  }, this);
 
         foreach (var regiment in regiments)
         {
            
                 regiment.armTeches[0] =
                               new Tech( TechType.MeleeArmor, PipsCost, maxPips - regiment.MeleeArmor,
-                              (lvl) => { regiment.MeleeArmor++; MenuManager.ShowTechnology(); }, this)
+                              (lvl) => { regiment.MeleeArmor++; }, this)
                               { pips = true };
             regiment.armTeches[1] =
                              new Tech(TechType.ChargeArmor, PipsCost, maxPips - regiment.ChargeArmor,
-                             (lvl) => { regiment.ChargeArmor++; MenuManager.ShowTechnology(); }, this)
+                             (lvl) => { regiment.ChargeArmor++;  }, this)
                              { pips = true };
             regiment.armTeches[2] =
                               new Tech(TechType.RangeArmor, PipsCost, maxPips - regiment.RangeArmor,
-                              (lvl) => { regiment.RangeArmor++; MenuManager.ShowTechnology(); }, this)
+                              (lvl) => { regiment.RangeArmor++;  }, this)
                               { pips = true };
             regiment.armTeches[3] =
                               new Tech(TechType.SiegeArmor, PipsCost, maxPips - regiment.SiegeArmor,
-                              (lvl) => { regiment.SiegeArmor++; MenuManager.ShowTechnology(); }, this)
+                              (lvl) => { regiment.SiegeArmor++;}, this)
                               { pips = true };
 
             regiment.damTech = new Tech(TechType.Damage, PipsCost, maxPips,
-            (lvl) => { regiment.damageLvl++; MenuManager.ShowTechnology(); }, this)
+            (lvl) => { regiment.damageLvl++; }, this)
             { pips = true };
         }
         UpkeepBonusTech = new Tech(TechType.UpkeepBonus, UpkeepBonusCost, maxUpkeepBonus, (lvl) => UpkeepBonus = UpkeepBonusData[lvl], this);
         //MoralBonusTech = new Tech("Увеличение морали", MoralBonusCost, maxMoralBonus, (lvl) => MoralBonus = MoralBonusData[lvl], this);
         BuildCostBonusTech = new Tech(TechType.BuildCostBonus, BuildCostBonusCost, maxBuildCostBonus, (lvl) => BuildCostBonus = BuildCostBonusData[lvl], this);
-        EconomyBranchTech = new Tech(TechType.EconomicBranch, EconomyBranchCost, 1, (lvl) => { EconomyBranch = true; MenuManager.ShowTechnology(); }, this);
+        EconomyBranchTech = new Tech(TechType.EconomicBranch, EconomyBranchCost, 1, (lvl) => { EconomyBranch = true;  }, this);
 
         TreasureBonusTech = new Tech[Treasury.ResourceCount];
         for (int i = 0; i < Treasury.ResourceCount; i++)
@@ -116,11 +117,29 @@ public class Technology
         economyTeches = new List<Tech>() { BuildCostBonusTech };
         for (int i = 0; i < Treasury.ResourceCount; i++)
             economyTeches.Add(TreasureBonusTech[i]);
-
-
+        regimnetTeches = new List<Tech>();
+        foreach(var x in regiments)
+        {
+            regimnetTeches.Add(x.armTeches[0]);
+            regimnetTeches.Add(x.armTeches[1]);
+            regimnetTeches.Add(x.armTeches[2]);
+            regimnetTeches.Add(x.armTeches[3]);
+            regimnetTeches.Add(x.damTech);
+        }
+        allTeches = new List<Tech> { EraTech, ArmyBranchTech, EconomyBranchTech };
+        allTeches.AddRange(armyTeches);
+        allTeches.AddRange(economyTeches);
+        allTeches.AddRange(regimnetTeches);
     }
-
-
+    
+    public bool TreeCondition(Tech tech)
+    {
+        if (armyTeches.Contains(tech))
+            return ArmyBranch;
+        if (economyTeches.Contains(tech))
+            return EconomyBranch;
+        return true;
+    }
 
 }
 public struct TimeCost
@@ -141,6 +160,7 @@ public class Tech
     //string descr;
     GetCost cost;
     public int lvl, maxlvl;
+    public bool canResearch => researchAction == null && able;
     public bool able => lvl < maxlvl && (pips ? lvl <= (Technology.maxPips / Technology.maxEra) * technology.Era : lvl <= technology.Era);
     public bool ableResearch => lvl < maxlvl;
     public TimeCost timeScience => cost(lvl);
@@ -155,7 +175,7 @@ public class Tech
         this.maxlvl = maxlvl;
         this.type = type;
         lvl = 0;
-        research += () => { action(lvl++); researchAction = null; buttonEvent?.Invoke(); };
+        research += () => { action(lvl++); researchAction = null; buttonEvent?.Invoke(); technology.TechWasResearched(); };
         this.technology = technology;
     }
     public override string ToString()
