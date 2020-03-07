@@ -19,17 +19,21 @@ public class State
     public Color mainColor;
     public Diplomacy diplomacy;
     public Technology technology;
+    StateAI stateAI;
     Treasury treasury_ = new Treasury(1000);
     Treasury DeltaIncome;
     public Treasury Income;
     public System.Action TreasureChange, IncomeChanges;
-    public Treasury treasury { get => treasury_; set { treasury_ = value; if (this == Player.curPlayer) MenuManager.ShowResources(); TreasureChange?.Invoke(); } }
-    public float Gold { get => treasury_.Gold; set => treasury_.Gold = value; }
+    public Treasury treasury => stateAI.GetTreasure;
+    public void SpendTreasure(Treasury treasury, BudgetType budgetType) => stateAI.SomeOneSpentResources(treasury, budgetType);
+    public void IncomeTreasure(Treasury treasury, BudgetType budgetType) => stateAI.IncomeResources(treasury, budgetType);
+    //{ get => treasury_; set { treasury_ = value; if (this == Player.curPlayer) MenuManager.ShowResources(); TreasureChange?.Invoke(); } }
+    /*public float Gold { get => treasury_.Gold; set => treasury_.Gold = value; }
     public float Manpower { get => treasury_.Manpower; set => treasury_.Manpower = value; }
     public float Wood { get => treasury_.Wood; set => treasury_.Wood = value; }
     public float Iron { get => treasury_.Iron; set => treasury_.Iron = value; }
     public float Science { get => treasury_.Science; set => treasury_.Science = value; }
-
+    */
     public Region Capital;
     public GameObject Text;
     public State() {
@@ -37,7 +41,8 @@ public class State
         army = new List<Army>();
         persons = new List<Person>();
         ships = new List<Ship>();
-        //treasury_.Gold = 1; treasury_.Manpower = 1000;treasury_.Science = 500;
+        stateAI = new StateAI(this);
+        stateAI.IncomeResources(new Treasury(10000));
         regiments =
         new List<BaseRegiment>() { new BaseRegiment(this,RegimentName.SimpleMelee, RegimentType.Infantry, DamageType.Melee, 3, 1, 0, 0, 1,1000, new Treasury(100,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1),
         new BaseRegiment(this,RegimentName.SimpleRanger, RegimentType.Infantry, DamageType.Range, 0, 0, 1, 0, 0,1000, new Treasury(400,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1.5f),
@@ -169,7 +174,7 @@ public class State
     }
     public void CalculateIncome()
     {
-        treasury += Income;
+        stateAI.IncomeResources(Income);
         DeltaIncome = Income;
         Income = new Treasury();
     }

@@ -64,12 +64,12 @@ public class ProvinceData {
     public System.Action SomeChanges, TreasureChanges;
     public void AddRecruit(RecruitAction act)
     {
-        region.owner.treasury -= act.regiment.cost;
+        region.owner.SpendTreasure(act.regiment.cost, BudgetType.ArmyBudget);
         recruitQueue.Add(act);
     }
     public void RemoveRecruit(RecruitAction act)
     {
-        region.owner.treasury += act.regiment.cost * 0.5f;
+        region.owner.IncomeTreasure(act.regiment.cost * 0.5f, BudgetType.ArmyBudget);
         recruitQueue.Remove(act);
     }
    // public BuildAction action;
@@ -104,13 +104,13 @@ public class ProvinceData {
         bool build = BuildingAction[ind] != null;
         if (build)
         {
-            region.owner.treasury += Cost(building, lvl);
+            region.owner.IncomeTreasure(Cost(building, lvl), BudgetType.BuildingBudget);
             BuildingAction[ind].actually = false;
             BuildingAction[ind] = null;
         }
         else
         {
-            region.owner.treasury -= Cost(building, lvl);
+            region.owner.SpendTreasure(Cost(building, lvl), BudgetType.BuildingBudget);
             BuildingAction[ind] = new Action(Time(building, lvl), () => BuildComplete(ind));
         }
         TreasureChanges?.Invoke();

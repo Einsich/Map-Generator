@@ -78,6 +78,10 @@ public struct Treasury
     {
         return new Treasury(a.Gold - b.Gold, a.Manpower - b.Manpower, a.Wood - b.Wood, a.Iron - b.Iron, a.Science - b.Science);
     }
+    public static Treasury operator -(Treasury b)
+    {
+        return new Treasury(-b.Gold, -b.Manpower, -b.Wood, -b.Iron, -b.Science);
+    }
     public static Treasury operator *(Treasury a, float b)
     {
         return new Treasury(a.Gold * b, a.Manpower * b, a.Wood * b, a.Iron * b, a.Science * b);

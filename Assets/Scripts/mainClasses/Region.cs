@@ -274,7 +274,7 @@ public class Region :ITarget, IFightable
         Treasury upkeep = new Treasury(0);
         foreach (var g in data.garnison)
             upkeep += g.baseRegiment.upkeep;
-        _owner.treasury -= upkeep * GameConst.GarnisonUpkeepSale;
+        _owner.SpendTreasure(upkeep * GameConst.GarnisonUpkeepSale, BudgetType.ArmyBudget);
     }
 
     public void SiegeBegin(Siege siege)

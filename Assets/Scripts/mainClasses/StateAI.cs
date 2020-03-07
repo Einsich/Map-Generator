@@ -9,37 +9,82 @@ public class StateAI
     {
         Data = state;
     }
-    float armyBudget, buildingBudget, technologyBudget, otherBudget;
-    static Treasury scienceMask = new Treasury(1,1,1,1,0);
-    public Treasury ArmyBudget, BuildingBudget, OtherBudget,TechnologyBudget;
-    public void SomeOneSpentResources(Treasury delta)
+    float armyBudget = 0.3f, buildingBudget = 0.5f, technologyBudget = 0.8f;
+    static Treasury nonscienceMask = new Treasury(1, 1, 1, 1, 0), scienceMask = new Treasury(0, 0, 0, 0, 1);
+    private Treasury ArmyBudget, BuildingBudget, OtherBudget,TechnologyBudget;
+     
+    public Treasury GetTreasure => ArmyBudget + BuildingBudget + OtherBudget + TechnologyBudget;
+    private ref Treasury Budget(int k)
     {
-        delta = Delta(delta, ref OtherBudget);
-        
-        if(!(Treasury.zero <= delta)) 
+        switch(k)
         {
-            delta = Delta(delta, ref BuildingBudget);
-            if(!(Treasury.zero <= delta))
+            case 0: return ref ArmyBudget;
+            case 1:return ref BuildingBudget;
+            case 2:return ref TechnologyBudget;
+            default:return ref OtherBudget;
+
+        }
+    }
+    static int[,] Priority = { { 0, 3, 1, 2 }, { 1, 3, 0, 2 }, { 2, 3, 1, 0 }, { 3, 0, 1, 2 } };
+    private ref Treasury BudgetPriority(BudgetType budgetType, int priority) => ref Budget(Priority[(int)budgetType,priority]);
+    public void IncomeResources(Treasury treasury)
+    {
+        Treasury nonscince = treasury * nonscienceMask;
+        Treasury da = nonscince * armyBudget, db = nonscince * buildingBudget, ds = treasury * scienceMask * technologyBudget;
+        ArmyBudget += da;
+        BuildingBudget += db;
+        TechnologyBudget += ds;
+        OtherBudget += treasury - da - db - ds;
+        Data.TreasureChange?.Invoke();
+    }
+    public void IncomeResources(Treasury treasury, BudgetType budgetType = BudgetType.OtherBudget)
+    {
+        Budget((int)budgetType) += treasury;
+        Data.TreasureChange?.Invoke();
+    }
+    public void SomeOneSpentResources(Treasury delta, BudgetType budgetType)
+    {
+        if (Data == Player.curPlayer && !delta.isEmpty)
+        {
+            int t = 0;
+        }
+        Treasury was = GetTreasure;
+            delta = Delta(delta, ref BudgetPriority(budgetType,0));
+        
+        if(!delta.isEmpty)
+        {
+            delta = Delta(delta, ref BudgetPriority(budgetType, 1));
+            if(!delta.isEmpty)
             {
-                delta = Delta(delta, ref ArmyBudget);
-                if(!(Treasury.zero <= delta))
+                delta = Delta(delta, ref BudgetPriority(budgetType, 2));
+                if(!delta.isEmpty)
                 {
-                    TechnologyBudget -= delta;
+                    BudgetPriority(budgetType, 3) -= delta;
                 }
             }
         }
+        if (Data == Player.curPlayer)
+            Debug.Log(was.ToString() + " | " + GetTreasure.ToString() + " | " + delta.ToString());
+        Data.TreasureChange?.Invoke();
     }
 
     private Treasury Delta(Treasury delta, ref Treasury treasury)
     {
-        delta = treasury -= delta;
+        delta = -(treasury -= delta);
         for (int i = 0; i < 5; i++)
         {
             if (treasury[i] < 0)
                 treasury[i] = 0;
-            if (delta[i] > 0)
+            if (delta[i] < 0)
                 delta[i] = 0;
         }
         return delta;
     }
+}
+public enum BudgetType
+{
+    ArmyBudget,
+    BuildingBudget,
+    TechnologyBudget,
+    OtherBudget
 }

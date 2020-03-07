@@ -16,7 +16,7 @@ public class TechButton : MonoBehaviour
     }
     public void StartResearch()
     {
-        Player.curPlayer.treasury -= new Treasury(0, 0, 0, 0, tech.science);
+        Player.curPlayer.SpendTreasure(new Treasury(0, 0, 0, 0, tech.science), BudgetType.TechnologyBudget);
         tech.researchAction = new ResearchAction(tech, tech.time);
         front.color = blue;
         button.interactable = false;

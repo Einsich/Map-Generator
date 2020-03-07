@@ -31,6 +31,9 @@ class Block:MonoBehaviour
     [SerializeField] private int[] Color = new int[4];
     public static void Generate(Vector2Int pos, Block[] prefabs)
     {
+        Treasury GlobalIncome= default;//(gold =  100, wood = 10)
+        float Gold = 177;
+        float Wood = Gold * GlobalIncome.Wood / GlobalIncome.Gold;//Gold * 10/ 100 = Gold * 0.1;
         /*int n = 100, k = 0;
         Queue<Vector2Int> q = new Queue<Vector2Int>();
         Dictionary<Vector3Int, Block> dictionary = new Dictionary<Vector3Int, Block>();

@@ -24,7 +24,12 @@ public class MainStatistic : MonoBehaviour {
     public void SetState(State state)
     {
         flagbut.sprite = state.flagSprite;
+        if (this.state != null)
+            this.state.TreasureChange -= ShowResources;
+
         this.state = state;
+
+        state.TreasureChange += ShowResources;
         ShowData();
     }
     public void ShowData()
