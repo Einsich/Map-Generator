@@ -117,7 +117,7 @@ public struct Treasury
             {
                 if (z)
                     s += ", ";
-                s += $"{this[i]} {toStr[i]}";
+                s += $"{this[i].ToString("n1")} {toStr[i]}";
                 z = true;
             }
         return s;

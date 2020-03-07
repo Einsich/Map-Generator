@@ -9,11 +9,43 @@ public class StateAI
     {
         Data = state;
     }
-    float armyBudget = 0.3f, buildingBudget = 0.5f, technologyBudget = 0.8f;
+    public float armyBudget { get; private set; } = 0.3f;
+    public float buildingBudget { get; private set; } = 0.5f;
+    public float technologyBudget { get; private set; } = 0.8f;
+
     static Treasury nonscienceMask = new Treasury(1, 1, 1, 1, 0), scienceMask = new Treasury(0, 0, 0, 0, 1);
-    private Treasury ArmyBudget, BuildingBudget, OtherBudget,TechnologyBudget;
+    private Treasury ArmyBudget,BuildingBudget, TechnologyBudget, OtherBudget;
+    public Treasury GetArmyBudget => ArmyBudget;
+    public Treasury GetBuildingBudget => BuildingBudget;
+    public Treasury GetOtherBudget => OtherBudget;
+    public Treasury GetTechnologyBudget => TechnologyBudget;
      
     public Treasury GetTreasure => ArmyBudget + BuildingBudget + OtherBudget + TechnologyBudget;
+
+    public void ChangeBudget(float t, BudgetType budgetType)
+    {
+        float d;
+        switch(budgetType)
+        {
+            case BudgetType.ArmyBudget: d = t - armyBudget;
+                if (1f - armyBudget - buildingBudget - 0.5f * d < 0)
+                    buildingBudget -= armyBudget + buildingBudget - 1;
+                else
+                    buildingBudget -= d * 0.5f;
+                armyBudget += d;
+                break;
+            case BudgetType.BuildingBudget: d = t - buildingBudget;
+
+                if (1f - armyBudget - buildingBudget - 0.5f * d < 0)
+                    armyBudget -= armyBudget + buildingBudget - 1;
+                else
+                    armyBudget -= d * 0.5f;
+
+                buildingBudget += d;
+                break;
+            case BudgetType.TechnologyBudget: technologyBudget = t;break;
+        }
+    }
     private ref Treasury Budget(int k)
     {
         switch(k)
@@ -44,12 +76,8 @@ public class StateAI
     }
     public void SomeOneSpentResources(Treasury delta, BudgetType budgetType)
     {
-        if (Data == Player.curPlayer && !delta.isEmpty)
-        {
-            int t = 0;
-        }
-        Treasury was = GetTreasure;
-            delta = Delta(delta, ref BudgetPriority(budgetType,0));
+
+        delta = Delta(delta, ref BudgetPriority(budgetType, 0));
         
         if(!delta.isEmpty)
         {
@@ -63,8 +91,6 @@ public class StateAI
                 }
             }
         }
-        if (Data == Player.curPlayer)
-            Debug.Log(was.ToString() + " | " + GetTreasure.ToString() + " | " + delta.ToString());
         Data.TreasureChange?.Invoke();
     }
 

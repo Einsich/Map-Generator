@@ -5,24 +5,56 @@ using UnityEngine.UI;
 
 public class EconomicPanel : MonoBehaviour
 {
-    private State state;
+    [SerializeField] private Slider armyBudget, buildBudget, techBudget;
+    [SerializeField] private Text armyBudgetText, buildBudgetText, techBudgetText, otherBudgetText, allBudgetText;
+    [SerializeField] private Toggle autoArmy, autoBuild, autoResearch;
 
+    private State state;
     public void ShowEconomic(State state)
     {
         this.state = state;
         state.IncomeChanges += UpdateInformation;
+        state.TreasureChange += UpdateInformation;
+        armyBudget.onValueChanged.AddListener((x)=> SliderValueChange(x, BudgetType.ArmyBudget));
+        buildBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.BuildingBudget));
+        techBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.TechnologyBudget));
+        SliderUpdate();
         UpdateInformation();
+    }
+    private void SliderUpdate()
+    {
+        armyBudget.value = state.stateAI.armyBudget;
+        buildBudget.value = state.stateAI.buildingBudget;
+        techBudget.value = state.stateAI.technologyBudget;
     }
     private void UpdateInformation()
     {
         //use it
         //state.regions[i].data.CalculateIncome(); - Доход провинции 
         //state.army[i].GetUpkeep();
+        StateAI ai = state.stateAI;
+        armyBudgetText.text = ai.GetArmyBudget.ToString();
+        buildBudgetText.text = ai.GetBuildingBudget.ToString();
+        techBudgetText.text = ai.GetTechnologyBudget.ToString();
+        otherBudgetText.text = ai.GetOtherBudget.ToString();
+        allBudgetText.text = ai.GetTreasure.ToString();
+    }
+    void SliderValueChange(float t, BudgetType budgetType)
+    {
+        state.stateAI.ChangeBudget(t, budgetType);
+        SliderUpdate();
     }
     private void OnDisable()
     {
+        if (state == null)
+            return;
         state.IncomeChanges -= UpdateInformation;
+        state.TreasureChange -= UpdateInformation;
+        armyBudget.onValueChanged.RemoveAllListeners();
+        buildBudget.onValueChanged.RemoveAllListeners();
+        techBudget.onValueChanged.RemoveAllListeners();
     }
+
     
 }
 

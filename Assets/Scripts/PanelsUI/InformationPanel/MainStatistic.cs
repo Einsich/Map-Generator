@@ -8,8 +8,8 @@ public class MainStatistic : MonoBehaviour {
     public static MainStatistic Instance;
     public Image flagbut;
     public Text gold, manPower,wood,iron,science;
-    public GameObject panel, personPanel;
-    public ListFiller PersonFiller;
+    public GameObject panel;
+    public PersonPanel personPanel;
     public TechnologyPanel technologyPanel;
     public EconomicPanel economicPanel;
     [Header("State, diplomacy, army, research, economy, persons")]
@@ -19,7 +19,12 @@ public class MainStatistic : MonoBehaviour {
     private void Awake()
     {
         Instance = this;
-        buttonSelector = new ButtonSelector(ModeButton, new ShowSmth[] { Nope, Nope, Nope, ShowTechnology, Nope, ShowPersons }) ;
+        personPanel = Instantiate(personPanel, panel.transform);
+        technologyPanel = Instantiate(technologyPanel, panel.transform);
+        economicPanel = Instantiate(economicPanel, panel.transform);
+        var actions = new ShowSmth[] { Nope, Nope, Nope, ShowTechnology, ShowEconomic, ShowPersons };
+        buttonSelector = new ButtonSelector(ModeButton, actions) ;
+       
     }
     public void SetState(State state)
     {
@@ -54,8 +59,8 @@ public class MainStatistic : MonoBehaviour {
     public void ShowPersons(bool show)
     {
         if (show)
-            PersonFiller.UpdateList(state.persons.ConvertAll(x => (object)x));
-        personPanel.SetActive(show);
+            personPanel.Show(state.persons);
+        personPanel.gameObject.SetActive(show);
     }
     public void ShowTechnology(bool show)
     {

@@ -19,8 +19,7 @@ public class State
     public Color mainColor;
     public Diplomacy diplomacy;
     public Technology technology;
-    StateAI stateAI;
-    Treasury treasury_ = new Treasury(1000);
+    public StateAI stateAI;
     Treasury DeltaIncome;
     public Treasury Income;
     public System.Action TreasureChange, IncomeChanges;
