@@ -56,10 +56,11 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ae6e4d60cd441254ab04e30170b29782, type: 2}
+  - {fileID: 2100000, guid: daf5e84f1508e2c47ba9218c9801ffa1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -92,9 +93,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb3a07974b50ad5439d977594a44cfba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useUVs: 1
-  useUVs1: 1
-  tile: 100
 --- !u!64 &3893775096563090497
 MeshCollider:
   m_ObjectHideFlags: 0

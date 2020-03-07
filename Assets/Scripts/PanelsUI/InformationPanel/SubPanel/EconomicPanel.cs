@@ -10,6 +10,7 @@ public class EconomicPanel : MonoBehaviour
     [SerializeField] private Toggle autoArmy, autoBuild, autoResearch;
 
     private State state;
+
     public void ShowEconomic(State state)
     {
         this.state = state;
