@@ -4,10 +4,14 @@ using UnityEngine;
 
 public class StateAI 
 {
-    private State Data;
+    public State Data;
+    public AutoBuilder autoBuilder;
+    public AutoReasercher autoReasercher;
     public StateAI(State state)
     {
         Data = state;
+        autoBuilder = new AutoBuilder(this);
+        autoReasercher = new AutoReasercher(this);
     }
     public float armyBudget { get; private set; } = 0.3f;
     public float buildingBudget { get; private set; } = 0.5f;
@@ -28,18 +32,24 @@ public class StateAI
         switch(budgetType)
         {
             case BudgetType.ArmyBudget: d = t - armyBudget;
-                if (1f - armyBudget - buildingBudget - 0.5f * d < 0)
-                    buildingBudget -= armyBudget + buildingBudget - 1;
+                if (buildingBudget - 0.5f * d <= 0)
+                    buildingBudget = 0;
                 else
+                    if (1 - buildingBudget - armyBudget - d * 0.5f > 0)
                     buildingBudget -= d * 0.5f;
+                else
+                    buildingBudget -=  buildingBudget + armyBudget + d - 1;
                 armyBudget += d;
                 break;
             case BudgetType.BuildingBudget: d = t - buildingBudget;
 
-                if (1f - armyBudget - buildingBudget - 0.5f * d < 0)
-                    armyBudget -= armyBudget + buildingBudget - 1;
+                if (armyBudget - 0.5f * d <= 0)
+                    armyBudget = 0;
                 else
+                    if (1 - buildingBudget - armyBudget - d * 0.5f > 0)
                     armyBudget -= d * 0.5f;
+                else
+                    armyBudget -= buildingBudget + armyBudget + d - 1;
 
                 buildingBudget += d;
                 break;
@@ -67,12 +77,14 @@ public class StateAI
         BuildingBudget += db;
         TechnologyBudget += ds;
         OtherBudget += treasury - da - db - ds;
-        Data.TreasureChange?.Invoke();
     }
     public void IncomeResources(Treasury treasury, BudgetType budgetType = BudgetType.OtherBudget)
     {
         Budget((int)budgetType) += treasury;
-        Data.TreasureChange?.Invoke();
+    }
+    public void AutoManagersSpentResources(Treasury delta, BudgetType type)
+    {
+        BudgetPriority(type, 0) -= delta;
     }
     public void SomeOneSpentResources(Treasury delta, BudgetType budgetType)
     {
@@ -91,7 +103,6 @@ public class StateAI
                 }
             }
         }
-        Data.TreasureChange?.Invoke();
     }
 
     private Treasury Delta(Treasury delta, ref Treasury treasury)

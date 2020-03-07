@@ -11,8 +11,8 @@ public class State
     public List<Region> regions;
     public Texture2D flag;
     Sprite flagS = null;
-    public Sprite flagSprite => flagS ? flagS : flagS = Sprite.Create(flag, new Rect(0, 0, flag.width, flag.height), new Vector2(0.5f, 0.5f));        
-    
+    public Sprite flagSprite => flagS ? flagS : flagS = Sprite.Create(flag, new Rect(0, 0, flag.width, flag.height), new Vector2(0.5f, 0.5f));
+
     public List<Army> army;
     public List<Ship> ships;
     public List<Person> persons;
@@ -24,8 +24,8 @@ public class State
     public Treasury Income;
     public System.Action TreasureChange, IncomeChanges;
     public Treasury treasury => stateAI.GetTreasure;
-    public void SpendTreasure(Treasury treasury, BudgetType budgetType) => stateAI.SomeOneSpentResources(treasury, budgetType);
-    public void IncomeTreasure(Treasury treasury, BudgetType budgetType) => stateAI.IncomeResources(treasury, budgetType);
+    public void SpendTreasure(Treasury treasury, BudgetType budgetType) {stateAI.SomeOneSpentResources(treasury, budgetType);TreasureChange?.Invoke(); }
+    public void IncomeTreasure(Treasury treasury, BudgetType budgetType) { stateAI.IncomeResources(treasury, budgetType); TreasureChange?.Invoke(); }
     //{ get => treasury_; set { treasury_ = value; if (this == Player.curPlayer) MenuManager.ShowResources(); TreasureChange?.Invoke(); } }
     /*public float Gold { get => treasury_.Gold; set => treasury_.Gold = value; }
     public float Manpower { get => treasury_.Manpower; set => treasury_.Manpower = value; }
@@ -40,14 +40,15 @@ public class State
         army = new List<Army>();
         persons = new List<Person>();
         ships = new List<Ship>();
-        stateAI = new StateAI(this);
-        stateAI.IncomeResources(new Treasury(10000));
         regiments =
         new List<BaseRegiment>() { new BaseRegiment(this,RegimentName.SimpleMelee, RegimentType.Infantry, DamageType.Melee, 3, 1, 0, 0, 1,1000, new Treasury(100,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1),
         new BaseRegiment(this,RegimentName.SimpleRanger, RegimentType.Infantry, DamageType.Range, 0, 0, 1, 0, 0,1000, new Treasury(400,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1.5f),
         new BaseRegiment(this,RegimentName.SimpleCavalry, RegimentType.Cavalry, DamageType.Charge, 1, 3, 0, 0, 4,1000, new Treasury(400,1000,10,10,0), new Treasury(20, 0, 0, 0, 0),2),
         new BaseRegiment(this,RegimentName.SimpleArta, RegimentType.Artillery, DamageType.Siege, 0, 0, 0, 0, 6,1000, new Treasury(500,1000,50,50,10), new Treasury(40, 0, 0, 0, 0),4) };
+        
         technology = new Technology(this, 0);
+        stateAI = new StateAI(this);
+        stateAI.IncomeResources(new Treasury(10000));
     }
     public void SetName()
     {
@@ -176,6 +177,7 @@ public class State
         stateAI.IncomeResources(Income);
         DeltaIncome = Income;
         Income = new Treasury();
+        TreasureChange?.Invoke();
     }
     public void CalculatePersonImpact()
     {

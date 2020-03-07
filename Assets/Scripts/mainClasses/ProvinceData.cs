@@ -5,8 +5,10 @@ using UnityEngine.UI;
 
 public class ProvinceData {
     
-      Treasury Cost(BuildingType type,int lvl)
+     public Treasury Cost(BuildingType type,int lvl= -1)
     {
+        if (lvl == -1)
+            lvl = buildings[(int)type];
         Treasury cost;
         switch(type)
         {
@@ -19,7 +21,7 @@ public class ProvinceData {
             case BuildingType.WoodSpesial:cost = new Treasury(100, 500, 200, 100, 0);break;
             case BuildingType.IronSpesial:cost = new Treasury(100, 500, 100, 200, 0); break;
             case BuildingType.FarmSpecial:cost = new Treasury(100, 500, 50, 50, 0);break;
-            case BuildingType.UniversitySpecial:cost = new Treasury(500, 200, 100, 100, 100);break;
+            case BuildingType.UniversitySpecial:cost = new Treasury(500, 200, 100, 100, 0);break;
             default: cost = new Treasury(500) { Science=10};break;
         }
 
@@ -61,7 +63,7 @@ public class ProvinceData {
     public int wallsLevel => buildings[(int)BuildingType.Walls];
     public int portLevel => buildings[(int)BuildingType.Port];
     public bool haveFervie=> buildings[(int)BuildingType.FervieSpesial]>0;
-    public System.Action SomeChanges, TreasureChanges;
+    public System.Action SomeChanges;
     public void AddRecruit(RecruitAction act)
     {
         region.owner.SpendTreasure(act.regiment.cost, BudgetType.ArmyBudget);
@@ -113,8 +115,13 @@ public class ProvinceData {
             region.owner.SpendTreasure(Cost(building, lvl), BudgetType.BuildingBudget);
             BuildingAction[ind] = new Action(Time(building, lvl), () => BuildComplete(ind));
         }
-        TreasureChanges?.Invoke();
         SomeChanges?.Invoke();
+    }
+    public void ForwardBuild(BuildingType building)
+    {
+        int ind = (int)building;
+        int lvl = buildings[ind];
+        BuildingAction[ind] = new Action(Time(building, lvl), () => BuildComplete(ind));
     }
     public void BuildComplete(int BuildIndex)
     {
@@ -135,23 +142,22 @@ public class ProvinceData {
         region.owner.IncomeChanges?.Invoke();
 
     }
-    bool CanBuild(BuildingType build)
+    public bool IsBuilding(BuildingType type) => BuildingAction[(int)type] != null;
+    public bool CanPhysicalyBuild(BuildingType build)
     {
         int ind = (int)build;
         int lvl = buildings[ind];
         if (lvl > region.owner.technology.BuildLvl[ind])
             return false;
-        if (ind < buildCount) 
+        if (ind < buildCount)
         {
             if (build == BuildingType.Port && region.Port == null)
-                return false;
-            if (!(Cost(build, lvl) <= region.owner.treasury))
                 return false;
         }
         else
         {
             for (int i = buildCount; i < specialCount; i++)
-                if (buildings[i] > 0)
+                if (buildings[i] > 0 || BuildingAction[i] != null)
                     return false;
             if (build == BuildingType.FervieSpesial && region.portIdto < 0)
                 return false;
@@ -161,17 +167,21 @@ public class ProvinceData {
                 return false;
             if (build == BuildingType.IronSpesial && !region.haveIron)
                 return false;
-            if (!(Cost(build, lvl) <= region.owner.treasury))
-                return false;
         }
         return true;
+    }
+    bool CanBuild(BuildingType build)
+    {
+        int lvl = buildings[(int)build];
+        return CanPhysicalyBuild(build) && (Cost(build, lvl) <= region.owner.treasury);
+        
     }
     public BuildState Stateof(BuildingType build)
     {
         if (BuildingAction[(int)build]!=null)
             return BuildState.isBuilding;
 
-        if ((Player.curPlayer!=null && Player.curPlayer!=region.owner) || !CanBuild(build))
+        if (!CanBuild(build))
             return BuildState.CantBuild;
         return BuildState.CanBuild;
     }
@@ -249,7 +259,8 @@ public enum BuildingType
     WoodSpesial,//если много леса, то позволяет добывать дерево
     IronSpesial,//если много гор, то позволяет добывать железо
     UniversitySpecial,//дает науку
-    FervieSpesial//позволяет строить корабли
+    FervieSpesial,//позволяет строить корабли,
+    Count
 }
 public enum BuildState
 {

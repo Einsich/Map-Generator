@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class EconomicPanel : MonoBehaviour
 {
-    [SerializeField] private Slider armyBudget, buildBudget, techBudget;
+    [SerializeField] private Slider armyBudget, buildBudget, techBudget, otherBudget;
     [SerializeField] private Text armyBudgetText, buildBudgetText, techBudgetText, otherBudgetText, allBudgetText;
     [SerializeField] private Toggle autoArmy, autoBuild, autoResearch;
 
@@ -18,14 +18,25 @@ public class EconomicPanel : MonoBehaviour
         armyBudget.onValueChanged.AddListener((x)=> SliderValueChange(x, BudgetType.ArmyBudget));
         buildBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.BuildingBudget));
         techBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.TechnologyBudget));
+
+        autoBuild.onValueChanged.AddListener(state.stateAI.autoBuilder.AutoBuilding);
+        autoResearch.onValueChanged.AddListener(state.stateAI.autoReasercher.AutoResearching);
         SliderUpdate();
+        ToggleUpdate();
         UpdateInformation();
+    }
+    private void ToggleUpdate()
+    {
+        autoArmy.isOn = false;
+        autoBuild.isOn = state.stateAI.autoBuilder.IsOn;
+        autoResearch.isOn = state.stateAI.autoReasercher.IsOn; 
     }
     private void SliderUpdate()
     {
         armyBudget.value = state.stateAI.armyBudget;
         buildBudget.value = state.stateAI.buildingBudget;
         techBudget.value = state.stateAI.technologyBudget;
+        otherBudget.value = 1 - state.stateAI.armyBudget - state.stateAI.buildingBudget;
     }
     private void UpdateInformation()
     {
@@ -43,6 +54,7 @@ public class EconomicPanel : MonoBehaviour
     {
         state.stateAI.ChangeBudget(t, budgetType);
         SliderUpdate();
+        UpdateInformation();
     }
     private void OnDisable()
     {
@@ -53,6 +65,9 @@ public class EconomicPanel : MonoBehaviour
         armyBudget.onValueChanged.RemoveAllListeners();
         buildBudget.onValueChanged.RemoveAllListeners();
         techBudget.onValueChanged.RemoveAllListeners();
+
+        autoBuild.onValueChanged.RemoveAllListeners();
+        autoResearch.onValueChanged.RemoveAllListeners();
     }
 
     
