@@ -365,6 +365,12 @@ public class Main : MonoBehaviour
 
         mapMode = mode;
     }
+    private void OnDestroy()
+    {
+        terrainMat.SetColor("_Select",  Color.white);
+        terrainMat.SetFloat("_SelectTime", 0);
+        terrainMat.SetFloat("_TerrainMode", 0);
+    }
     static float[,] distantion;
     static Vector2Int[,] parent;
     public static int[] dx = MapMetrics.Odx, dy = MapMetrics.Ody;

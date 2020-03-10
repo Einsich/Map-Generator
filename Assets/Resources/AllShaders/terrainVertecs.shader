@@ -10,9 +10,14 @@
 		_TerrainMode("Terrain Mode",Range(0, 1)) = 0
 		_TerrainSource("Terrain source", 2DArray) = "white" {}
 		_TerrainNormSource("Terrain normals sourse", 2DArray) = "white" {}
+
+		//[PerRendererData]
 		_BorderMod("Border mode",Float) = 1
+		//	[PerRendererData]
 		_Select("Color of select province", Color) = (1,1,1,1)
+		//	[PerRendererData]
 		_SelectTime("Time of select",Float) = 0
+
 		_FogNoise("Fog noise",2D) = "white"{}
 		_MapBackgroung("Map background",2D) = "white"{}
 

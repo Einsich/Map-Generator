@@ -24,6 +24,8 @@ public class RecruitMenu : MonoBehaviour
     List<GarnisonIcon> garList = new List<GarnisonIcon>();
     public  void ShowRecruitMenu(Region region)
     {
+        if (region == null)
+            return;
         var list = region.owner.regiments;
         toRecruit.UpdateList(list.ConvertAll(x => (object)x));
         UpdateQueue();
