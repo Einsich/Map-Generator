@@ -26,13 +26,7 @@ public class State
     public Treasury treasury => stateAI.GetTreasure;
     public void SpendTreasure(Treasury treasury, BudgetType budgetType) {stateAI.SomeOneSpentResources(treasury, budgetType);TreasureChange?.Invoke(); }
     public void IncomeTreasure(Treasury treasury, BudgetType budgetType) { stateAI.IncomeResources(treasury, budgetType); TreasureChange?.Invoke(); }
-    //{ get => treasury_; set { treasury_ = value; if (this == Player.curPlayer) MenuManager.ShowResources(); TreasureChange?.Invoke(); } }
-    /*public float Gold { get => treasury_.Gold; set => treasury_.Gold = value; }
-    public float Manpower { get => treasury_.Manpower; set => treasury_.Manpower = value; }
-    public float Wood { get => treasury_.Wood; set => treasury_.Wood = value; }
-    public float Iron { get => treasury_.Iron; set => treasury_.Iron = value; }
-    public float Science { get => treasury_.Science; set => treasury_.Science = value; }
-    */
+    
     public Region Capital;
     public GameObject Text;
     public State() {
@@ -49,6 +43,7 @@ public class State
         technology = new Technology(this, 0);
         stateAI = new StateAI(this);
         stateAI.IncomeResources(new Treasury(10000));
+        GameTimer.AddListener(StateDecaSecondUpdate,this);
     }
     public void SetName()
     {
@@ -101,28 +96,6 @@ public class State
     {
         foreach (Army a in army)
             a.navAgent.RecalculatePath();
-    }
-    public float ShockPower(RegimentType type)
-    {
-        float r = 0;
-        switch (type)
-        {
-            case RegimentType.Infantry: r = 0.3f; break;
-            case RegimentType.Cavalry: r = 0.8f; break;
-            case RegimentType.Artillery: r = 0f; break;
-        }
-        return r;
-    }
-    public float FirePower(RegimentType type)
-    {
-        float r = 0;
-        switch (type)
-        {
-            case RegimentType.Infantry: r = 0.35f; break;
-            case RegimentType.Cavalry: r = 0f; break;
-            case RegimentType.Artillery: r = 1f; break;
-        }
-        return r;
     }
     public List<BaseRegiment> regiments;
     public BaseRegiment melee => regiments[0];
@@ -179,9 +152,14 @@ public class State
         Income = new Treasury();
         TreasureChange?.Invoke();
     }
-    public void CalculatePersonImpact()
+    public void StateDecaSecondUpdate()
     {
-
+        for (int i = 0; i < regions.Count; i++)
+            regions[i].MonthUpdate();
+        foreach (var army in army)
+            army.UpdateUpkeep();
+           CalculateIncome();
+        diplomacy.DiplomacyUpdate();
     }
     public string ResourcesHelp(int t)
     {

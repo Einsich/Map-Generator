@@ -80,6 +80,7 @@ public class Player : MonoBehaviour {
         Army.FoggedArmy();
         MapMetrics.UpdateSplatMap();
         MenuManager.HiddenProvinceMenu();
+        GameTimer.UpdateListenerQueue();
     }
     public static void SelectArmy(Army sel)
     {

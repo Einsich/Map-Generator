@@ -25,11 +25,11 @@ public class AutoBuilder
                         queue.Enqueue((prov.data, type));
                 }
             RandomBuild();
-            GameTimer.SeldomUpdate += RandomBuild;
+            GameTimer.AddListener(RandomBuild, state.Data);
 
         } else
         {
-            GameTimer.SeldomUpdate -= RandomBuild;
+            GameTimer.RemoveListener(RandomBuild, state.Data);
             queue.Clear();
         }
         IsOn = On;

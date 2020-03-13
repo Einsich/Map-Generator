@@ -85,25 +85,24 @@ public bool canDeclareWar(Diplomacy dip) => !haveWar(dip) && !haveAlliance(dip) 
     {
         diplomacies = new Diplomacy[n];
     }
-    public static void DiplomacyUpdate()
+    public  void DiplomacyUpdate()
     {
-        foreach(var state in diplomacies)
-        {
-            foreach(var x in state.fabricateCB)
+       
+            foreach(var x in fabricateCB)
             {
                 int i = x.Item1.state.ID;
-                if(state.state.treasury.Gold >= x.Item2)
+                if(state.treasury.Gold >= x.Item2)
                 {
-                    state.state.SpendTreasure(new Treasury(x.Item2,0,0,0,0), BudgetType.OtherBudget);
-                    state.casusbelli[i] += x.Item2;
+                    state.SpendTreasure(new Treasury(x.Item2,0,0,0,0), BudgetType.OtherBudget);
+                    casusbelli[i] += x.Item2;
                 }
 
             }
-            for (int i = 0; i < state.casusbelli.Count; i++)
-                if (state.casusbelli[i] > 0.1f)
-                    state.casusbelli[i] -= 0.1f;
+            for (int i = 0; i < casusbelli.Count; i++)
+                if (casusbelli[i] > 0.1f)
+                    casusbelli[i] -= 0.1f;
                 else
-                    state.casusbelli[i] = 0;
-        }
+                    casusbelli[i] = 0;
+        
     }
 }

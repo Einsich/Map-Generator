@@ -383,7 +383,6 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
             count += r.count;
             max += r.baseRegiment.maxcount;
         }
-        
         return max ==0? 0:count / max;
     }
     public static void ProcessAllArmy()

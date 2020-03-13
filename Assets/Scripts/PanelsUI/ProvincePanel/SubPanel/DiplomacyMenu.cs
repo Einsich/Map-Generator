@@ -19,11 +19,11 @@ public class DiplomacyMenu : MonoBehaviour
     public static Diplomacy player, select;
     private void OnEnable()
     {
-        GameTimer.SeldomUpdate += UpdateCasusBelliStatistic;
+        GameTimer.OftenUpdate += UpdateCasusBelliStatistic;
     }
     private void OnDisable()
     {
-        GameTimer.SeldomUpdate -= UpdateCasusBelliStatistic;
+        GameTimer.OftenUpdate -= UpdateCasusBelliStatistic;
     }
     void OpenYesNo(bool open)
     {

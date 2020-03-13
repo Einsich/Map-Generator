@@ -18,13 +18,13 @@ public class AutoReasercher
         if (On)
         {
             RandomResearch();
-            GameTimer.SeldomUpdate += RandomResearch;
+            GameTimer.AddListener(RandomResearch, state.Data);
             technology.TechWasResearchedEvent += RandomResearch;
 
         }
         else
         {
-            GameTimer.SeldomUpdate -= RandomResearch;
+            GameTimer.RemoveListener(RandomResearch, state.Data);
             technology.TechWasResearchedEvent -= RandomResearch;
         }
         IsOn = On;
