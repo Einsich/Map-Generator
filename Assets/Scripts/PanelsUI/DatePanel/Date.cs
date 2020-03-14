@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class Date : MonoBehaviour {
@@ -35,13 +36,28 @@ public class Date : MonoBehaviour {
             }
             if (LastDecaUpdate + 10f <= GameTimer.time)
             {
-                GameTimer.DecaSecondUpdate();
+                StartCoroutine(DecaUpdateLazy(GameTimer.first, GameTimer.second));
                 LastDecaUpdate = GameTimer.time;
 
             }
 
         }
 	}
+    public IEnumerator DecaUpdateLazy(List<(UnityAction, State)> first,
+      List<(UnityAction, State)> second )
+    {
+        for (int j = 0; j < first.Count; j++)
+            first[j].Item1();
+        int i = 0;
+        int n = Mathf.Max(second.Count / 50, 10);
+        while (i < second.Count)
+        {
+            for (int j = i; j < i + n && j < second.Count; j++)
+                second[j].Item1();
+            i += n;
+            yield return new WaitForFixedUpdate();
+        }
+    }
     public void StartTimer()
     {
         AddSpeed(5);

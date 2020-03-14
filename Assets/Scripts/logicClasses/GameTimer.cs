@@ -69,19 +69,5 @@ public static class GameTimer
         first.RemoveAll((x) => x.Item2 != Player.curPlayer);
     }
 
-    public static async void DecaSecondUpdate()
-    {
-        for (int j = 0; j < first.Count; j++)
-            first[j].Item1();
-        int i = 0;
-        int n = Mathf.Max(second.Count / 50, 10);
-        while (i < second.Count && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Game")
-        {
-            for (int j = i; j < i + n && j < second.Count; j++)
-                second[j].Item1();
-            i += n;
-            await Task.Delay((int)(Time.fixedDeltaTime * 1000));
-        }
-    }
     public static event System.Action OftenUpdate;
 }
