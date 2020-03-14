@@ -1,7 +1,25 @@
 fileFormatVersion: 2
 guid: 7f35a50d2c50dff44a316d9b04f55d0d
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: 6084680886583785042
+    second: Tab_0
+  - first:
+      213: 4380872510371147476
+    second: Tab_1
+  - first:
+      213: -2022704808336119858
+    second: Tab_0
+  - first:
+      213: -2394566403941250319
+    second: Tab_1
+  - first:
+      213: -3843997748159521555
+    second: Tab_2
+  - first:
+      213: -5522479184475043387
+    second: Tab_3
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -40,7 +58,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -84,7 +102,91 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Tab_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 261.75
+        height: 263
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ec7a6ad81b8ede3e0800000000000000
+      internalID: -2022704808336119858
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tab_1
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 0
+        width: 261.75
+        height: 263
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1fa4ff5ea8ac4ced0800000000000000
+      internalID: -2394566403941250319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tab_2
+      rect:
+        serializedVersion: 2
+        x: 522
+        y: 0
+        width: 261.75
+        height: 263
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: decdc871a6067aac0800000000000000
+      internalID: -3843997748159521555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Tab_3
+      rect:
+        serializedVersion: 2
+        x: 783
+        y: 0
+        width: 261.75
+        height: 263
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5c940e9e0763c53b0800000000000000
+      internalID: -5522479184475043387
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
