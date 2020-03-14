@@ -366,7 +366,7 @@ public class Player : MonoBehaviour {
                     }
 
                 }
-                if (!CastingSkill && other !=null && other.diplomacy.canAttack(curPlayer.diplomacy))
+                if (!CastingSkill && other !=null && other.diplomacy.haveWar(curPlayer.diplomacy))
                 {
                     switch (TargetType)
                     {

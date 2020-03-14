@@ -15,30 +15,36 @@ public struct Treasury
         this.Iron = Iron;
         this.Science = Science;
     }
-    public float this [int i]
+
+    public float this[int i]
     {
         get
         {
-            switch(i)
+            switch (i)
             {
                 case 0: return Gold;
-                case 1:return Manpower;
-                case 2:return Wood;
-                case 3:return Iron;
-                default:return Science;                        
+                case 1: return Manpower;
+                case 2: return Wood;
+                case 3: return Iron;
+                default: return Science;
             }
         }
         set
         {
             switch (i)
             {
-                case 0: Gold = value;break;
+                case 0: Gold = value; break;
                 case 1: Manpower = value; break;
                 case 2: Wood = value; break;
                 case 3: Iron = value; break;
                 default: Science = value; break;
             }
         }
+    }
+    public float this[ResourcesType i]
+    {
+        get => this[(int)i];
+        set => this[(int)i] = value;
     }
     public static string ToString(int i)
     {
@@ -69,6 +75,18 @@ public struct Treasury
     public Treasury(float value = 0)
     {
         Gold = Manpower = Wood = Iron = Science = value;
+    }
+    public Treasury(ResourcesType type, float value)
+    {
+        Gold = Manpower = Wood = Iron = Science = 0;
+        switch (type)
+        {
+            case ResourcesType.Gold: Gold = value; break;
+            case ResourcesType.Manpower: Manpower = value; break;
+            case ResourcesType.Wood: Wood = value; break;
+            case ResourcesType.Iron: Iron = value; break;
+            case ResourcesType.Science: Science = value; break;
+        }
     }
     public static Treasury operator + (Treasury a,Treasury b)
     {
@@ -122,4 +140,8 @@ public struct Treasury
             }
         return s;
     }
+}
+public enum ResourcesType
+{
+    Gold, Manpower, Wood, Iron, Science
 }

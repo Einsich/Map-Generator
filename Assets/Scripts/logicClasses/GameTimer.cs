@@ -37,6 +37,10 @@ public static class GameTimer
         foreach (var army in Army.AllArmy)
             army.UpdateManpower();
     }
+    public static void EveryDecaSecondUpdate()
+    {
+        GlobalTrade.DiscardCource();
+    }
     public static List<(UnityAction,State)> first = new List<(UnityAction, State)>(),
         second = new List<(UnityAction, State)>();
     public static void AddListener(UnityAction action, State who)

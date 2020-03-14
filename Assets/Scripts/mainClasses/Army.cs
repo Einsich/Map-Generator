@@ -286,7 +286,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     {
         if (inTown && curReg.CurrentSiege!= null)
             return false;
-        if (!owner.diplomacy.canAttack(target.curOwner.diplomacy))
+        if (!owner.diplomacy.haveWar(target.curOwner.diplomacy))
             return false;
         this.damageType = damageType;
         bool inRadius = target != null && (target.position - position).magnitude <= AttackRange;
