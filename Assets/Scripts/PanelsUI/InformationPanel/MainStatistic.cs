@@ -9,6 +9,7 @@ public class MainStatistic : MonoBehaviour {
     public Image flagbut;
     public Text gold, manPower,wood,iron,science;
     public GameObject panel;
+    public GameObject tabsPanel;
     public PersonPanel personPanel;
     public TechnologyPanel technologyPanel;
     public EconomicPanel economicPanel;
@@ -19,9 +20,9 @@ public class MainStatistic : MonoBehaviour {
     private void Awake()
     {
         Instance = this;
-        personPanel = Instantiate(personPanel, panel.transform);
-        technologyPanel = Instantiate(technologyPanel, panel.transform);
-        economicPanel = Instantiate(economicPanel, panel.transform);
+        personPanel = Instantiate(personPanel, tabsPanel.transform);
+        technologyPanel = Instantiate(technologyPanel, tabsPanel.transform);
+        economicPanel = Instantiate(economicPanel, tabsPanel.transform);
         var actions = new ShowSmth[] { Nope, Nope, Nope, ShowTechnology, ShowEconomic, ShowPersons };
         buttonSelector = new ButtonSelector(ModeButton, actions) ;
        

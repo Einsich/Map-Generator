@@ -130,8 +130,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 8321462746013573620}
   - {fileID: 5541071214120567681}
+  - {fileID: 8321462746013573620}
   m_Father: {fileID: 518016716921353984}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -334,6 +334,7 @@ MonoBehaviour:
   iron: {fileID: 518016717557291146}
   science: {fileID: 518016717546382174}
   panel: {fileID: 518016716464276150}
+  tabsPanel: {fileID: 6909980238203762484}
   personPanel: {fileID: 6390331103572378417, guid: 1676c8ffef7670442a1245a169aab546,
     type: 3}
   technologyPanel: {fileID: 5230328945454554144, guid: 5bdfcefdb0fcc3f4ca0eb295dc1a6702,
@@ -2074,7 +2075,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 518016716464276151}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -2347,7 +2348,7 @@ RectTransform:
   - {fileID: 3059686686047107871}
   - {fileID: 8059982070426700844}
   m_Father: {fileID: 518016716464276151}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
