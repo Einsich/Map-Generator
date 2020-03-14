@@ -16,6 +16,7 @@ public class MainStatistic : MonoBehaviour {
     [Header("State, diplomacy, army, research, economy, persons")]
     public Button[] ModeButton;
     public ButtonSelector buttonSelector;
+    private PanelMover PanelMover;
     State state;
     private void Awake()
     {
@@ -25,7 +26,9 @@ public class MainStatistic : MonoBehaviour {
         economicPanel = Instantiate(economicPanel, tabsPanel.transform);
         var actions = new ShowSmth[] { Nope, Nope, Nope, ShowTechnology, ShowEconomic, ShowPersons };
         buttonSelector = new ButtonSelector(ModeButton, actions) ;
-       
+        PanelMover = panel.GetComponent<PanelMover>();
+
+
     }
     public void SetState(State state)
     {
@@ -71,8 +74,14 @@ public class MainStatistic : MonoBehaviour {
     }
     public void PanelShowMode()
     {
-        panel.SetActive(!panel.activeSelf);
-        buttonSelector.Update();
+        bool show = !PanelMover.isOn;
+
+        if (show)
+            buttonSelector.Update();
+        if (show)
+            PanelMover.Show();
+        else
+            PanelMover.Hide();
     }
     public void Nope(bool show) { }
     private void OnEnable()
