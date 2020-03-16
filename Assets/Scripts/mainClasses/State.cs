@@ -159,7 +159,16 @@ public class State
         foreach (var army in army)
             army.UpdateUpkeep();
            CalculateIncome();
+        GlobalTrade.AddIncome(DeltaIncome);
         diplomacy.DiplomacyUpdate();
+    }
+    public bool WantTrade(ResourcesType sellType, float sell, ResourcesType buyType, float buy)
+    {
+        return Mathf.Min(GlobalTrade.GetCource(ResourcesType.Gold, sellType) * Income[sellType],
+             GlobalTrade.GetCource(ResourcesType.Gold, buyType) * Income[buyType]) <
+          Mathf.Min(GlobalTrade.GetCource(ResourcesType.Gold, sellType) * (Income[sellType] - sell),
+             GlobalTrade.GetCource(ResourcesType.Gold, buyType) * (Income[buyType] + buy));
+
     }
     public string ResourcesHelp(int t)
     {

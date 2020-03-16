@@ -460,7 +460,7 @@ public class Main : MonoBehaviour
         if ( !lastCell &&  reg.Capital == cur)
             return false;
         Army army = Army.ArmyInPoint(cur);
-        if (army != null && !goer.diplomacy.canAttack(army?.owner.diplomacy))
+        if (army != null && !goer.diplomacy.haveWar(army?.owner.diplomacy))
             return false;
 
         return goer.diplomacy.canMove(s.diplomacy) || prevreg.owner == s;
