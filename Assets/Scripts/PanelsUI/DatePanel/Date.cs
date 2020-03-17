@@ -36,7 +36,9 @@ public class Date : MonoBehaviour {
             }
             if (LastDecaUpdate + 10f <= GameTimer.time)
             {
+                GameTimer.EveryDecaSecondUpdate();
                 StartCoroutine(DecaUpdateLazy(GameTimer.first, GameTimer.second));
+
                 LastDecaUpdate = GameTimer.time;
 
             }

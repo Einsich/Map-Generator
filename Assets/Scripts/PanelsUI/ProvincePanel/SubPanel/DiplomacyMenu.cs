@@ -6,11 +6,13 @@ using UnityEngine.UI;
 public class DiplomacyMenu : MonoBehaviour
 {
 
-    public Text stateName, war, trade, access, casusbelli, insult, patron, union, descr, Relation, EnemyIs;
+    public Text stateName, war, trade, access, casusbelli, insult, patron, union, descr, Relation, EnemyIs, selltext,buytext;
     public Button warbut, tradebut, accessbut, casusbut, insultbut, patronbut, unionbut, YesButton;
     public GameObject actions, choise;
-    public Slider actionSlider;
+    public Slider actionSlider, sellres;
     public Image flag;
+    public Dropdown selldrop, buydrop;
+    public GameObject tradepanel;
     void Start()
     {
         warbut.onClick.AddListener(War);
@@ -20,6 +22,9 @@ public class DiplomacyMenu : MonoBehaviour
         insultbut.onClick.AddListener(Insult);
         patronbut.onClick.AddListener(Patronage);
         unionbut.onClick.AddListener(Union);
+        selldrop.onValueChanged.AddListener((x) => UpdateTradePanel());
+        buydrop.onValueChanged.AddListener((x) => UpdateTradePanel());
+        sellres.onValueChanged.AddListener((x) => UpdateTradePanel());
     }
     public static State that, other;
     public static Diplomacy player, select;
@@ -44,6 +49,20 @@ public class DiplomacyMenu : MonoBehaviour
             InputManager.Instance.EscAction -= No;
         }
     }
+    ResourcesType sellT, buyT;
+    float sellR, buyR;
+    void UpdateTradePanel()
+    {
+        sellT = (ResourcesType)selldrop.value;
+        buyT = (ResourcesType)buydrop.value;
+        sellR = sellres.value;
+        buyR = GlobalTrade.GetCource(buyT, sellT) * sellR;
+        bool want = select.state.WantTrade(buyT, buyR, sellT, sellR);
+        selltext.text = $"Продаете\n{sellT.ToString()}: {sellR:N1}";
+        buytext.text = $"Покупаете\n{buyT.ToString()}: {buyR:N1}";
+        YesButton.interactable = want;
+        descr.text = want ? $"{stateName.text} готова торговать с вами." : $"{stateName.text} не интересует ваше предложение.";
+    }
     public void SchowDiplomacy(State pl, State sel)
     {
         if (pl == null) return;
@@ -62,6 +81,7 @@ public class DiplomacyMenu : MonoBehaviour
         actions.SetActive(true);
         OpenYesNo(false);
         actionSlider.gameObject.SetActive(false);
+        tradepanel.SetActive(false);
         UpdateCasusBelliStatistic();
 
         war.text = player.haveWar(select) ? "Предложить мир" : "Объявить войну";
@@ -104,8 +124,17 @@ public class DiplomacyMenu : MonoBehaviour
         {
             bool can = player.canTrade(select);
             YesButton.interactable = can;
-            descr.text = can ? $"Заключите сделку с {stateName.text} ?" :
-                $"Вы не можете торговать с {stateName.text}";
+            
+            if (!can)
+            {
+                descr.text = $"Вы не можете торговать с {stateName.text}";
+                
+            } else
+            {
+                tradepanel.SetActive(true);
+                sellres.maxValue = 10;
+                UpdateTradePanel();
+            }
         }
     }
     public void Access()
@@ -190,7 +219,7 @@ public class DiplomacyMenu : MonoBehaviour
             case 1: if (player.haveDeal(select))
                     player.BreakTradeDeal(select);
                 else
-                    player.SendOfferTradeDeal(select, new TradeDeal(player.state, ResourcesType.Gold, 1, select.state, ResourcesType.Manpower, 2));
+                    player.SendOfferTradeDeal(select, new TradeDeal(player.state, sellT, sellR, select.state, buyT, buyR));
                 break;
             case 2: if (player.haveAccess(select))
                     player.ForceAccess(select, false);

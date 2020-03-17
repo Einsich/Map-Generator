@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class GlobalTrade 
 {
-    static Treasury Income;
+    static Treasury Income = new Treasury(1);
     public static void DiscardCource() => Income = new Treasury();
     public static void AddIncome(Treasury income) => Income += income;
 
@@ -17,17 +17,29 @@ public class TradeDeal
         State State1, State2;
     ResourcesType ResType1, ResType2;
     float Res1, Res2;
-    public TradeDeal(State seller, ResourcesType sellres, float sell, State byer, ResourcesType byeres, float bye) =>
-        (State1, ResType1, Res1, State2, ResType2, Res2) = (seller, sellres, sell, byer, byeres, bye);
-    public bool isValid => new Treasury(ResType1, Res1) <= State1.treasury && new Treasury(ResType2, Res2) <= State2.treasury;
-    public void DoDeal()
+    public TradeDeal(State seller, ResourcesType sellres, float sell, State byer, ResourcesType byeres, float bye)
     {
-        Treasury d= new Treasury(ResType1, Res1);
-        State1.stateAI.SomeOneSpentResources(-d, BudgetType.OtherBudget);
-        State2.stateAI.IncomeResources(d);
-        d = new Treasury(ResType2, Res2);
-        State2.stateAI.SomeOneSpentResources(-d, BudgetType.OtherBudget);
-        State1.stateAI.IncomeResources(d);
+        (State1, ResType1, Res1, State2, ResType2, Res2) = (seller, sellres, sell, byer, byeres, bye);
+        GameTimer.AddListener(DoDeal1, State1);
+        GameTimer.AddListener(DoDeal2, State2);
+    }
+    public void BreakDeal()
+    {
+        GameTimer.RemoveListener(DoDeal1, State1);
+        GameTimer.RemoveListener(DoDeal2, State2);
+    }
+    public bool isValid => new Treasury(ResType1, Res1) <= State1.treasury && new Treasury(ResType2, Res2) <= State2.treasury;
+    
+    private void DoDeal1()
+    {
+        State1.stateAI.SomeOneSpentResources(new Treasury(ResType1, -Res1), BudgetType.OtherBudget);
+        State1.stateAI.IncomeResources(new Treasury(ResType2, Res2));
+    }
+    private void DoDeal2()
+    {
+
+        State2.stateAI.SomeOneSpentResources(new Treasury(ResType2, -Res2), BudgetType.OtherBudget);
+        State2.stateAI.IncomeResources(new Treasury(ResType1, Res1));
     }
     public bool WantTrade(bool state1)
     {

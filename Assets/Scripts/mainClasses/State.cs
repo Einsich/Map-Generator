@@ -162,12 +162,17 @@ public class State
         GlobalTrade.AddIncome(DeltaIncome);
         diplomacy.DiplomacyUpdate();
     }
-    public bool WantTrade(ResourcesType sellType, float sell, ResourcesType buyType, float buy)
+    public void DeclareWarPenalty(float penalty)
     {
-        return Mathf.Min(GlobalTrade.GetCource(ResourcesType.Gold, sellType) * Income[sellType],
-             GlobalTrade.GetCource(ResourcesType.Gold, buyType) * Income[buyType]) <
-          Mathf.Min(GlobalTrade.GetCource(ResourcesType.Gold, sellType) * (Income[sellType] - sell),
-             GlobalTrade.GetCource(ResourcesType.Gold, buyType) * (Income[buyType] + buy));
+        penalty = 1 - penalty;
+        SpendTreasure(treasury * penalty, BudgetType.OtherBudget);
+    }
+    public bool WantTrade(ResourcesType sellType, float wesell, ResourcesType buyType, float webuy)
+    {
+        return Mathf.Min(GlobalTrade.GetCource(ResourcesType.Gold, sellType) * treasury[sellType],
+             GlobalTrade.GetCource(ResourcesType.Gold, buyType) * treasury[buyType]) <
+          Mathf.Min(GlobalTrade.GetCource(ResourcesType.Gold, sellType) * (treasury[sellType] - wesell),
+             GlobalTrade.GetCource(ResourcesType.Gold, buyType) * (treasury[buyType] + webuy));
 
     }
     public string ResourcesHelp(int t)

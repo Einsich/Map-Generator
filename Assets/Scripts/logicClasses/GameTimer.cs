@@ -9,8 +9,12 @@ public static class GameTimer
     public static float time, timeScale = 1;
     public static void Start()
     {
-        foreach (var x in Main.regions)
-            x.data?.CalculateIncome();
+        foreach (var x in Main.states)
+            foreach (var s in x.regions)
+            {
+                x.Income += s.data.CalculateIncome();
+                GlobalTrade.AddIncome(x.Income);
+            }
     }
 
     public static PriorityQueue<Action> actionQueue = new PriorityQueue<Action>();
@@ -39,7 +43,9 @@ public static class GameTimer
     }
     public static void EveryDecaSecondUpdate()
     {
+
         GlobalTrade.DiscardCource();
+        Diplomacy.TradeUpdate();
     }
     public static List<(UnityAction,State)> first = new List<(UnityAction, State)>(),
         second = new List<(UnityAction, State)>();
