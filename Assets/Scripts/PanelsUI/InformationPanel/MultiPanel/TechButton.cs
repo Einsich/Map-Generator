@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class TechButton : MonoBehaviour
 {
+    [SerializeField] public Color colorAvailable;
     public Image back, front;
     public Button button;
     public Text descr;
@@ -40,7 +41,7 @@ public class TechButton : MonoBehaviour
 
         if (tech.able)
         {
-            front.color = Color.yellow;
+            front.color = colorAvailable;
             button.interactable = true;
             Bar();
         }
@@ -56,7 +57,7 @@ public class TechButton : MonoBehaviour
         if(tech.able)
         {
             button.interactable = notres = tech.researchAction == null;
-            front.color = notres ? Color.yellow : blue;            
+            front.color = notres ? colorAvailable : blue;            
             Bar();
         }
         tech.buttonEvent += EndResearch;
