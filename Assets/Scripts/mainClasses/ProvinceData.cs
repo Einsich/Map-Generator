@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -244,6 +245,34 @@ public class ProvinceData {
         return string.Format("{0}\n Стоимость улучшения {1}.\n{4} {2} {3}", s, cost.ToString(), income.isEmpty ? "" : $"Текущий доход от здания {income.ToString()}.\n",
             incomenext.isEmpty?"":$"Доход после улучшения {incomenext.ToString()}.\n", d);
 
+    }
+
+    public BuildingType GetBestBuilding()
+    {
+        var buildProfit = new SortedList<float, BuildingType>();
+        buildProfit.Add(0f, BuildingType.Count);
+        for (BuildingType type = BuildingType.Infrastructure; type != BuildingType.Count; type++)
+        {
+            if (CanPhysicalyBuild(type))
+            {
+                float profit = Profitability(type);
+                if (profit != 0f)
+                {
+                    if (!buildProfit.ContainsKey(profit))
+                        buildProfit.Add(profit, type);
+                }
+            }
+        }
+        return buildProfit.Last().Value;
+    }
+    private float Profitability(BuildingType type)
+    {
+        Treasury old = CalculateIncome();
+        buildings[(int)type]++;
+        Treasury now = CalculateIncome();
+        buildings[(int)type]--;
+        now -= old;
+        return now.Gold + now.Manpower + now.Wood + now.Iron + now.Science;
     }
 }
 public enum BuildingType

@@ -13,37 +13,52 @@ public class AutoBuilder
         this.state = state;
         provinces = state.Data.regions;
     }
+    
+    public void IncludeBuildTask(ProvinceData prov, BuildingType building)
+    {
+        queue.Enqueue((prov, building));
+    }
 
     public void AutoBuilding(bool On)
     {
         if(On)
         {
-           foreach(var prov in provinces)
-                for(BuildingType type = BuildingType.Infrastructure;type != BuildingType.Count;type++)
-                {
-                    if (prov.data.CanPhysicalyBuild(type))
-                        queue.Enqueue((prov.data, type));
-                }
-            RandomBuild();
-            GameTimer.AddListener(RandomBuild, state.Data);
+            BestBuild();
+            GameTimer.AddListener(BestBuild, state.Data);
 
         } else
         {
-            GameTimer.RemoveListener(RandomBuild, state.Data);
+            GameTimer.RemoveListener(BestBuild, state.Data);
             queue.Clear();
         }
         IsOn = On;
 
     }
-    void RandomBuild()
+    void BestBuild()
     {
-        bool success = true;
-        while (success && queue.Count > 0)
+        while (queue.Count > 0)
         {
             var pair = queue.Dequeue();
+
             ProvinceData prov = pair.Item1;
             BuildingType building = pair.Item2;
 
+            CheckCostAndForwardBuild(prov, building);
+        }
+        foreach (var region in provinces)
+        {
+            ProvinceData prov = region.data;
+            BuildingType building = prov.GetBestBuilding();
+
+            if (building != BuildingType.Count)
+            {
+                CheckCostAndForwardBuild(prov, building);
+            }
+        }
+    }
+
+    private void CheckCostAndForwardBuild(ProvinceData prov, BuildingType building)
+    {
             Treasury cost;
             if (prov.CanPhysicalyBuild(building) && !prov.IsBuilding(building))
             {
@@ -54,11 +69,6 @@ public class AutoBuilder
                     state.Data.TreasureChange?.Invoke();
                     prov.SomeChanges?.Invoke();
                 }
-                else
-                {
-                    success = false;
-                }
             }
-        }
     }
 }
