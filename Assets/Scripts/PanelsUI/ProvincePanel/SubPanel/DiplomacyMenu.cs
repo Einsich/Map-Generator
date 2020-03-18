@@ -102,6 +102,7 @@ public class DiplomacyMenu : MonoBehaviour
         if (player.haveWar(select))
         {
             descr.text = "Вы действительно хотите предложить мир державе " + stateName.text+" ?";
+            YesButton.interactable = true;
         }
         else
         {
@@ -119,6 +120,7 @@ public class DiplomacyMenu : MonoBehaviour
         if (player.haveDeal(select))
         {
             descr.text = $"Вы действительно хотите расторгнуть сделку с державой { stateName.text } ?";
+            YesButton.interactable = true;
         }
         else
         {
@@ -145,6 +147,7 @@ public class DiplomacyMenu : MonoBehaviour
         if (player.haveAccess(select))
         {
             descr.text = $"Вы действительно хотите отменить проход войск державе {stateName.text } ?";
+            YesButton.interactable = true;
         }
         else
         {
@@ -162,6 +165,7 @@ public class DiplomacyMenu : MonoBehaviour
         if (player.fabricatingCasus(select))
         {
             descr.text = $"Вы действительно хотите прекратить подготовку к.б. с { stateName.text } ?";
+            YesButton.interactable = true;
         }
         else
         {
@@ -191,6 +195,7 @@ public class DiplomacyMenu : MonoBehaviour
         if (player.havePatronage(select))
         {
             descr.text = $"Вы действительно хотите прекратить покровительство державе {stateName.text } ?";
+            YesButton.interactable = true;
         }
         else
         {
@@ -248,21 +253,20 @@ public class DiplomacyMenu : MonoBehaviour
 
         SchowDiplomacy();
     }
+    public static string ColoredRelation(float relation, float delta)
+    {
+        Color r, d;
+        if (relation < 0)
+            r = Color.Lerp(Color.red, Color.white, Mathf.Sqrt((relation + 100) * 0.01f));
+        else
+            r = Color.Lerp(Color.white, Color.green, Mathf.Sqrt(relation * 0.01f));
 
+        d = delta < 0 ? Color.red : delta > 0 ? Color.green : Color.white;
+        return string.Format("Отношения:<color=#{2}> {0} </color>, (<color=#{3}> {1} </color>)", relation.ToString("N1"), delta.ToString("N1"),
+            ColorUtility.ToHtmlStringRGB(r), ColorUtility.ToHtmlStringRGB(d));
+    }
     void UpdateCasusBelliStatistic()
     {
-        float dcb = player.relationDelta(select);
-        float rel = player.relation[other.ID];
-
-        Color r,d;
-        if (rel < 0)
-            r = Color.Lerp(Color.red, Color.white, (rel + 100) * 0.01f);
-        else
-            r = Color.Lerp(Color.white, Color.green, rel * 0.01f);
-        
-            d = dcb < 0 ? Color.red : dcb > 0 ? Color.green : Color.white;
-        
-        Relation.text = string.Format("Отношения:<color=#{2}> {0} </color>, (<color=#{3}> {1} </color>)",rel.ToString("N1"),dcb.ToString("N1"),
-            ColorUtility.ToHtmlStringRGB(r), ColorUtility.ToHtmlStringRGB(d));
+        Relation.text = ColoredRelation(player.relation[other.ID],player.relationDelta(select));
     }
 }

@@ -13,6 +13,7 @@ public class MainStatistic : MonoBehaviour {
     public PersonPanel personPanel;
     public TechnologyPanel technologyPanel;
     public EconomicPanel economicPanel;
+    public DiplomacyPanel diplomacyPanel;
     [Header("State, diplomacy, army, research, economy, persons")]
     public Button[] ModeButton;
     public ButtonSelector buttonSelector;
@@ -24,7 +25,8 @@ public class MainStatistic : MonoBehaviour {
         personPanel = Instantiate(personPanel, tabsPanel.transform);
         technologyPanel = Instantiate(technologyPanel, tabsPanel.transform);
         economicPanel = Instantiate(economicPanel, tabsPanel.transform);
-        var actions = new ShowSmth[] { Nope, Nope, Nope, ShowTechnology, ShowEconomic, ShowPersons };
+        diplomacyPanel = Instantiate(diplomacyPanel, tabsPanel.transform);
+        var actions = new ShowSmth[] { Nope, ShowDiplomacy, Nope, ShowTechnology, ShowEconomic, ShowPersons };
         buttonSelector = new ButtonSelector(ModeButton, actions) ;
         PanelMover = panel.GetComponent<PanelMover>();
 
@@ -65,6 +67,21 @@ public class MainStatistic : MonoBehaviour {
         if (show)
             personPanel.Show(state.persons);
         personPanel.gameObject.SetActive(show);
+    }
+    public void ShowDiplomacy(bool show)
+    {
+        if (show)
+        {
+            diplomacyPanel.Show(state.diplomacy);
+
+            state.diplomacy.DiplomacyAction += diplomacyPanel.UpdateInfo;
+        } else
+        {
+
+            if(state != null)
+            state.diplomacy.DiplomacyAction -= diplomacyPanel.UpdateInfo;
+        }
+        diplomacyPanel.gameObject.SetActive(show);
     }
     public void ShowTechnology(bool show)
     {

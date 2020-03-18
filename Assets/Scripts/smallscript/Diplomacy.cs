@@ -7,7 +7,7 @@ public class Diplomacy {
     public List<float> relation;
     public List<(Diplomacy, float)> fabricateCB, uniqueCB, patronage;
     static List<TradeDeal> tradeDeals = new List<TradeDeal>();
-
+    public System.Action DiplomacyAction;
     public const float tradeRelationDelta = 10, forceAccesRealtionDelta = 10f, warDeclareRelation = -50;
 
     static float Sign(float x) => x < 0 ? -1 : x > 0 ? 1 : 0;
@@ -23,12 +23,15 @@ public class Diplomacy {
     public bool haveWar(Diplomacy dip) => war.Contains(dip);
     public bool haveAccess(Diplomacy dip) => forceAccess.Contains(dip);
     public bool haveDeal(Diplomacy dip) => tradeDeals.Exists((x) => x.State1 == dip.state && x.State2 == state || x.State2 == dip.state && x.State1 == state);
+    public TradeDeal findDeal(Diplomacy dip) => tradeDeals.Find((x) => x.State1 == dip.state && x.State2 == state || x.State2 == dip.state && x.State1 == state);
     public bool fabricatingCasus(Diplomacy dip) => fabricateCB.Exists((x) => x.Item1 == dip);
     public bool havePatronage(Diplomacy dip) => patronage.Exists((x) => x.Item1 == dip);
     public void DeclareWar(Diplomacy dip, bool declare)
     {
         DeclaredWar(dip, declare);
         dip.DeclaredWar(this, declare);
+        DiplomacyAction?.Invoke();
+        dip.DiplomacyAction?.Invoke();
     }
     private void DeclaredWar(Diplomacy dip, bool declare)
     {
@@ -43,6 +46,8 @@ public class Diplomacy {
             war.Remove(dip);
         }
 
+        DiplomacyAction?.Invoke();
+        dip.DiplomacyAction?.Invoke();
     }
     public void ForceAccess(Diplomacy dip, bool access)
     {
@@ -52,6 +57,9 @@ public class Diplomacy {
             forceAccess.Remove(dip);
 
         relation[dip.state.ID] += access ? forceAccesRealtionDelta : -forceAccesRealtionDelta;
+
+        DiplomacyAction?.Invoke();
+        dip.DiplomacyAction?.Invoke();
     }
     public void FabricateCasusBelli(Diplomacy dip, bool fabricate, float gold)
     {
@@ -59,6 +67,9 @@ public class Diplomacy {
             fabricateCB.Add((dip, gold));
         else
             fabricateCB.RemoveAll((x) => x.Item1 == dip);
+
+        DiplomacyAction?.Invoke();
+        dip.DiplomacyAction?.Invoke();
     }
     public void SendOfferForceAccess(Diplomacy other)
     {
@@ -69,6 +80,7 @@ public class Diplomacy {
         {
             ForceAccess(other, true);
         }
+
     }
     public void SendOfferTradeDeal(Diplomacy other, TradeDeal deal)
     {
@@ -79,14 +91,22 @@ public class Diplomacy {
         else
         {
             if (deal.WantTrade(other.state == deal.State1))
-            { MakeTradeDeal(deal); }
+            {
+                MakeTradeDeal(deal);
+
+            }
             else
             {
                 Debug.Log("Сделка отклонена");
             }
         }
     }
-    public void Insult(Diplomacy dip) => relation[dip.state.ID] = 0;
+    public void Insult(Diplomacy dip)
+    {
+        relation[dip.state.ID] = 0;
+        DiplomacyAction?.Invoke();
+        dip.DiplomacyAction?.Invoke();
+    }
     public void BeginPatronage(Diplomacy dip, bool begin)
     {
         if (begin)
@@ -97,10 +117,15 @@ public class Diplomacy {
         {
             patronage.RemoveAll((x) => x.Item1 == dip);
         }
+
+        DiplomacyAction?.Invoke();
+        dip.DiplomacyAction?.Invoke();
     }
     public void Uniate(Diplomacy dip)
     {
 
+        DiplomacyAction?.Invoke();
+        dip.DiplomacyAction?.Invoke();
     }
     public void MakeTradeDeal(TradeDeal deal)
     {
@@ -108,6 +133,9 @@ public class Diplomacy {
         deal.State2.diplomacy.relation[deal.State1.ID] += tradeRelationDelta;
 
         tradeDeals.Add(deal);
+
+        deal.State1.diplomacy.DiplomacyAction?.Invoke();
+        deal.State2.diplomacy.DiplomacyAction?.Invoke();
     }
     public void BreakTradeDeal(Diplomacy dip) => tradeDeals.RemoveAll((x)=>
     {
@@ -116,6 +144,9 @@ public class Diplomacy {
             x.BreakDeal();
             x.State1.diplomacy.relation[x.State2.ID] -= tradeRelationDelta;
             x.State2.diplomacy.relation[x.State1.ID] -= tradeRelationDelta;
+
+            x.State1.diplomacy.DiplomacyAction?.Invoke();
+            x.State2.diplomacy.DiplomacyAction?.Invoke();
             return true;
         }
         else return false;
