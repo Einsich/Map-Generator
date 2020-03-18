@@ -354,6 +354,8 @@ MonoBehaviour:
     type: 3}
   economicPanel: {fileID: 7396750142773447619, guid: 77e3926b5509d8d4e806c1014b58dcc2,
     type: 3}
+  diplomacyPanel: {fileID: 6085280634062354709, guid: ce184b3b33f970f4ba8c600ea2dd0b11,
+    type: 3}
   ModeButton:
   - {fileID: 7237327579572460757}
   - {fileID: 7966729828382602552}

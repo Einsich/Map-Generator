@@ -34,7 +34,7 @@ public class ListFiller : MonoBehaviour
             element.gameObject.SetActive(true);
             element.Init(x);
         }
-        rect.sizeDelta = new Vector2(rect.sizeDelta.x, (size.y + 1) * ((i + column - 1) / column));
+        rect.sizeDelta = new Vector2(rect.sizeDelta.x, (size.y ) * ((i + column - 1) / column));
         for (; i < list.Count; i++)
             list[i].gameObject.SetActive(false);
     }
