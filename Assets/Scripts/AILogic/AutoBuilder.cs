@@ -45,6 +45,7 @@ public class AutoBuilder
 
             CheckCostAndForwardBuild(prov, building);
         }
+
         foreach (var region in provinces)
         {
             ProvinceData prov = region.data;

@@ -92,6 +92,10 @@ public class ProvinceData {
     {
         return (int)fraction;
     }
+
+    private PriorityQueue<(float, BuildingType)> buildPriorityQueue = new PriorityQueue<(float, BuildingType)>();
+    private int updateQueue;
+
     public void Save(BinaryWriter writer)
     {
 
@@ -249,8 +253,27 @@ public class ProvinceData {
 
     public BuildingType GetBestBuilding()
     {
-        var buildProfit = new SortedList<float, BuildingType>();
-        buildProfit.Add(0f, BuildingType.Count);
+        
+        if (updateQueue == 0)
+        {
+            UpdateBuildQueueAndResetCounter();
+        }
+        updateQueue--;
+
+        if (buildPriorityQueue.Count > 0)
+        {
+            return buildPriorityQueue.Dequeue().Item2;
+        }
+        else
+        {
+            return BuildingType.Count;
+        }
+    }
+
+    private void UpdateBuildQueueAndResetCounter()
+    {
+        updateQueue = 4;
+        buildPriorityQueue.Clear();
         for (BuildingType type = BuildingType.Infrastructure; type != BuildingType.Count; type++)
         {
             if (CanPhysicalyBuild(type))
@@ -258,12 +281,10 @@ public class ProvinceData {
                 float profit = Profitability(type);
                 if (profit != 0f)
                 {
-                    if (!buildProfit.ContainsKey(profit))
-                        buildProfit.Add(profit, type);
+                    buildPriorityQueue.Enqueue((-profit, type));
                 }
             }
         }
-        return buildProfit.Last().Value;
     }
     private float Profitability(BuildingType type)
     {
