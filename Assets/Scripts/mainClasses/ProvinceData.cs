@@ -251,7 +251,7 @@ public class ProvinceData {
 
     }
 
-    public BuildingType GetBestBuilding()
+    public (float, BuildingType) GetBestBuilding()
     {
         
         if (updateQueue == 0)
@@ -262,11 +262,12 @@ public class ProvinceData {
 
         if (buildPriorityQueue.Count > 0)
         {
-            return buildPriorityQueue.Dequeue().Item2;
+            var prioryBuild = buildPriorityQueue.Dequeue();
+            return prioryBuild;
         }
         else
         {
-            return BuildingType.Count;
+            return (0f, BuildingType.Count);
         }
     }
 
