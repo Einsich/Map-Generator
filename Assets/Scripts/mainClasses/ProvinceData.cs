@@ -9,7 +9,14 @@ public class ProvinceData {
      public Treasury Cost(BuildingType type,int lvl= -1)
     {
         if (lvl == -1)
-            lvl = buildings[(int)type];
+            try
+            {
+                lvl = buildings[(int)type];
+            } catch
+            {
+                Debug.Log(type.ToString());
+                return new Treasury();
+            }
         Treasury cost;
         switch(type)
         {
@@ -294,7 +301,8 @@ public class ProvinceData {
         Treasury now = CalculateIncome();
         buildings[(int)type]--;
         now -= old;
-        return now.Gold + now.Manpower + now.Wood + now.Iron + now.Science;
+        now.NormalizeToGold();
+        return now.Sum;
     }
 }
 public enum BuildingType

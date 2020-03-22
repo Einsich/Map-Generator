@@ -83,7 +83,10 @@ public class AutoBuilder
                     prov.SomeChanges?.Invoke();
 
                     var tmpCortege = prov.GetBestBuilding();
-                    queue.Enqueue(new BuildTask(tmpCortege.Item1, prov, tmpCortege.Item2));
+                    if (tmpCortege.Item2 != BuildingType.Count)
+                    {
+                        queue.Enqueue(new BuildTask(tmpCortege.Item1, prov, tmpCortege.Item2));
+                    }
                 }
                 else
                 {
