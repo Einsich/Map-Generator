@@ -9,7 +9,7 @@ public class AutoBuilder
     private List<Region> provinces;
     private PriorityQueue<BuildTask> queue = new PriorityQueue<BuildTask>();
     private int updateQueue;
-
+    public Treasury NeedTreasure => queue.Count == 0 ? new Treasury() : queue.Peek().Prov.Cost(queue.Peek().Building);
     private class BuildTask : IComparable<BuildTask>
     {
         private float priority;
@@ -57,11 +57,10 @@ public class AutoBuilder
     }
     void BestBuild()
     {
-        if (updateQueue == 0)
+        if (updateQueue-- == 0)
         {
             UpdateQueueAndResetCounter();
         }
-        updateQueue--;
 
         bool success = true;
         while (success && queue.Count > 0)
@@ -102,7 +101,7 @@ public class AutoBuilder
 
     private void UpdateQueueAndResetCounter()
     {
-        updateQueue = 3;
+        updateQueue = 5;
         queue.Clear();
         foreach (var region in provinces)
         {

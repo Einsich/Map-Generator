@@ -19,6 +19,10 @@ public class StateAI
 
     static Treasury nonscienceMask = new Treasury(1, 1, 1, 1, 0), scienceMask = new Treasury(0, 0, 0, 0, 1);
     private Treasury ArmyBudget,BuildingBudget, TechnologyBudget, OtherBudget;
+    /// <summary>
+    /// Нехватка - положительные компоненты означают нехватку
+    /// </summary>
+    public Treasury Deficit => (autoBuilder.NeedTreasure + autoReasercher.NeedTreasure )- GetTreasure;
     public Treasury GetArmyBudget => ArmyBudget;
     public Treasury GetBuildingBudget => BuildingBudget;
     public Treasury GetOtherBudget => OtherBudget;
