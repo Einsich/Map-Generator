@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StateAI 
+public class StateAI
 {
     public State Data;
     public AutoBuilder autoBuilder;
     public AutoReasercher autoReasercher;
+    public AutoTrader autoTrader;
     public StateAI(State state)
     {
         Data = state;
         autoBuilder = new AutoBuilder(this);
         autoReasercher = new AutoReasercher(this);
+        autoTrader = new AutoTrader(this);
     }
     public float armyBudget { get; private set; } = 0.3f;
     public float buildingBudget { get; private set; } = 0.5f;

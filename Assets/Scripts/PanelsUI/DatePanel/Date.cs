@@ -11,11 +11,19 @@ public class Date : MonoBehaviour {
     public Texture2D ind;
     public static bool cheat = false;
     public static bool play = true;
+    private bool firstUpdate = true;
     int speed;
     static float LastDeciUpdate,LastSecondUpdate, LastDecaUpdate;
     void Update() {
         if (Input.GetKeyDown(KeyCode.Space) && !cheat)
             Pause();
+
+        if (firstUpdate)
+        {
+            firstUpdate = false;
+            Pause();
+            return;
+        }
     }
     private void FixedUpdate()
     {
@@ -65,7 +73,6 @@ public class Date : MonoBehaviour {
         AddSpeed(5);
         UpdateDate();
         GameTimer.Start();
-
     }
     public void AddSpeed(int delta)
     {

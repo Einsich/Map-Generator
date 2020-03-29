@@ -63,6 +63,7 @@ public class Player : MonoBehaviour {
             states[i].SetNameStatus(!CameraController.showstate);
             states[i].stateAI.autoBuilder.AutoBuilding(state != states[i]);
             states[i].stateAI.autoReasercher.AutoResearching(state != states[i]);
+            states[i].stateAI.autoTrader.AutoTrading(state != states[i]);
 
         }
         foreach (var army in Army.AllArmy)

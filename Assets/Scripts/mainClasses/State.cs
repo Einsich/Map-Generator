@@ -20,7 +20,6 @@ public class State
     public Diplomacy diplomacy;
     public Technology technology;
     public StateAI stateAI;
-    Treasury DeltaIncome;
     public Treasury Income;
     public System.Action TreasureChange, IncomeChanges;
     public Treasury treasury => stateAI.GetTreasure;
@@ -148,18 +147,18 @@ public class State
     public void CalculateIncome()
     {
         stateAI.IncomeResources(Income);
-        DeltaIncome = Income;
-        Income = new Treasury();
         TreasureChange?.Invoke();
     }
     public void StateDecaSecondUpdate()
     {
+        Income = new Treasury();
         for (int i = 0; i < regions.Count; i++)
             regions[i].MonthUpdate();
+        GlobalTrade.AddIncome(Income);
         foreach (var army in army)
             army.UpdateUpkeep();
-           CalculateIncome();
-        GlobalTrade.AddIncome(DeltaIncome);
+        stateAI.autoTrader.DealsUpdate();
+        CalculateIncome();
         diplomacy.DiplomacyUpdate();
     }
     public void DeclareWarPenalty(float penalty)
@@ -169,6 +168,7 @@ public class State
     }
     public bool WantTrade(ResourcesType sellType, float wesell, ResourcesType buyType, float webuy)
     {
+        return !stateAI.autoTrader.DealsOverflow && Income[sellType] * GlobalTrade.MaxSellPercent >= wesell && GlobalTrade.WantToBuy(this, buyType) && !GlobalTrade.WantToBuy(this, sellType) ;
         return Mathf.Min(GlobalTrade.GetCource(ResourcesType.Gold, sellType) * treasury[sellType],
              GlobalTrade.GetCource(ResourcesType.Gold, buyType) * treasury[buyType]) <
           Mathf.Min(GlobalTrade.GetCource(ResourcesType.Gold, sellType) * (treasury[sellType] - wesell),
@@ -177,7 +177,7 @@ public class State
     }
     public string ResourcesHelp(int t)
     {
-        return string.Format("{0}. Ваш прирост {1}", Treasury.ToString(t),DeltaIncome[t].ToString("N2"));
+        return string.Format("{0}. Ваш прирост {1}", Treasury.ToString(t),Income[t].ToString("N2"));
     }
 }
 

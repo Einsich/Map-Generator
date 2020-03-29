@@ -3126,7 +3126,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3472519577665737414}
   m_HandleRect: {fileID: 3472519577665737433}
   m_Direction: 2
-  m_Value: 0.9999581
+  m_Value: 0.99995846
   m_Size: 0.7874037
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6317,7 +6317,7 @@ GameObject:
   - component: {fileID: 3472519577945612315}
   - component: {fileID: 3472519577945612314}
   m_Layer: 5
-  m_Name: trade
+  m_Name: trade//remove
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7054,7 +7054,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1065954933638886689}
   m_Layer: 5
-  m_Name: Trade
+  m_Name: Trade//remove
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

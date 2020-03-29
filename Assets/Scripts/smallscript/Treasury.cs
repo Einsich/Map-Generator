@@ -151,5 +151,5 @@ public struct Treasury
 }
 public enum ResourcesType
 {
-    Gold, Manpower, Wood, Iron, Science
+    Gold, Manpower, Wood, Iron, Science,Count
 }

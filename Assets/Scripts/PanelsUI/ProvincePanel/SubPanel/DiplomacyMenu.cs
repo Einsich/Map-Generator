@@ -49,15 +49,19 @@ public class DiplomacyMenu : MonoBehaviour
             InputManager.Instance.EscAction -= No;
         }
     }
+    Deal deal;
     ResourcesType sellT, buyT;
     float sellR, buyR;
     void UpdateTradePanel()
     {
         sellT = (ResourcesType)selldrop.value;
         buyT = (ResourcesType)buydrop.value;
+
+        sellres.maxValue = player.state.treasury[sellT] * 0.2f;
         sellR = sellres.value;
         buyR = GlobalTrade.GetCource(buyT, sellT) * sellR;
-        bool want = select.state.WantTrade(buyT, buyR, sellT, sellR);
+        deal = new Deal(player.state, sellT, sellR, buyT, buyR);
+        bool want = GlobalTrade.TryMakeDeal(deal);//select.state.WantTrade(buyT, buyR, sellT, sellR);
         selltext.text = $"Продаете\n{sellT.ToString()}: {sellR:N1}";
         buytext.text = $"Покупаете\n{buyT.ToString()}: {buyR:N1}";
         YesButton.interactable = want;
@@ -221,10 +225,16 @@ public class DiplomacyMenu : MonoBehaviour
         {
             case 0: player.DeclareWar(select, !player.haveWar(select));
                 break;
-            case 1: if (player.haveDeal(select))
+            case 1:
+                GlobalTrade.MakeDeal(deal);
+
+                /*if (player.haveDeal(select))
                     player.BreakTradeDeal(select);
                 else
                     player.SendOfferTradeDeal(select, new TradeDeal(player.state, sellT, sellR, select.state, buyT, buyR));
+                    */
+                UpdateTradePanel();
+                return;
                 break;
             case 2: if (player.haveAccess(select))
                     player.ForceAccess(select, false);

@@ -15,6 +15,7 @@ public static class GameTimer
                 x.Income += s.data.CalculateIncome();
                 GlobalTrade.AddIncome(x.Income);
             }
+        GlobalTrade.StartGlobalTrade();
     }
 
     public static PriorityQueue<Action> actionQueue = new PriorityQueue<Action>();
@@ -43,9 +44,7 @@ public static class GameTimer
     }
     public static void EveryDecaSecondUpdate()
     {
-
         GlobalTrade.DiscardCource();
-        Diplomacy.TradeUpdate();
     }
     public static List<(UnityAction,State)> first = new List<(UnityAction, State)>(),
         second = new List<(UnityAction, State)>();

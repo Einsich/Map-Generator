@@ -6,7 +6,7 @@ public class Diplomacy {
     List<Diplomacy> war, forceAccess;
     public List<float> relation;
     public List<(Diplomacy, float)> fabricateCB, uniqueCB, patronage;
-    static List<TradeDeal> tradeDeals = new List<TradeDeal>();
+    public List<TradeDeal> tradeDeals;
     public System.Action DiplomacyAction;
     public const float tradeRelationDelta = 10, forceAccesRealtionDelta = 10f, warDeclareRelation = -50;
 
@@ -22,8 +22,8 @@ public class Diplomacy {
     public bool canUniate(Diplomacy dip) => !haveWar(dip) && relation[dip.state.ID] >= 70;
     public bool haveWar(Diplomacy dip) => war.Contains(dip);
     public bool haveAccess(Diplomacy dip) => forceAccess.Contains(dip);
-    public bool haveDeal(Diplomacy dip) => tradeDeals.Exists((x) => x.State1 == dip.state && x.State2 == state || x.State2 == dip.state && x.State1 == state);
-    public TradeDeal findDeal(Diplomacy dip) => tradeDeals.Find((x) => x.State1 == dip.state && x.State2 == state || x.State2 == dip.state && x.State1 == state);
+    public bool haveDeal(Diplomacy dip) => tradeDeals.Exists((x) => x.State1 == dip.state  || x.State2 == dip.state );
+    public TradeDeal findDeal(Diplomacy dip) => tradeDeals.Find((x) => x.State1 == dip.state || x.State2 == dip.state);
     public bool fabricatingCasus(Diplomacy dip) => fabricateCB.Exists((x) => x.Item1 == dip);
     public bool havePatronage(Diplomacy dip) => patronage.Exists((x) => x.Item1 == dip);
     public void DeclareWar(Diplomacy dip, bool declare)
@@ -82,24 +82,30 @@ public class Diplomacy {
         }
 
     }
-    public void SendOfferTradeDeal(Diplomacy other, TradeDeal deal)
+    public bool SendOfferTradeDeal(Diplomacy other, TradeDeal deal)
     {
-        if (other.state == Player.curPlayer)
-        {
 
-        }
-        else
+        if (other.state.stateAI.autoTrader.IsOn)
+
         {
             if (deal.WantTrade(other.state == deal.State1))
             {
                 MakeTradeDeal(deal);
-
+                deal.StartDeal();
+                return true;
             }
             else
             {
-                Debug.Log("Сделка отклонена");
+                return false;
             }
         }
+        else
+        {   
+            if (other.state == Player.curPlayer)
+            {
+            }
+        }
+        return false;
     }
     public void Insult(Diplomacy dip)
     {
@@ -132,26 +138,27 @@ public class Diplomacy {
         deal.State1.diplomacy.relation[deal.State2.ID] += tradeRelationDelta;
         deal.State2.diplomacy.relation[deal.State1.ID] += tradeRelationDelta;
 
-        tradeDeals.Add(deal);
+        //tradeDeals.Add(deal);
 
         deal.State1.diplomacy.DiplomacyAction?.Invoke();
         deal.State2.diplomacy.DiplomacyAction?.Invoke();
     }
-    public void BreakTradeDeal(Diplomacy dip) => tradeDeals.RemoveAll((x)=>
+    public void BreakTradeDeal(Diplomacy dip)
     {
-        if (x.State1 == dip.state && x.State2 == state || x.State2 == dip.state && x.State1 == state)
-        {
-            x.BreakDeal();
-            x.State1.diplomacy.relation[x.State2.ID] -= tradeRelationDelta;
-            x.State2.diplomacy.relation[x.State1.ID] -= tradeRelationDelta;
+        for(int i=0;i<tradeDeals.Count;i++)
+        
+            if (tradeDeals[i].State1 == dip.state || tradeDeals[i].State2 == dip.state)
+            {
+                (State s1, State s2) = (tradeDeals[i].State1, tradeDeals[i].State2);
+                s1.diplomacy.relation[s2.ID] -= tradeRelationDelta;
+                s2.diplomacy.relation[s1.ID] -= tradeRelationDelta;
 
-            x.State1.diplomacy.DiplomacyAction?.Invoke();
-            x.State2.diplomacy.DiplomacyAction?.Invoke();
-            return true;
-        }
-        else return false;
-    });
-    public List<TradeDeal> GetDeals() => tradeDeals.FindAll((x) => x.State1 == state || x.State2 == state);
+                s1.diplomacy.DiplomacyAction?.Invoke();
+                s2.diplomacy.DiplomacyAction?.Invoke();
+                tradeDeals[i].BreakDeal();
+                i--;
+            }
+    }
     public bool canMove(Diplomacy dip) => haveWar(dip)|| haveAccess(dip);
 
     public float relationDelta(Diplomacy dip)
@@ -167,6 +174,7 @@ public class Diplomacy {
     public Diplomacy(State state)
     {
         this.state = state;
+        tradeDeals = state.stateAI.autoTrader.deals;
         diplomacies[state.ID] = this;
         war = new List<Diplomacy>();
         forceAccess = new List<Diplomacy>();
@@ -181,7 +189,6 @@ public class Diplomacy {
     }
 
 
-    public static Diplomacy GetDiplomacy(State state) => state != null ? diplomacies[state.ID]: null;
     public static Diplomacy[] diplomacies;
     public static void InitDiplomacy(int n)
     {
@@ -206,9 +213,5 @@ public class Diplomacy {
             else
                 relation[i] = 0;
         
-    }
-    public static void TradeUpdate()
-    {
-        tradeDeals.ForEach((t) => { if (!t.isValid) t.BreakDeal(); });
     }
 }
