@@ -7,8 +7,9 @@ public static class GlobalTrade
     public const float MaxSellPercent = 0.15f, StartBuffer = 0.1f;
     static Treasury Income = new Treasury(1), PrevIncome = new Treasury();
     static string s = "";static int p = 0;
-    public static void DiscardCource() { Income -= PrevIncome; PrevIncome = Income; s +=Income.ToString()+"\n";if (p++==5) Debug.Log(s); }
-    public static void AddIncome(Treasury income) => Income += income;
+    public static System.Action BufferChanged;
+    public static void DiscardCource() { Income -= PrevIncome; PrevIncome = Income; s +=Income.ToString()+"\n";if (p++==10) Debug.Log(s); }
+    public static void AddIncome(Treasury income) { Income += income; }
 
     public static float GetCource(ResourcesType bye, ResourcesType sell) => Mathf.Min(Income[(int)bye] / Income[(int)sell], 1000);
 
@@ -36,7 +37,11 @@ public static class GlobalTrade
         Buffer[deal.SellRes] += deal.Sell;
         deal.State.stateAI.IncomeResources(new Treasury(deal.BuyRes, deal.Buy));
         deal.State.stateAI.SomeOneSpentResources(new Treasury(deal.SellRes, deal.Sell), BudgetType.OtherBudget);
+        if (Buffer[deal.BuyRes] < 0.01f)
+            Buffer[deal.BuyRes] = 0;
         deal.State.TreasureChange?.Invoke();
+        BufferChanged?.Invoke();
+        Debug.Log($"Was trade {Buffer.ToString()}");
     }
     public static void TryMakeDeals((ResourcesType buy, ResourcesType sell)[] variants, StateAI trader )
     {

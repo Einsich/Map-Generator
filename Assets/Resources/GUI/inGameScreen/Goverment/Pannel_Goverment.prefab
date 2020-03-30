@@ -334,6 +334,8 @@ MonoBehaviour:
     type: 3}
   diplomacyPanel: {fileID: 6085280634062354709, guid: ce184b3b33f970f4ba8c600ea2dd0b11,
     type: 3}
+  tradePanel: {fileID: 3467265070843296417, guid: a290afa0f046ab04da2b97fcd491f0e1,
+    type: 3}
   ModeButton:
   - {fileID: 7237327579572460757}
   - {fileID: 7966729828382602552}
@@ -2566,7 +2568,7 @@ GameObject:
   - component: {fileID: 516274585925447077}
   - component: {fileID: 7237327579572460757}
   m_Layer: 5
-  m_Name: B_State
+  m_Name: B_Trade
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

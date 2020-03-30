@@ -32,12 +32,12 @@ public class AutoTrader
 
     private void TryTrade()
     {
-        Treasury deficit = state.Deficit;
+        Treasury deficit = state.GetTreasure;
         deficit.NormalizeToGold();
         sortList.Clear();
         for (int i = 0; i < (int)ResourcesType.Count; i++)
         {
-            sortList.Add((-deficit[i], (ResourcesType)i));
+            sortList.Add((deficit[i], (ResourcesType)i));
         }
         sortList.Sort();
         variants[0] = (sortList[0].Item2, sortList[4].Item2);
@@ -47,7 +47,7 @@ public class AutoTrader
         foreach(var p in variants)
         {
             (ResourcesType buy, ResourcesType sell) = p;
-            float sellR = -deficit[sell];
+            float sellR = deficit[sell];
             if(sellR > 0 )
             {
                 sellR = Mathf.Min(sellR, GlobalTrade.BufferRes(buy) * GlobalTrade.GetCource(ResourcesType.Gold, buy));

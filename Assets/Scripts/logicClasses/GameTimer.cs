@@ -10,11 +10,13 @@ public static class GameTimer
     public static void Start()
     {
         foreach (var x in Main.states)
+        {
             foreach (var s in x.regions)
             {
                 x.Income += s.data.CalculateIncome();
-                GlobalTrade.AddIncome(x.Income);
             }
+            GlobalTrade.AddIncome(x.Income);
+        }
         GlobalTrade.StartGlobalTrade();
     }
 

@@ -15,9 +15,9 @@ public class StateAI
         autoReasercher = new AutoReasercher(this);
         autoTrader = new AutoTrader(this);
     }
-    public float armyBudget { get; private set; } = 0.3f;
-    public float buildingBudget { get; private set; } = 0.5f;
-    public float technologyBudget { get; private set; } = 0.8f;
+    public float armyBudget { get; private set; } = 0.1f;
+    public float buildingBudget { get; private set; } = 0.9f;
+    public float technologyBudget { get; private set; } = 0.95f;
 
     static Treasury nonscienceMask = new Treasury(1, 1, 1, 1, 0), scienceMask = new Treasury(0, 0, 0, 0, 1);
     private Treasury ArmyBudget,BuildingBudget, TechnologyBudget, OtherBudget;
