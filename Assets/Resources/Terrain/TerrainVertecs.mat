@@ -147,6 +147,8 @@ Material:
     - _Speed: 0.3
     - _SrcBlend: 1
     - _TerrainMode: 0
+    - _TesselationScaleFactor: 0.1
+    - _TesselationUVFactor: 17.45
     - _Tiling: 1
     - _UJump: 0.25
     - _UVSec: 0

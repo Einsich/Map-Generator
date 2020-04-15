@@ -957,6 +957,7 @@ GameObject:
   - component: {fileID: 1371290427}
   - component: {fileID: 1371290426}
   - component: {fileID: 1371290428}
+  - component: {fileID: 1371290429}
   m_Layer: 0
   m_Name: DASMAIN
   m_TagString: Untagged
@@ -1036,7 +1037,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3c72ce5f4ee6ef4a86cecd3a8b7bb40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  KeyCodes: 1b000000200000000d00000073000000710000007700000065000000
+  KeyCodes: 1b000000200000000d0000007300000071000000770000006500000025010000
+--- !u!114 &1371290429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1371290425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4c44dd60b54d4894db5f9d40ab266192, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1823500040
 GameObject:
   m_ObjectHideFlags: 0

@@ -251,11 +251,13 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         var list = curReg.data.garnison;
         List<Regiment> remove, add;
         if (list.Contains(regiment))
-        { remove = list; add = army; }
+        {
+            if (army.Count >= Person.MaxRegiment)
+                return;
+            remove = list; add = army; }
         else
-        { remove = army; add = list;
-           // if (army.Count == 1)
-             //   return;
+        {
+            remove = army; add = list;
         }
         remove.Remove(regiment);
         add.Add(regiment);

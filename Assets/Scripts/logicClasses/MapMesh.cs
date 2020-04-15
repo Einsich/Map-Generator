@@ -44,9 +44,9 @@ public class MapMesh : MonoBehaviour {
                 triangles.Add(b);
                 triangles.Add(b + 1);
 
+                triangles.Add(b + 1);
                 triangles.Add(a + 1);
                 triangles.Add(a);
-                triangles.Add(b + 1);
             }
         mapMesh.SetVertices(vertices);
         mapMesh.SetUVs(0, uvs);

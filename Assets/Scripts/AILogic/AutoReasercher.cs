@@ -2,36 +2,38 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AutoReasercher 
+public class AutoReasercher :AutoManager
 {
     private StateAI state;
     private Technology technology;
     private PriorityQueue<ResearchTask> queue = new PriorityQueue<ResearchTask>();
     private int queueCounter;
     public Treasury NeedTreasure => queue.Count == 0 ? new Treasury() : new Treasury(ResourcesType.Science,queue.Peek().tech.science);
-    public bool IsOn { get; private set; } = false;
-    public AutoReasercher(StateAI state)
+     public AutoReasercher(StateAI state)
     {
         this.state = state;
         technology = state.Data.technology;
     }
-
-    public void AutoResearching(bool On)
+    private bool isOn = false;
+    public bool IsOn
     {
-        if (On)
+        get => isOn; set
         {
-            RandomResearch();
-            GameTimer.AddListener(RandomResearch, state.Data);
-            technology.TechWasResearchedEvent += RandomResearch;
+            if (value)
+            {
+                RandomResearch();
+                GameTimer.AddListener(RandomResearch, state.Data);
+                technology.TechWasResearchedEvent += RandomResearch;
+
+            }
+            else
+            {
+                GameTimer.RemoveListener(RandomResearch, state.Data);
+                technology.TechWasResearchedEvent -= RandomResearch;
+            }
+            isOn = value;
 
         }
-        else
-        {
-            GameTimer.RemoveListener(RandomResearch, state.Data);
-            technology.TechWasResearchedEvent -= RandomResearch;
-        }
-        IsOn = On;
-
     }
     void RandomResearch()
     {

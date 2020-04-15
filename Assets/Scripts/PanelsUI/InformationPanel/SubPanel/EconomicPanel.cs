@@ -20,8 +20,8 @@ public class EconomicPanel : MonoBehaviour
         buildBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.BuildingBudget));
         techBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.TechnologyBudget));
 
-        autoBuild.onValueChanged.AddListener(state.stateAI.autoBuilder.AutoBuilding);
-        autoResearch.onValueChanged.AddListener(state.stateAI.autoReasercher.AutoResearching);
+        autoBuild.onValueChanged.AddListener((x)=> state.stateAI.autoBuilder.IsOn = x);
+        autoResearch.onValueChanged.AddListener((x)=>state.stateAI.autoReasercher.IsOn = x);
         SliderUpdate();
         ToggleUpdate();
         UpdateInformation();

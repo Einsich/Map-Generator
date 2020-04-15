@@ -16,7 +16,7 @@ public class ArmyPanel : MonoBehaviour, IHelpPerson
    // public Button[] skillsUpButton;
     public Image expFill;
     public Text exp;
-    public Text name;
+    public Text name, regimentsCount;
     public Person Person { get; set; }
     void Awake()
     {
@@ -117,6 +117,7 @@ public class ArmyPanel : MonoBehaviour, IHelpPerson
     }
     public void UpdateArmy()
     {
+        regimentsCount.text = $"{curArmy.army.Count}/{Person.MaxRegiment}";
         army.UpdateList(curArmy.army.ConvertAll(x => (object)x));
 
     }

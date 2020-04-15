@@ -34,6 +34,7 @@ public class Main : MonoBehaviour
     }
     private void Start()
     {
+
         Fraction.TownPrefab = TownPrefab;
         Fraction.WallsPrefab = WallsPrefab;
         Creator.StartGame();
@@ -87,6 +88,7 @@ public class Main : MonoBehaviour
         CameraController.SetPosition(new Vector3(st[0].Capital.position.x, seaLevelf, st[0].Capital.position.y));
         MenuManager.StartTimer();
         Player.SetState(st[0]);
+
     }
 
     void CreateWorldBorder()

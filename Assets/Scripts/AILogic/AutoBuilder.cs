@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AutoBuilder 
+public class AutoBuilder :AutoManager
 {
     private StateAI state;
     private List<Region> provinces;
@@ -28,33 +28,37 @@ public class AutoBuilder
             return priority.CompareTo(other.priority);
         }
     }
-
-    public bool IsOn { get; private set; } = false;
     public AutoBuilder(StateAI state)
     {
         this.state = state;
         provinces = state.Data.regions;
     }
     
+    private bool isOn = false;
+    public bool IsOn
+    {
+        get => isOn; set
+        {
+            if (value)
+            {
+                BestBuild();
+                GameTimer.AddListener(BestBuild, state.Data);
+            }
+            else
+            {
+                GameTimer.RemoveListener(BestBuild, state.Data);
+                queue.Clear();
+            }
+            isOn = value;
+
+        }
+    }
     public void IncludeBuildTask(ProvinceData prov, BuildingType building)
     {
         queue.Enqueue(new BuildTask(float.NegativeInfinity, prov, building));
     }
 
-    public void AutoBuilding(bool On)
-    {
-        if(On)
-        {
-            BestBuild();
-            GameTimer.AddListener(BestBuild, state.Data);
-        } else
-        {
-            GameTimer.RemoveListener(BestBuild, state.Data);
-            queue.Clear();
-        }
-        IsOn = On;
-
-    }
+   
     void BestBuild()
     {
         if (updateQueue-- == 0)

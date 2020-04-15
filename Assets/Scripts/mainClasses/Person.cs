@@ -18,7 +18,7 @@ public class Person
     public int AttackSpeedLvl = 0;
     public int RangeBuffLvl = 0;
     public int MeleeBuffLvl = 0;
-    public int MaxRegiment => LeadershipLvl * 2 + 2;
+    public int MaxRegiment => LeadershipLvl * 2 + 4;
     public float AttackSpeed => 1f / (0.1f * (lvl+ AttackSpeedLvl) + 1f);
 
     public int DamageTypeBuff(DamageType type) => (type == DamageType.Melee || type == DamageType.Charge) ? MeleeBuffLvl : RangeBuffLvl;

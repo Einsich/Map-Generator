@@ -2,31 +2,34 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AutoTrader 
+public class AutoTrader :AutoManager
 {
     private StateAI state;
     private Diplomacy diplomacy;
     public List<TradeDeal> deals = new List<TradeDeal>();
     static List<(float, ResourcesType)> sortList = new List<(float, ResourcesType)>(5);
     public AutoTrader(StateAI stateAI) => (state, diplomacy) = (stateAI, stateAI.Data.diplomacy);
-    public bool IsOn { get; private set; } = false;
-
+    public Treasury NeedTreasure => new Treasury();
     public bool DealsOverflow => deals.Count >= 4;
-    public void AutoTrading(bool On)
+    private bool isOn = false;
+    public bool IsOn
     {
-        if (On)
+        get => isOn; set
         {
-            //FindTradeDeals();
-            //GameTimer.AddListener(FindTradeDeals, state.Data);
-            GameTimer.AddListener(TryTrade, state.Data);
+            if (value)
+            {
+                //FindTradeDeals();
+                //GameTimer.AddListener(FindTradeDeals, state.Data);
+                GameTimer.AddListener(TryTrade, state.Data);
 
+            }
+            else
+            {
+                //GameTimer.RemoveListener(FindTradeDeals, state.Data);
+                GameTimer.RemoveListener(TryTrade, state.Data);
+            }
+            isOn = value;
         }
-        else
-        {
-            //GameTimer.RemoveListener(FindTradeDeals, state.Data);
-            GameTimer.RemoveListener(TryTrade, state.Data);
-        }
-        IsOn = On;
     }
 
 

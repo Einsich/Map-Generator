@@ -10,7 +10,8 @@
 		_TerrainMode("Terrain Mode",Range(0, 1)) = 0
 		_TerrainSource("Terrain source", 2DArray) = "white" {}
 		_TerrainNormSource("Terrain normals sourse", 2DArray) = "white" {}
-
+		_TesselationUVFactor("Tesselation uv factor", Float) = 1
+		_TesselationScaleFactor("Tesselation scale factor", Float) = 1
 		//[PerRendererData]
 		_BorderMod("Border mode",Float) = 1
 		//	[PerRendererData]
@@ -48,10 +49,11 @@
 		sampler2D _MainTex,_MainTexNorm,_OccupeTex,_OccupeMap;
 		sampler2D _FogNoise, _MapBackgroung;
 	sampler2D _MainWaveTex, _FlowMap, _DerivHeightMap, _ProvincesMap;
+	float _TesselationUVFactor, _TesselationScaleFactor;
 	float _UJump, _VJump, _Tiling, _Speed, _FlowStrength, _FlowOffset;
 	float _HeightScale, _HeightScaleModulated,_TerrainMode;
 	UNITY_DECLARE_TEX2DARRAY(_TerrainTex);
-	UNITY_DECLARE_TEX2DARRAY(_TerrainNormTex);
+	//UNITY_DECLARE_TEX2DARRAY(_TerrainNormTex);
 	UNITY_DECLARE_TEX2DARRAY(_TerrainSource);
 	UNITY_DECLARE_TEX2DARRAY(_TerrainNormSource);
 	float4 _Color;
@@ -68,12 +70,12 @@
 
 		float4 tessFixed()
 		{
-			return float4(3,3,3,3);
+			return float4(3,1,3,3);
 		}
 		Input vert(inout appdata_full v) {
 			Input o;
-			v.vertex.y = GetHeight(v.vertex);
-			v.vertex.xyz += GetNoise(v.vertex);
+			v.vertex.y = GetHeight(v.texcoord);
+			v.vertex.xyz += GetNoise(v.texcoord * _TesselationUVFactor)* _TesselationScaleFactor;
 			return o;
 		}
 		float3 UnpackDerivativeHeight(float4 textureData) {
@@ -115,7 +117,7 @@
 			float4 c;
 			for (int i = 0; i < 4; i++)
 			{
-				float4 l = UNITY_SAMPLE_TEX2DARRAY(_TerrainNormTex, float3(uv, i));
+				float4 l = UNITY_SAMPLE_TEX2DARRAY(_TerrainTex, float3(uv, i));
 
 				for (int j = 0; j < 4; j++)if (i * 4 + j < 14)
 					c += UNITY_SAMPLE_TEX2DARRAY(_TerrainNormSource, float3(foguv*0.1, i * 4 + j))*l[j];
@@ -225,8 +227,12 @@
 				}
 			return ans;
 		}
-		float4 Border(float2 uv,float2 world)
+		float4 Border(float2 uv)
 		{
+
+			float3 delta = GetNoise(uv * _TesselationUVFactor) * _TesselationScaleFactor;
+			//uv.x += delta.x * _Size.x;
+			//uv.y += delta.z * _Size.y;
 			float2 ans = 0,buf;
 			float2 dx = float2(_Size.x, 0);
 			float2 dy = float2(0, _Size.y);
@@ -317,7 +323,7 @@
 			{
 				c *= (0.5*sin((_Time.y - _SelectTime)*4) + 1.5);
 			}
-			float4 border =  Border(uv, ocuv);
+			float4 border =  Border(uv);
 			if (border.a > 0)
 				c *= border;
 			float4 fog = FogAndIncognito(IN.worldPos);
