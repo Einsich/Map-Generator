@@ -258,14 +258,13 @@ public class ProvinceData {
 
     }
 
-    public (float, BuildingType) GetBestBuilding()
+    public (float, BuildingType?) GetBestBuilding()
     {
         
-        if (updateQueue == 0)
+        if (updateQueue-- == 0)
         {
             UpdateBuildQueueAndResetCounter();
         }
-        updateQueue--;
 
         if (buildPriorityQueue.Count > 0)
         {
@@ -274,7 +273,7 @@ public class ProvinceData {
         }
         else
         {
-            return (0f, BuildingType.Count);
+            return (0f, null);
         }
     }
 

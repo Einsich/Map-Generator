@@ -104,7 +104,7 @@ public class Region :ITarget, IFightable
             {
                 if (data.portLevel==0)
                 {
-                   // Debug.Log("! " + owner.name + " " + id + " " + neib[i].id);
+                   Debug.Log("! " + owner.name + " " + id + " " + neib[i].id);
                 }
                 else
                     Port.gameObject.SetActive(bordState != BorderState.ShowStateBorder && !hidfrompl);

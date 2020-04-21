@@ -86,9 +86,9 @@ public class AutoBuilder :AutoManager
                     prov.SomeChanges?.Invoke();
 
                     var tmpCortege = prov.GetBestBuilding();
-                    if (tmpCortege.Item2 != BuildingType.Count)
+                    if (tmpCortege.Item2 != null)
                     {
-                        queue.Enqueue(new BuildTask(tmpCortege.Item1, prov, tmpCortege.Item2));
+                        queue.Enqueue(new BuildTask(tmpCortege.Item1, prov, tmpCortege.Item2.Value));
                     }
                 }
                 else
@@ -113,11 +113,11 @@ public class AutoBuilder :AutoManager
             var tmpCortege = prov.GetBestBuilding();
 
             float profit = tmpCortege.Item1;
-            BuildingType building = tmpCortege.Item2;
+            BuildingType? building = tmpCortege.Item2;
 
-            if (building != BuildingType.Count)
+            if (building != null)
             {
-                queue.Enqueue(new BuildTask(profit, prov, building));
+                queue.Enqueue(new BuildTask(profit, prov, building.Value));
             }
         }
     }
