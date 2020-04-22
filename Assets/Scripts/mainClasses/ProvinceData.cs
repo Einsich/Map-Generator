@@ -32,10 +32,18 @@ public class ProvinceData {
             case BuildingType.UniversitySpecial:cost = new Treasury(500, 200, 100, 100, 0);break;
             default: cost = new Treasury(500) { Science=10};break;
         }
-
-        return cost * levelCoef[1 + lvl] * region.owner.technology.BuildCostBonus;
+        
+        try
+        {
+            return cost * levelCoef[1 + lvl] * region.owner.technology.BuildCostBonus;
+        }
+        catch
+        {
+            Debug.Log(lvl.ToString() + " !баг!");
+            return new Treasury();
+        }
     }
-    static float[] levelCoef = { 0, 1, 1.5f, 1.75f, 2 };
+    static float[] levelCoef = { 0, 1, 1.5f, 1.75f, 2};
      Treasury Income(BuildingType type, int lvl)
     {
         if (lvl >= levelCoef.Length)

@@ -64,7 +64,7 @@ public class Player : MonoBehaviour {
             states[i].stateAI.autoBuilder.IsOn = (state != states[i]);
             states[i].stateAI.autoReasercher.IsOn = (state != states[i]);
             states[i].stateAI.autoTrader.IsOn = (state != states[i]);
-
+            states[i].stateAI.autoRegimentBuilder.IsOn = (state != states[i]);
         }
         foreach (var army in Army.AllArmy)
         {

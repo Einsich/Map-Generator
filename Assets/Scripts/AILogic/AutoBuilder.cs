@@ -3,37 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AutoBuilder :AutoManager
+public class AutoBuilder : AutoManager
 {
     private StateAI state;
     private List<Region> provinces;
-    private PriorityQueue<BuildTask> queue = new PriorityQueue<BuildTask>();
+
+    public PriorityQueue<BuildTask> queue = new PriorityQueue<BuildTask>();
     private int updateQueue;
     public Treasury NeedTreasure => queue.Count == 0 ? new Treasury() : queue.Peek().Prov.Cost(queue.Peek().Building);
-    private class BuildTask : IComparable<BuildTask>
-    {
-        private float priority;
-        public ProvinceData Prov { get; private set; }
-        public BuildingType Building { get; private set; }
 
-        public BuildTask(float priority, ProvinceData prov, BuildingType building)
-        {
-            this.priority = priority;
-            Prov = prov;
-            Building = building;
-        }
-
-        int IComparable<BuildTask>.CompareTo(BuildTask other)
-        {
-            return priority.CompareTo(other.priority);
-        }
-    }
     public AutoBuilder(StateAI state)
     {
         this.state = state;
         provinces = state.Data.regions;
     }
-    
+
     private bool isOn = false;
     public bool IsOn
     {
@@ -50,7 +34,6 @@ public class AutoBuilder :AutoManager
                 queue.Clear();
             }
             isOn = value;
-
         }
     }
     public void IncludeBuildTask(ProvinceData prov, BuildingType building)
@@ -58,7 +41,7 @@ public class AutoBuilder :AutoManager
         queue.Enqueue(new BuildTask(float.NegativeInfinity, prov, building));
     }
 
-   
+
     void BestBuild()
     {
         if (updateQueue-- == 0)
@@ -119,6 +102,25 @@ public class AutoBuilder :AutoManager
             {
                 queue.Enqueue(new BuildTask(profit, prov, building.Value));
             }
+        }
+    }
+
+    public class BuildTask : IComparable<BuildTask>
+    {
+        private float priority;
+        public ProvinceData Prov { get; private set; }
+        public BuildingType Building { get; private set; }
+
+        public BuildTask(float priority, ProvinceData prov, BuildingType building)
+        {
+            this.priority = priority;
+            Prov = prov;
+            Building = building;
+        }
+
+        int IComparable<BuildTask>.CompareTo(BuildTask other)
+        {
+            return priority.CompareTo(other.priority);
         }
     }
 }

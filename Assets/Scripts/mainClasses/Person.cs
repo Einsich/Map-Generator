@@ -279,7 +279,6 @@ public enum PropertyType
     AttackSpeed,
     MeleeBuff,
     RangeBuff
-    
 }
 
 public enum PersonType
@@ -292,7 +291,6 @@ public enum PersonType
     Engineer,
     Necromancer,
     DeathKnight,
-    Count
-        
+    Count 
 }
 
