@@ -8,6 +8,7 @@ public class Regiment
 
     public float count, loses;
     public BaseRegiment baseRegiment;
+
     public float NormalCount => count / baseRegiment.maxcount;
 
     public Regiment()
@@ -18,6 +19,11 @@ public class Regiment
     {
         count = t.maxcount;
         baseRegiment = t;
+    }
+
+    public Treasury GetUpkeep(float technologyBonus)
+    {
+        return baseRegiment.upkeep * technologyBonus;
     }
 }
 public class BaseRegiment

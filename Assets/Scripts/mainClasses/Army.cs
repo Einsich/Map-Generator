@@ -490,7 +490,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         {
             float t = 1f;
             t *= debt != null ? debt.ReductionUpkeep(g.baseRegiment.type) : 1f;
-            upkeep += g.baseRegiment.upkeep * owner.technology.UpkeepBonus * t;
+            upkeep += g.GetUpkeep(owner.technology.UpkeepBonus) * t;
         }
         return upkeep;
     }
