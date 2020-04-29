@@ -238,6 +238,22 @@ public class ProvinceData {
     }
     public List<Regiment> garnison = new List<Regiment>();
 
+    public Treasury GetUpkeep()
+    {
+        Treasury upkeep = new Treasury(0);
+
+        foreach (var g in garnison)
+        {
+            upkeep += UpkeepInProvince(g.baseRegiment);
+        }
+        return upkeep;
+    }
+
+    public Treasury UpkeepInProvince(BaseRegiment baseRegiment)
+    {
+        return baseRegiment.GetBonusUpkeep() * GameConst.GarnisonUpkeepDiscount;
+    }
+
     public string BuildingDescription(BuildingType type)
     {
         Treasury cost = Cost(type, buildings[(int)type]);

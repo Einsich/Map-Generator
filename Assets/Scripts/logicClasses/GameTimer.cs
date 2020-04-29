@@ -38,6 +38,8 @@ public static class GameTimer
         Army.ProcessAllArmy();
         OftenUpdate?.Invoke();
 
+        foreach (var army in Army.AllArmy)
+            army.DeciUpdateTime();
     }
     public static void EverySecondUpdate()
     {
@@ -47,7 +49,11 @@ public static class GameTimer
     public static void EveryDecaSecondUpdate()
     {
         GlobalTrade.DiscardCource();
+
+        foreach (var army in Army.AllArmy)
+            army.ResetTimeAndRecalcUpkeepBonuses();
     }
+
     public static List<(UnityAction,State)> first = new List<(UnityAction, State)>(),
         second = new List<(UnityAction, State)>();
     public static void AddListener(UnityAction action, State who)

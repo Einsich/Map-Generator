@@ -21,10 +21,7 @@ public class Regiment
         baseRegiment = t;
     }
 
-    public Treasury GetUpkeep(float technologyBonus)
-    {
-        return baseRegiment.upkeep * technologyBonus;
-    }
+
 }
 public class BaseRegiment
 {
@@ -42,6 +39,12 @@ public class BaseRegiment
     public Treasury cost, upkeep;
     public Sprite Icon => SpriteHandler.GetRegimentSprite(this);
     public State owner;
+
+    public Treasury GetBonusUpkeep()
+    {
+        return upkeep * (owner != null ? owner.technology.UpkeepBonus : 1);
+    }
+
     public int ArmorLvl(DamageType type)
     {
         switch(type)

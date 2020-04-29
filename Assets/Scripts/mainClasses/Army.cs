@@ -390,14 +390,14 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     public static void ProcessAllArmy()
     {
         AllArmy.RemoveAll(a => a.Destoyed);
-        foreach (Army army in AllArmy)
+        /*foreach (Army army in AllArmy)
         {
            // if (army.curBattle == null)
            // {
            //     army.UpdateManpower();
            // }
            // army.bar.UpdateInformation();
-        }
+        }*/
     }
     public static void ProcessAllArmyAI()
     {
@@ -479,20 +479,59 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         bar.UpdateInformation();
 
     }
+
+    private float timeFromDecaStart = 0;
+    private float upkeepDiscountInTown = 1;
+    private VassalDebt debt;
+
+    public void DeciUpdateTime()
+    {
+        if (inTown && curReg.curOwner == owner)
+        {
+            timeFromDecaStart += 0.1f;
+        }
+    }
+
+    public void ResetTimeAndRecalcUpkeepBonuses()
+    {
+        float normalTime = timeFromDecaStart * 0.01f;
+        timeFromDecaStart = 0;
+
+        upkeepDiscountInTown = GameConst.GarnisonUpkeepDiscount * normalTime + (1 - normalTime);
+
+        UpdateDebt();
+    }
+
+    private void UpdateDebt()
+    {
+        Effect effect;
+        if (Person.HaveEffect(EffectType.VassalDebt, out effect))
+        {
+            debt = effect as VassalDebt;
+        }
+        else
+        {
+            debt = null;
+        }
+    }
+
     public Treasury GetUpkeep()
     {
         Treasury upkeep = new Treasury(0);
-        Effect effect;
-        VassalDebt debt = null;
-        if (Person.HaveEffect(EffectType.VassalDebt, out effect))
-            debt = effect as VassalDebt;
+
         foreach (var g in army)
         {
-            float t = 1f;
-            t *= debt != null ? debt.ReductionUpkeep(g.baseRegiment.type) : 1f;
-            upkeep += g.GetUpkeep(owner.technology.UpkeepBonus) * t;
+            upkeep += UpkeepInArmy(g.baseRegiment);
         }
         return upkeep;
+    }
+
+    public Treasury UpkeepInArmy(BaseRegiment baseRegiment)
+    {
+        float bonus = 1f;
+        bonus *= debt != null ? debt.ReductionUpkeep(baseRegiment.type) : 1f;
+        bonus *= upkeepDiscountInTown;
+        return baseRegiment.GetBonusUpkeep() * bonus;
     }
     public void UpdateUpkeep()
     {
