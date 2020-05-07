@@ -21,6 +21,7 @@ public class State
     public Technology technology;
     public StateAI stateAI;
     public Treasury Income;
+    public Treasury allRegimentsUpkeep;
     public System.Action TreasureChange, IncomeChanges;
     public Treasury treasury => stateAI.GetTreasure;
     public void SpendTreasure(Treasury treasury, BudgetType budgetType) {stateAI.SomeOneSpentResources(treasury, budgetType);TreasureChange?.Invoke(); }
@@ -155,12 +156,25 @@ public class State
         for (int i = 0; i < regions.Count; i++)
             regions[i].MonthUpdate();
         GlobalTrade.AddIncome(Income);
-        foreach (var army in army)
-            army.UpdateUpkeep();
+        allRegimentsUpkeep = CountingUpkeep();
+        SpendTreasure(allRegimentsUpkeep, BudgetType.ArmyBudget);
         stateAI.autoTrader.DealsUpdate();
         CalculateIncome();
         diplomacy.DiplomacyUpdate();
     }
+
+    private Treasury CountingUpkeep()
+    {
+        var total = Treasury.zero;
+
+        foreach (Army a in army)
+            total += a.GetUpkeep();
+        foreach (Region r in regions)
+            total += r.data.GetUpkeep();
+
+        return total;
+    }
+
     public void DeclareWarPenalty(float penalty)
     {
         penalty = 1 - penalty;

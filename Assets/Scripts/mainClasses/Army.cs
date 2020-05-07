@@ -533,11 +533,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         bonus *= upkeepDiscountInTown;
         return baseRegiment.GetBonusUpkeep() * bonus;
     }
-    public void UpdateUpkeep()
-    {
 
-        owner.Income -= GetUpkeep();
-    }
     public void UpdateSpeed()
     {
         bool[] HaveRegimentType = new bool[(int)RegimentType.Count];

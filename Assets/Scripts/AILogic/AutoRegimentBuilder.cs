@@ -1,20 +1,31 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class AutoRegimentBuilder : AutoManager
 {
     private StateAI stateAI;
-    private HashSet<RegionProxi> RiskI, RiskII, RiskIII;
+    private HashSet<RegionProxi> RiskI, RiskII, RiskIII, otherProv;
     public Treasury NeedTreasure => new Treasury();
 
-    private Dictionary<int, Template> templates;
+    private Dictionary<int, Dictionary<RegimentIdentifier, float>> templates;
     private static int ID_PROV_TEMPLATE;
 
-    private int FIRST_LINE_PIECE = 1;
-    private int TWO_LINE_PIECE = 2;
+    private float FIRST_LINE_PIECE = 4;
+    private float TWO_LINE_PIECE = 2;
+
+    private Dictionary<RegimentIdentifier, float> needRegiment = new Dictionary<RegimentIdentifier, float>();
+    private Dictionary<RegimentIdentifier, BaseRegiment> stateRegiments = new Dictionary<RegimentIdentifier, BaseRegiment>();
 
     private bool isPeace = true;
+    private Treasury armyIncome;
+    private Treasury armyBudget;
+    private Treasury pieceUpkeep;
+    private Treasury pieceBudget;
+    private Treasury zero = Treasury.zero;
+    private float x = 1;
+    private int update = 0;
     static AutoRegimentBuilder()
     {
         ID_PROV_TEMPLATE = (int)PersonType.Count;
@@ -22,31 +33,26 @@ public class AutoRegimentBuilder : AutoManager
 
     public AutoRegimentBuilder(StateAI aI)
     {
-        (stateAI, RiskI, RiskII, RiskIII) = (aI,new HashSet<RegionProxi>(), new HashSet<RegionProxi>(), new HashSet<RegionProxi>());
+        (stateAI, RiskI, RiskII, RiskIII, otherProv) = (aI,new HashSet<RegionProxi>(), new HashSet<RegionProxi>(), new HashSet<RegionProxi>(), new HashSet<RegionProxi>());
         CreateTemplates();
     }
 
     private void CreateTemplates()
     {
-        templates = new Dictionary<int, Template>();
+        templates = new Dictionary<int, Dictionary<RegimentIdentifier, float>>();
 
         int templateID;
         for (PersonType person = PersonType.Warrior; person != PersonType.Count; person++)
         {
             templateID = (int)person;
-            templates.Add(templateID, new Template(new List<TemplateElement>()
-            {
-                new TemplateElement(Random.Range(1, 4), RegimentType.Infantry, DamageType.Melee),
-                new TemplateElement(Random.Range(1, 4), RegimentType.Infantry, DamageType.Range),
-                new TemplateElement(Random.Range(1, 3), RegimentType.Cavalry, DamageType.Charge),
-                new TemplateElement(Random.Range(1, 3), RegimentType.Artillery, DamageType.Siege)
-            }));
+            templates.Add(templateID, new Dictionary<RegimentIdentifier, float>());
+            templates[templateID].Add(new RegimentIdentifier(RegimentType.Infantry, DamageType.Melee), 1);
+            templates[templateID].Add(new RegimentIdentifier(RegimentType.Infantry, DamageType.Range), 2);
         }
 
-        templates.Add(ID_PROV_TEMPLATE, new Template(new List<TemplateElement>()
-            {
-                new TemplateElement(1, RegimentType.Infantry, DamageType.Melee)
-            }));
+        templates.Add(ID_PROV_TEMPLATE, new Dictionary<RegimentIdentifier, float>());
+        templates[ID_PROV_TEMPLATE].Add(new RegimentIdentifier(RegimentType.Infantry, DamageType.Range), 1);
+        templates[ID_PROV_TEMPLATE].Add(new RegimentIdentifier(RegimentType.Infantry, DamageType.Melee), 1);
     }
 
     private bool isOn = false;
@@ -56,12 +62,11 @@ public class AutoRegimentBuilder : AutoManager
         {
             if (value)
             {
-                AutoBuildRegiment();
                 GameTimer.AddListener(AutoBuildRegiment, stateAI.Data);
             }
             else
             {
-
+                GameTimer.RemoveListener(AutoBuildRegiment, stateAI.Data);
             }
             isOn = value;
         }
@@ -69,76 +74,49 @@ public class AutoRegimentBuilder : AutoManager
 
     private void AutoBuildRegiment()
     {
-        AnalizeRegions();
-
-        Treasury clearIncome = Treasury.zero;
-        foreach (Region reg in stateAI.Data.regions)
-        {
-            ProvinceData prov = reg.data;
-            clearIncome += prov.income;
-        }
-
-        Template townTemplate = templates[ID_PROV_TEMPLATE];
-        if (townTemplate.Upkeep.Gold == 0)
-        {
-            townTemplate.SearchRegimentForBuild(stateAI.Data);
-        }
-
-        int countRiskIV = stateAI.Data.regions.Count - RiskI.Count - RiskII.Count - RiskIII.Count;
-        int piecesForGarnisons = RiskI.Count * FIRST_LINE_PIECE + (RiskII.Count + RiskIII.Count) * TWO_LINE_PIECE + countRiskIV;
-
-        Treasury pieceUpkeep = clearIncome * (2 / (float)piecesForGarnisons);
-
-        Treasury riskIUpkeep = pieceUpkeep * 4;
-        foreach (RegionProxi proxi in RiskI)
-        {
-            ProvinceData prov = proxi.data;
-            
-            foreach (TemplateElement e in townTemplate.MatchedElements)
-            {
-
-            }
-        }
         if (isPeace)
         {
-            CheckAndChangeBudget(0.15f);
-
-            Treasury personsRegimentUpkeep = Treasury.zero;
-            foreach (Army army in stateAI.Data.army)
-            {
-                Template template = templates[(int)army.Person.personType];
-                float templateOccurred = Mathf.Floor(army.Person.MaxRegiment * 0.5f / template.RegimentCount);
-
-
-            }
-
-            personsRegimentUpkeep *= 0.5f; //D = Dбаз (t 0.5 + (1 - t))
-
+            CheckAndChangeBudget(0.50f);
         }
         else
         {
             CheckAndChangeBudget(0.95f);
         }
-    }
 
-    private void CompletionRegimentList(Treasury budget, List<Regiment> regiments, Template template)
-    {
-        var zero = Treasury.zero;
+        armyIncome =  stateAI.Data.Income * stateAI.armyBudget - stateAI.Data.allRegimentsUpkeep;
+        armyBudget = stateAI.GetArmyBudget;
 
-        if (regiments.Count > 0)
+        if (update-- == 0)
         {
-            foreach (Regiment r in regiments)
-            {
-
-            }
+            update = 5;
+            AnalizeRegions();
+            AddBase();
         }
-    }
 
-    private void BuildingLotRegiment(int required, ProvinceData prov,BaseRegiment regiment)
-    {
-        for (int i = 0; i < required; i++)
+
+
+        if (armyIncome >= zero)
         {
-            prov.recruitQueue.Add(new RecruitAction(prov, regiment, regiment.time));
+            if (isPeace)
+            {
+                x = 1;
+                CompleteArmy(2);
+                CalculatePiece();
+                CompletingProv(FIRST_LINE_PIECE, 1, RiskI, 4);
+                CompletingProv(TWO_LINE_PIECE, 1, RiskII, 1);
+                CompletingProv(TWO_LINE_PIECE, 1, RiskIII, 1);
+                CompletingProv(1, 1, otherProv, 0);
+            }
+            else
+            {
+                CompleteArmy(1);
+                CalculatePiece();
+                CompletingProv(FIRST_LINE_PIECE, x, RiskI, 4);
+                CompletingProv(TWO_LINE_PIECE, x, RiskII, 1);
+                CompletingProv(TWO_LINE_PIECE, x, RiskIII, 1);
+                CompletingProv(1, x, otherProv, 0);
+                x += 0.1f;
+            }
         }
     }
 
@@ -149,11 +127,13 @@ public class AutoRegimentBuilder : AutoManager
             stateAI.ChangeBudget(newValue, BudgetType.ArmyBudget);
         }
     }
-    public void AnalizeRegions()
+
+    private void AnalizeRegions()
     {
         RiskI.Clear();
         RiskII.Clear();
         RiskIII.Clear();
+        otherProv.Clear();
 
         var regs = stateAI.Data.regions;
         void Func(HashSet<RegionProxi> sets, System.Func<Region, Region, bool> pred)
@@ -168,103 +148,205 @@ public class AutoRegimentBuilder : AutoManager
                     }
         }
         Func(RiskI, (r, neib) => neib.owner != stateAI.Data);
-        Func(RiskII, (r, neib) => !RiskI.Contains(new RegionProxi(neib.data)));
-        Func(RiskIII, (r, neib) => !RiskI.Contains(new RegionProxi(neib.data)) || !RiskII.Contains(new RegionProxi(neib.data)));
-    }
+        Func(RiskII, (r, neib) => RiskI.Contains(new RegionProxi(neib.data)) && !RiskI.Contains(new RegionProxi(r.data)));
+        Func(RiskIII, (r, neib) => RiskII.Contains(new RegionProxi(neib.data)) && !RiskI.Contains(new RegionProxi(r.data)) && !RiskII.Contains(new RegionProxi(r.data)));
 
-    private int NumberOfOccurre(Treasury total, Treasury piece)
-    {
-        piece.Gold = ZeroToOne(piece.Gold);
-        piece.Manpower = ZeroToOne(piece.Manpower);
-        piece.Iron = ZeroToOne(piece.Iron);
-        piece.Wood = ZeroToOne(piece.Wood);
-        piece.Science = ZeroToOne(piece.Science);
-
-        float[] occurre = new float[5];
-        occurre[0] = total.Gold / piece.Gold;
-        occurre[1] = total.Manpower / piece.Manpower;
-        occurre[2] = total.Iron / piece.Iron;
-        occurre[3] = total.Wood / piece.Wood;
-        occurre[4] = total.Science / piece.Science;
-
-        float min = Mathf.Min(occurre);
-        return (int)Mathf.Floor(min);
-    }
-    
-    private float ZeroToOne(float value)
-    {
-        return value == 0 ? 1 : value;
-    }
-    public void BuildWalls()
-    {
-        foreach (RegionProxi provProxi in RiskI)
+        foreach (var r in regs)
         {
-            provProxi.data.recruitQueue.Add(new RecruitAction(provProxi.data, stateAI.Data.melee, stateAI.Data.melee.time));
-            provProxi.data.recruitQueue.Add(new RecruitAction(provProxi.data, stateAI.Data.melee, stateAI.Data.melee.time));
-            provProxi.data.recruitQueue.Add(new RecruitAction(provProxi.data, stateAI.Data.melee, stateAI.Data.melee.time));
-            provProxi.data.recruitQueue.Add(new RecruitAction(provProxi.data, stateAI.Data.melee, stateAI.Data.melee.time));
-            provProxi.data.recruitQueue.Add(new RecruitAction(provProxi.data, stateAI.Data.melee, stateAI.Data.melee.time));
+            RegionProxi proxi = new RegionProxi(r.data);
 
-            if (provProxi.data.wallsLevel <= 4)
+            if (!RiskI.Contains(proxi) && !RiskII.Contains(proxi) && !RiskIII.Contains(proxi))
             {
-                stateAI.autoBuilder.IncludeBuildTask(provProxi.data, BuildingType.Walls);
+                otherProv.Add(proxi);
             }
         }
     }
-
-    private class Template
+    
+    private void AddBase()
     {
-        private List<TemplateElement> notMatchedElements;
-        public List<TemplateElement> MatchedElements { get; }
+        stateRegiments.Clear();
 
-        public Treasury Upkeep { get; private set; }
-        public Treasury Cost { get; private set; }
-        public int RegimentCount { get; private set; }
-
-        public Template(List<TemplateElement> templateElement)
+        foreach (BaseRegiment baseRegiment in stateAI.Data.regiments)
         {
-            notMatchedElements = templateElement;
-            MatchedElements = new List<TemplateElement>();
-            Upkeep = Treasury.zero;
-            Cost = Treasury.zero;
-            RegimentCount = 0;
+            var key = new RegimentIdentifier(baseRegiment.type, baseRegiment.damageType);
+            //if (!stateRegiments.ContainsKey(key))
+                stateRegiments.Add(key, baseRegiment);
         }
+    }
 
-        public void SearchRegimentForBuild(State state)
+    private void CompleteArmy(int reductionRegiments)
+    {
+        foreach (Army a in stateAI.Data.army)
         {
-            foreach (TemplateElement templ in notMatchedElements)
+            if (a.inTown && a.curReg.owner == a.owner)
             {
-                foreach (BaseRegiment r in state.regiments)
-                {
-                    if (r.damageType == templ.DamageType && r.type == templ.RegimentType)
-                    {
-                        templ.matchInState = r;
-                        MatchedElements.Add(templ);
-                        //notMatchedElements.Remove(templ);
+                var needRegiment = CompletionRegimentList(a.army, templates[(int)a.Person.personType]);
 
-                        Upkeep += r.upkeep;
-                        Cost += r.cost;
-                        RegimentCount += templ.Factor;
+                int needNumber = a.Person.MaxRegiment / reductionRegiments - a.army.Count;
+
+                for (int i = a.curReg.data.garnison.Count - 1; i >= 0; i--)
+                {
+                    Regiment regiment = a.curReg.data.garnison[i];
+                    var regID = new RegimentIdentifier(regiment.baseRegiment.type, regiment.baseRegiment.damageType);
+
+                    if (needNumber > 0 && needRegiment.ContainsKey(regID) && needRegiment[regID] > 0 &&
+                        armyIncome > zero)
+                    {
+                        Debug.Log("removable: " + regiment);
+                        a.ExchangeRegiment(regiment);
+                        needNumber--;
+                        needRegiment[regID]--;
+                        armyIncome -= regiment.baseRegiment.upkeep * (1 - GameConst.GarnisonUpkeepDiscount);
+                    }
+                }
+
+                foreach (var nr in needRegiment)
+                {
+                    ProvinceData prov = a.curReg.data;
+                    BaseRegiment regiment = stateRegiments[nr.Key];
+                    Treasury cost = regiment.cost;
+                    Treasury upkeep = a.UpkeepInArmy(regiment);
+
+                    for (float i = 0; i < nr.Value; i++)
+                    {
+                        if (needNumber > 0 &&
+                            armyBudget >= cost && armyIncome >= upkeep)
+                        {
+                            armyBudget -= cost;
+                            armyIncome -= upkeep;
+                            needNumber--;
+                            prov.recruitQueue.Add(new RecruitAction(prov, regiment, regiment.time));
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
             }
         }
     }
 
-    private class TemplateElement
+    private Dictionary<RegimentIdentifier, float> CompletionRegimentList(List<Regiment> regiments, Dictionary<RegimentIdentifier, float> template)
     {
-        public int Factor { get; }
-        public DamageType DamageType { get; }
-        public RegimentType RegimentType { get; }
+        needRegiment.Clear();
 
-        public BaseRegiment matchInState { get; set; }
+        float templateOccurre = 0;
 
-        public TemplateElement(int factor, RegimentType regimentType, DamageType damageType)
+        foreach (Regiment r in regiments)
         {
-            Factor = factor;
-            this.RegimentType = regimentType;
-            this.DamageType = damageType;
-            matchInState = null;
+            var key = new RegimentIdentifier(r.baseRegiment.type, r.baseRegiment.damageType);
+            if (template.ContainsKey(key))
+            {
+                if (needRegiment.ContainsKey(key))
+                {
+                    float occ = Mathf.Ceil(++needRegiment[key] / template[key]);
+
+                    if (occ > templateOccurre)
+                        templateOccurre = occ;
+                }
+                else if (stateRegiments.ContainsKey(key))
+                {
+                    needRegiment.Add(key, 1);
+
+                    if (0 == templateOccurre)
+                        templateOccurre = 1;
+                }
+            }
+        }
+
+        foreach (var t in template)
+        {
+            if (needRegiment.ContainsKey(t.Key))
+            {
+                float tmp = templateOccurre * t.Value - needRegiment[t.Key];
+
+                if (tmp > 0)
+                {
+                    needRegiment[t.Key] = tmp;
+                }
+                else
+                {   
+                    needRegiment.Remove(t.Key);
+                }
+            }
+            else if (stateRegiments.ContainsKey(t.Key))
+            {
+                float tmp = templateOccurre * t.Value;
+
+                if (tmp > 0)
+                    needRegiment.Add(t.Key, tmp);
+            }
+        }
+
+        if (needRegiment.Count == 0)
+        {
+            return template;
+        }
+        else
+        {
+            return needRegiment;
+        }
+    }
+    private void CalculatePiece()
+    {
+        float piecesForGarnisons = RiskI.Count * FIRST_LINE_PIECE * x + (RiskII.Count + RiskIII.Count) * TWO_LINE_PIECE * x + otherProv.Count * x;
+        float pieceMultiplier = 1 / piecesForGarnisons;
+        pieceUpkeep = armyIncome * pieceMultiplier;
+        pieceBudget = armyBudget * pieceMultiplier;
+
+    }
+
+    private void CompletingProv(float pieces, float x, HashSet<RegionProxi> risk, int wallsLvl)
+    {
+        float multiplier = pieces * x;
+
+        foreach (RegionProxi proxi in risk)
+        {
+            Treasury riskUpkeep = pieceUpkeep * multiplier;
+            Treasury riskBudget = pieceBudget * multiplier;
+            ProvinceData prov = proxi.data;
+            AutoBuilder builder = stateAI.autoBuilder;
+
+            if (builder.queue.Count == 0 ||
+                (builder.queue.Peek().Building != BuildingType.Walls && prov.wallsLevel <= wallsLvl))
+            {
+                builder.IncludeBuildTask(prov, BuildingType.Walls);
+            }
+
+            foreach (var nr in CompletionRegimentList(prov.garnison, templates[ID_PROV_TEMPLATE]))
+            {
+                BaseRegiment regiment = stateRegiments[nr.Key];
+                Treasury cost = regiment.cost;
+                Treasury upkeep = prov.UpkeepInProvince(regiment);
+                for (float i = 0; i < nr.Value; i++)
+                {
+                    if (riskBudget >= cost && riskUpkeep >= upkeep)
+                    {
+                        riskBudget -= cost;
+                        riskUpkeep -= upkeep;
+                        prov.recruitQueue.Add(new RecruitAction(prov, regiment, regiment.time));
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    public struct RegimentIdentifier
+    {
+        public DamageType damageType;
+        public RegimentType regimentType;
+
+        public RegimentIdentifier(RegimentType regimentType, DamageType damageType)
+        {
+            this.damageType = damageType;
+            this.regimentType = regimentType;
         }
     }
 

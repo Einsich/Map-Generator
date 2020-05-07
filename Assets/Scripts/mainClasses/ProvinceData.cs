@@ -74,6 +74,7 @@ public class ProvinceData {
     //public int isBuildInd;
     public float order = 1f;
     public Treasury income = new Treasury(), incomeclear;
+    private Treasury pieceUpkeep;
     static Treasury defaultTreasure = new Treasury(10, 50, 0, 0, 0);
     public List<RecruitAction> recruitQueue = new List<RecruitAction>();
     public int wallsLevel => buildings[(int)BuildingType.Walls];

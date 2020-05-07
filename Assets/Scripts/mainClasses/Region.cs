@@ -180,7 +180,6 @@ public class Region :ITarget, IFightable
     {
         if (iswater) return;
         data.EconomyUpdate();
-        CalculateUpkeep();
         
     }
     public void RebuildTown(bool newfraction = false)
@@ -268,13 +267,6 @@ public class Region :ITarget, IFightable
         haveWood = wood * 10 > n;
         haveIron = iron * 10 > n;
         haveGrassland = grass * 5 > n;
-    }
-    public void CalculateUpkeep()
-    {
-        Treasury upkeep = new Treasury(0);
-        foreach (var g in data.garnison)
-            upkeep += g.GetUpkeep(owner.technology.UpkeepBonus) * GameConst.GarnisonUpkeepDiscount;
-        _owner.SpendTreasure(upkeep * GameConst.GarnisonUpkeepDiscount, BudgetType.ArmyBudget);
     }
 
     public void SiegeBegin(Siege siege)
