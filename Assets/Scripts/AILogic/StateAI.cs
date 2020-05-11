@@ -26,7 +26,7 @@ public class StateAI
     /// <summary>
     /// Нехватка - положительные компоненты означают нехватку
     /// </summary>
-    public Treasury Deficit => (autoBuilder.NeedTreasure + autoReasercher.NeedTreasure )- GetTreasure;
+    public Treasury Deficit => (autoBuilder.NeedTreasure + autoReasercher.NeedTreasure + autoRegimentBuilder.NeedTreasure)- GetTreasure;
     public Treasury GetArmyBudget => ArmyBudget;
     public Treasury GetBuildingBudget => BuildingBudget;
     public Treasury GetOtherBudget => OtherBudget;

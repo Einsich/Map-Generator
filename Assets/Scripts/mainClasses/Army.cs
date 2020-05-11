@@ -494,7 +494,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
 
     public void ResetTimeAndRecalcUpkeepBonuses()
     {
-        float normalTime = timeFromDecaStart * 0.01f;
+        float normalTime = timeFromDecaStart * 0.1f;
         timeFromDecaStart = 0;
 
         upkeepDiscountInTown = GameConst.GarnisonUpkeepDiscount * normalTime + (1 - normalTime);

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Diplomacy {
-    List<Diplomacy> war, forceAccess;
+    public List<Diplomacy> war;
+    private List<Diplomacy> forceAccess;
     public List<float> relation;
     public List<(Diplomacy, float)> fabricateCB, uniqueCB, patronage;
     public List<TradeDeal> tradeDeals;

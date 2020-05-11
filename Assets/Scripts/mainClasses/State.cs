@@ -156,8 +156,12 @@ public class State
         for (int i = 0; i < regions.Count; i++)
             regions[i].MonthUpdate();
         GlobalTrade.AddIncome(Income);
+
+        foreach (Army a in army)
+            a.ResetTimeAndRecalcUpkeepBonuses();
         allRegimentsUpkeep = CountingUpkeep();
         SpendTreasure(allRegimentsUpkeep, BudgetType.ArmyBudget);
+
         stateAI.autoTrader.DealsUpdate();
         CalculateIncome();
         diplomacy.DiplomacyUpdate();

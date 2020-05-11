@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+
 public class AutoRegimentBuilder : AutoManager
 {
     private StateAI stateAI;
-    private HashSet<RegionProxi> RiskI, RiskII, RiskIII, otherProv;
-    public Treasury NeedTreasure => new Treasury();
+    private HashSet<RegionProxi> RiskI, RiskII, RiskIII;
+    public Treasury NeedTreasure => deficit;
 
     private Dictionary<int, Dictionary<RegimentIdentifier, float>> templates;
     private static int ID_PROV_TEMPLATE;
@@ -18,12 +19,10 @@ public class AutoRegimentBuilder : AutoManager
     private Dictionary<RegimentIdentifier, float> needRegiment = new Dictionary<RegimentIdentifier, float>();
     private Dictionary<RegimentIdentifier, BaseRegiment> stateRegiments = new Dictionary<RegimentIdentifier, BaseRegiment>();
 
-    private bool isPeace = true;
-    private Treasury armyIncome;
-    private Treasury armyBudget;
-    private Treasury pieceUpkeep;
-    private Treasury pieceBudget;
+    private bool isPeace => stateAI.Data.diplomacy.war.Count == 0;
+    private Treasury armyIncome, armyBudget, pieceUpkeep, pieceBudget;
     private Treasury zero = Treasury.zero;
+    private Treasury deficit = Treasury.zero;
     private float x = 1;
     private int update = 0;
     static AutoRegimentBuilder()
@@ -33,7 +32,7 @@ public class AutoRegimentBuilder : AutoManager
 
     public AutoRegimentBuilder(StateAI aI)
     {
-        (stateAI, RiskI, RiskII, RiskIII, otherProv) = (aI,new HashSet<RegionProxi>(), new HashSet<RegionProxi>(), new HashSet<RegionProxi>(), new HashSet<RegionProxi>());
+        (stateAI, RiskI, RiskII, RiskIII) = (aI,new HashSet<RegionProxi>(), new HashSet<RegionProxi>(), new HashSet<RegionProxi>());
         CreateTemplates();
     }
 
@@ -76,13 +75,17 @@ public class AutoRegimentBuilder : AutoManager
     {
         if (isPeace)
         {
-            CheckAndChangeBudget(0.50f);
+            CheckAndChangeBudget(0.15f);
+            x = 1;
         }
         else
         {
+            Debug.Log("WARRRRRRRRRRRRR");
             CheckAndChangeBudget(0.95f);
+            x += 0.1f;
         }
 
+        deficit = Treasury.zero;
         armyIncome =  stateAI.Data.Income * stateAI.armyBudget - stateAI.Data.allRegimentsUpkeep;
         armyBudget = stateAI.GetArmyBudget;
 
@@ -93,29 +96,23 @@ public class AutoRegimentBuilder : AutoManager
             AddBase();
         }
 
-
-
         if (armyIncome >= zero)
         {
             if (isPeace)
             {
-                x = 1;
-                CompleteArmy(2);
+                CompleteArmy(2, UpkeepArmyInPeace);
                 CalculatePiece();
                 CompletingProv(FIRST_LINE_PIECE, 1, RiskI, 4);
                 CompletingProv(TWO_LINE_PIECE, 1, RiskII, 1);
-                CompletingProv(TWO_LINE_PIECE, 1, RiskIII, 1);
-                CompletingProv(1, 1, otherProv, 0);
+                CompletingProv(1, 1, RiskIII, 0);
             }
             else
             {
-                CompleteArmy(1);
+                CompleteArmy(1, UpkeepArmyInWar);
                 CalculatePiece();
                 CompletingProv(FIRST_LINE_PIECE, x, RiskI, 4);
                 CompletingProv(TWO_LINE_PIECE, x, RiskII, 1);
-                CompletingProv(TWO_LINE_PIECE, x, RiskIII, 1);
-                CompletingProv(1, x, otherProv, 0);
-                x += 0.1f;
+                CompletingProv(1, x, RiskIII, 0);
             }
         }
     }
@@ -133,12 +130,10 @@ public class AutoRegimentBuilder : AutoManager
         RiskI.Clear();
         RiskII.Clear();
         RiskIII.Clear();
-        otherProv.Clear();
 
         var regs = stateAI.Data.regions;
         void Func(HashSet<RegionProxi> sets, System.Func<Region, Region, bool> pred)
         {
-
             foreach (var r in regs)
                 foreach (var neib in r.neib)
                     if (pred(r, neib))
@@ -147,19 +142,10 @@ public class AutoRegimentBuilder : AutoManager
                         break;
                     }
         }
+
         Func(RiskI, (r, neib) => neib.owner != stateAI.Data);
         Func(RiskII, (r, neib) => RiskI.Contains(new RegionProxi(neib.data)) && !RiskI.Contains(new RegionProxi(r.data)));
-        Func(RiskIII, (r, neib) => RiskII.Contains(new RegionProxi(neib.data)) && !RiskI.Contains(new RegionProxi(r.data)) && !RiskII.Contains(new RegionProxi(r.data)));
-
-        foreach (var r in regs)
-        {
-            RegionProxi proxi = new RegionProxi(r.data);
-
-            if (!RiskI.Contains(proxi) && !RiskII.Contains(proxi) && !RiskIII.Contains(proxi))
-            {
-                otherProv.Add(proxi);
-            }
-        }
+        Func(RiskIII, (r, neib) => !RiskI.Contains(new RegionProxi(r.data)) && !RiskII.Contains(new RegionProxi(r.data)));
     }
     
     private void AddBase()
@@ -174,7 +160,7 @@ public class AutoRegimentBuilder : AutoManager
         }
     }
 
-    private void CompleteArmy(int reductionRegiments)
+    private void CompleteArmy(int reductionRegiments, System.Func<Army, BaseRegiment, Treasury> upkeepArmyInDiplomacyAct)
     {
         foreach (Army a in stateAI.Data.army)
         {
@@ -187,16 +173,28 @@ public class AutoRegimentBuilder : AutoManager
                 for (int i = a.curReg.data.garnison.Count - 1; i >= 0; i--)
                 {
                     Regiment regiment = a.curReg.data.garnison[i];
-                    var regID = new RegimentIdentifier(regiment.baseRegiment.type, regiment.baseRegiment.damageType);
+                    BaseRegiment baseRegiment = regiment.baseRegiment;
+                    var regID = new RegimentIdentifier(baseRegiment.type, baseRegiment.damageType);
 
-                    if (needNumber > 0 && needRegiment.ContainsKey(regID) && needRegiment[regID] > 0 &&
-                        armyIncome > zero)
+                    if (needNumber > 0 && needRegiment.ContainsKey(regID) && needRegiment[regID] > 0)
                     {
-                        Debug.Log("removable: " + regiment);
-                        a.ExchangeRegiment(regiment);
-                        needNumber--;
-                        needRegiment[regID]--;
-                        armyIncome -= regiment.baseRegiment.upkeep * (1 - GameConst.GarnisonUpkeepDiscount);
+                        Treasury upkeepInGarnison = a.curReg.data.UpkeepInProvince(baseRegiment);
+                        Treasury upkeepMovingToArmy = upkeepArmyInDiplomacyAct(a, baseRegiment);
+
+                        Treasury upUpkeep = upkeepMovingToArmy - upkeepInGarnison;
+
+                        if (armyIncome > upUpkeep)
+                        {
+                            Debug.Log("removable: " + regiment);
+                            a.ExchangeRegiment(regiment);
+                            needNumber--;
+                            needRegiment[regID]--;
+                            armyIncome -= upUpkeep;
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
 
@@ -205,17 +203,27 @@ public class AutoRegimentBuilder : AutoManager
                     ProvinceData prov = a.curReg.data;
                     BaseRegiment regiment = stateRegiments[nr.Key];
                     Treasury cost = regiment.cost;
-                    Treasury upkeep = a.UpkeepInArmy(regiment);
+                    Treasury upkeep = upkeepArmyInDiplomacyAct(a, regiment);
 
                     for (float i = 0; i < nr.Value; i++)
                     {
                         if (needNumber > 0 &&
-                            armyBudget >= cost && armyIncome >= upkeep)
+                            armyIncome >= upkeep)
                         {
-                            armyBudget -= cost;
-                            armyIncome -= upkeep;
-                            needNumber--;
-                            prov.recruitQueue.Add(new RecruitAction(prov, regiment, regiment.time));
+                            if (armyBudget >= cost)
+                            {
+                                armyBudget -= cost;
+                                armyIncome -= upkeep;
+                                needNumber--;
+                                prov.recruitQueue.Add(new RecruitAction(prov, regiment, regiment.time));
+                            }
+                            else
+                            {
+                                if (cost > deficit)
+                                    deficit = cost;
+
+                                break;
+                            }
                         }
                         else
                         {
@@ -225,6 +233,18 @@ public class AutoRegimentBuilder : AutoManager
                 }
             }
         }
+    }
+
+    private Treasury UpkeepArmyInPeace(Army a, BaseRegiment regiment)
+    {
+        ProvinceData prov = a.curReg.data;
+
+        return prov.UpkeepInProvince(regiment);
+    }
+
+    private Treasury UpkeepArmyInWar(Army a, BaseRegiment regiment)
+    {
+        return regiment.GetBonusUpkeep();
     }
 
     private Dictionary<RegimentIdentifier, float> CompletionRegimentList(List<Regiment> regiments, Dictionary<RegimentIdentifier, float> template)
@@ -290,11 +310,12 @@ public class AutoRegimentBuilder : AutoManager
     }
     private void CalculatePiece()
     {
-        float piecesForGarnisons = RiskI.Count * FIRST_LINE_PIECE * x + (RiskII.Count + RiskIII.Count) * TWO_LINE_PIECE * x + otherProv.Count * x;
-        float pieceMultiplier = 1 / piecesForGarnisons;
+        float piecesForProvince = RiskI.Count * FIRST_LINE_PIECE + RiskII.Count * TWO_LINE_PIECE + RiskIII.Count;
+        piecesForProvince *= x;
+
+        float pieceMultiplier = 1 / piecesForProvince;
         pieceUpkeep = armyIncome * pieceMultiplier;
         pieceBudget = armyBudget * pieceMultiplier;
-
     }
 
     private void CompletingProv(float pieces, float x, HashSet<RegionProxi> risk, int wallsLvl)
@@ -309,7 +330,7 @@ public class AutoRegimentBuilder : AutoManager
             AutoBuilder builder = stateAI.autoBuilder;
 
             if (builder.queue.Count == 0 ||
-                (builder.queue.Peek().Building != BuildingType.Walls && prov.wallsLevel <= wallsLvl))
+                (prov.wallsLevel <= wallsLvl && builder.queue.Peek().Building != BuildingType.Walls))
             {
                 builder.IncludeBuildTask(prov, BuildingType.Walls);
             }
@@ -321,11 +342,23 @@ public class AutoRegimentBuilder : AutoManager
                 Treasury upkeep = prov.UpkeepInProvince(regiment);
                 for (float i = 0; i < nr.Value; i++)
                 {
-                    if (riskBudget >= cost && riskUpkeep >= upkeep)
+                    if (riskUpkeep >= upkeep)
                     {
-                        riskBudget -= cost;
-                        riskUpkeep -= upkeep;
-                        prov.recruitQueue.Add(new RecruitAction(prov, regiment, regiment.time));
+                        if (riskBudget >= cost)
+                        {
+                            riskBudget -= cost;
+                            riskUpkeep -= upkeep;
+                            prov.recruitQueue.Add(new RecruitAction(prov, regiment, regiment.time));
+                        }
+                        else
+                        {
+                            Treasury tmp = cost * multiplier;
+
+                            if (tmp > deficit)
+                                deficit = tmp;
+
+                            break;
+                        }
                     }
                     else
                     {

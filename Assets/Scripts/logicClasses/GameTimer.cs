@@ -49,9 +49,6 @@ public static class GameTimer
     public static void EveryDecaSecondUpdate()
     {
         GlobalTrade.DiscardCource();
-
-        foreach (var army in Army.AllArmy)
-            army.ResetTimeAndRecalcUpkeepBonuses();
     }
 
     public static List<(UnityAction,State)> first = new List<(UnityAction, State)>(),
