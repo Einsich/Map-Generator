@@ -16,6 +16,9 @@ public class AutoTrader :AutoManager
     {
         get => isOn; set
         {
+
+            if (isOn == value)
+                return;
             if (value)
             {
                 //FindTradeDeals();

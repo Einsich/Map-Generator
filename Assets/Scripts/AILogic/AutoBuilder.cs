@@ -23,6 +23,9 @@ public class AutoBuilder : AutoManager
     {
         get => isOn; set
         {
+
+            if (isOn == value)
+                return;
             if (value)
             {
                 BestBuild();

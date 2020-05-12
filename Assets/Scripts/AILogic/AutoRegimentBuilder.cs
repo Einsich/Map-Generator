@@ -59,6 +59,8 @@ public class AutoRegimentBuilder : AutoManager
     {
         get => isOn; set
         {
+            if (isOn == value)
+                return;
             if (value)
             {
                 GameTimer.AddListener(AutoBuildRegiment, stateAI.Data);

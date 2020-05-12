@@ -6,10 +6,13 @@ using UnityEditor;
 
 public class Wizard : ScriptableWizard
 {
+    public Mesh Zebra;
     public Texture2D res;
     public Texture2D t;
     void OnWizardCreate()
     {
+        Debug.Log($"ZEbra have vertex {Zebra.vertices.Length}, normals {Zebra.normals.Length}, uv {Zebra.uv.Length}, tris {Zebra.triangles.Length}");
+        return;
         if ( res==null|| res == null || t==null)
         {
             return;

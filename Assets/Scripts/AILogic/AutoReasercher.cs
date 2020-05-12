@@ -19,6 +19,9 @@ public class AutoReasercher :AutoManager
     {
         get => isOn; set
         {
+
+            if (isOn == value)
+                return;
             if (value)
             {
                 RandomResearch();
