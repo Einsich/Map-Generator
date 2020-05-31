@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Unity.Jobs;
 public class Army:MonoBehaviour,ITarget,IFightable, IMovable
 {
     public State owner;
