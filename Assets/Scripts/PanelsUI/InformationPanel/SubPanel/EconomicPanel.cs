@@ -19,7 +19,6 @@ public class EconomicPanel : MonoBehaviour
         armyBudget.onValueChanged.AddListener((x)=> SliderValueChange(x, BudgetType.ArmyBudget));
         buildBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.BuildingBudget));
         techBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.TechnologyBudget));
-
         autoBuild.onValueChanged.AddListener((x)=> state.stateAI.autoBuilder.IsOn = x);
         autoResearch.onValueChanged.AddListener((x)=>state.stateAI.autoReasercher.IsOn = x);
         SliderUpdate();
@@ -29,7 +28,7 @@ public class EconomicPanel : MonoBehaviour
     private void ToggleUpdate()
     {
         autoArmy.isOn = false;
-        autoBuild.isOn = state.stateAI.autoBuilder.IsOn;
+        autoBuild.isOn = state.stateAI.autoBuilder.IsOn;//вызывает подписанные события
         autoResearch.isOn = state.stateAI.autoReasercher.IsOn; 
     }
     private void SliderUpdate()
@@ -61,6 +60,8 @@ public class EconomicPanel : MonoBehaviour
     {
         if (state == null)
             return;
+
+
         state.IncomeChanges -= UpdateInformation;
         state.TreasureChange -= UpdateInformation;
         armyBudget.onValueChanged.RemoveAllListeners();
