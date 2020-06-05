@@ -6,7 +6,9 @@ using UnityEngine;
 public class ArmyAI : MonoBehaviour
 {
     Army army_;
-    public Army army { set { army_ = value;owner = value.owner; }
+    public Army army
+    {
+        set { army_ = value; owner = value.owner; }
         get => army_;
     }
     State owner;
@@ -17,13 +19,13 @@ public class ArmyAI : MonoBehaviour
 
     public StrategicCommand command;
 
-    private PriorityQueue<(float, IFightable)> comparator = new PriorityQueue<(float, IFightable)>();
+    private SortedDictionary<float, IFightable> comparator = new SortedDictionary<float, IFightable>();
 
     private bool isPeace => owner.diplomacy.war.Count == 0;
     public void Logic()
     {
         Tactical();
-            //army_.TryMoveTo(owner.regions[Random.Range(0, owner.regions.Count)].Capital);
+        //army_.TryMoveTo(owner.regions[Random.Range(0, owner.regions.Count)].Capital);
     }
 
     private void Tactical()
@@ -92,13 +94,13 @@ public class ArmyAI : MonoBehaviour
     {
         if (command.attack != null)
         {
-            if (!army.navAgent.target.Equals(command.attack))
+            if (army.navAgent.target == null || !army.navAgent.target.Equals(command.attack))
                 if (!army.TryMoveToTarget(command.attack, priorityDamage))
                     command.attack = null;
         }
         else
         {
-            if (!army.navAgent.target.curPosition.Equals(command.stay))
+            if (army.navAgent.target == null || !army.navAgent.target.curPosition.Equals(command.stay))
             {
                 if (!army.TryMoveTo(command.stay))
                 {
@@ -114,9 +116,10 @@ public class ArmyAI : MonoBehaviour
         foreach (Region r in owner.regions)
         {
             float dist = (r.Capital - army.curPosition).magnitude;
-            comparator.Enqueue((dist, r));
+            if (!comparator.ContainsKey(dist))
+                comparator.Add(dist, r);
         }
-        Vector2Int target = comparator.Peek().Item2.curPosition;
+        Vector2Int target = comparator.First().Value.curPosition;
 
         command.stay = target;
         if (!army.TryMoveTo(target))
@@ -141,7 +144,7 @@ public class ArmyAI : MonoBehaviour
             }
             else
             {
-                if (!army.navAgent.target.curPosition.Equals(command.stay))
+                if (army.navAgent.target == null || !army.navAgent.target.curPosition.Equals(command.stay))
                 {
                     GoToTown();
                 }
@@ -153,13 +156,16 @@ public class ArmyAI : MonoBehaviour
             {
                 IFightable targetArmy = SearchEnemyInRadius(DamageInfo.AttackRange(DamageType.Range));
 
-                if (!(targetArmy == null && army.ActionState == ActionType.Attack && army.navAgent.target.Equals(targetArmy)))
+                if (army.navAgent.target == null || !army.navAgent.target.Equals(targetArmy))
                 {
-                    army.TryMoveToTarget(targetArmy, priorityDamage);
-                }
-                else
-                {
-                    StrategicAction();
+                    if (targetArmy != null && army.ActionState != ActionType.Attack)
+                    {
+                        army.TryMoveToTarget(targetArmy, priorityDamage);
+                    }
+                    else
+                    {
+                        StrategicAction();
+                    }
                 }
             }
             else
@@ -177,13 +183,14 @@ public class ArmyAI : MonoBehaviour
             float dist = (enemy.curPosition - army.curPosition).magnitude;
             if (dist <= radius)
             {
-                comparator.Enqueue((dist, enemy));
+                if (!comparator.ContainsKey(dist))
+                    comparator.Add(dist, enemy);
             }
         }
 
         if (comparator.Count > 0)
         {
-            return comparator.Peek().Item2;
+            return comparator.First().Value;
         }
         else
         {

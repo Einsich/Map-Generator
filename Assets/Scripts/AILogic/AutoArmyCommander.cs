@@ -41,7 +41,7 @@ public class AutoArmyCommander : AutoManager
     {
         CollectEnemies();
 
-        var stay = stateAI.Data.regions.Last().Capital;
+        var stay = stateAI.Data.regions.First().Capital;
         var attack = DetectEnemyOnTerritory();
 
         foreach (Army a in stateAI.Data.army)
@@ -62,7 +62,11 @@ public class AutoArmyCommander : AutoManager
         enemies.Clear();
         foreach (Diplomacy enemyDiplomacy in stateAI.Data.diplomacy.war)
         {
-            enemies.AddRange(enemyDiplomacy.state.army);
+            foreach (Army enemy in enemyDiplomacy.state.army)
+            {
+                if (!enemy.Destoyed)
+                    enemies.Add(enemy);
+            }
         }
     }
 
@@ -80,14 +84,22 @@ public class AutoArmyCommander : AutoManager
 
     private Region DetectTargetTown()
     {
+        foreach (Region r in stateAI.Data.regions)
+        {
+            if (r.ocptby != null)
+                return r;
+        }
+
         foreach (RegionProxi proxi in stateAI.autoRegimentBuilder.RiskI)
         {
             Region region = proxi.data.region;
             foreach (Region neib in region.neib)
             {
-                if (stateAI.Data.diplomacy.haveWar(neib.owner.diplomacy))
+                State neibSt = neib.owner;
+                if (neibSt != null)
                 {
-                    return neib;
+                    if (stateAI.Data.diplomacy.haveWar(neibSt.diplomacy) && !stateAI.Data.Equals(neib.ocptby))
+                        return neib;
                 }
             }
         }

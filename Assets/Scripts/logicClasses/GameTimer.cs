@@ -37,6 +37,7 @@ public static class GameTimer
        
         Army.ProcessAllArmy();
         OftenUpdate?.Invoke();
+        Army.ProcessAllArmyAI();
 
         foreach (var army in Army.AllArmy)
             army.DeciUpdateTime();
