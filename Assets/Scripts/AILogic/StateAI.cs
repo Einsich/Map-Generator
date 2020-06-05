@@ -9,6 +9,8 @@ public class StateAI
     public AutoReasercher autoReasercher;
     public AutoTrader autoTrader;
     public AutoRegimentBuilder autoRegimentBuilder;
+    public AutoArmyCommander autoArmyCommander;
+
     public StateAI(State state)
     {
         Data = state;
@@ -16,6 +18,7 @@ public class StateAI
         autoReasercher = new AutoReasercher(this);
         autoTrader = new AutoTrader(this);
         autoRegimentBuilder = new AutoRegimentBuilder(this);
+        autoArmyCommander = new AutoArmyCommander(this);
     }
     public float armyBudget { get; private set; } = 0.1f;
     public float buildingBudget { get; private set; } = 0.9f;

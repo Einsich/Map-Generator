@@ -27,6 +27,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     public float Speed { get; set; }
     public float VisionRadius { get; set; } = 5;
     public float MaxRange;
+    public DamageType maxRangeType;
     public float AttackRange { get => Mathf.Min(MaxRange, DamageInfo.AttackRange(damageType)); set => MaxRange = value; }
     public Vector2 position => NavAgent.FromV3(transform.position);
     public DamageType damageType;
@@ -48,7 +49,6 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         if (inTown)
             cube.transform.position += Vector3.up * 2;
         StateLogic();
-
     }
     private void StateLogic()
     {
@@ -575,13 +575,13 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     }
     void UpdateRange()
     {
-        DamageType maxType = DamageType.Melee;
+        maxRangeType = DamageType.Melee;
         for (int i = 0; i < army.Count; i++)
         {
-            if (army[i].baseRegiment.damageType > maxType)
-                maxType = army[i].baseRegiment.damageType;
+            if (army[i].baseRegiment.damageType > maxRangeType)
+                maxRangeType = army[i].baseRegiment.damageType;
         }
-        MaxRange = DamageInfo.AttackRange(maxType);
+        MaxRange = DamageInfo.AttackRange(maxRangeType);
     }
     public void UpdateAttackSpeed()
     {
@@ -601,12 +601,8 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         {
             if (damageType <= regiment.baseRegiment.damageType)
             {
-
-                info.damage[(int)regiment.baseRegiment.damageType] += (regiment.NormalCount + 1) * 0.5f *
-                    (regiment.baseRegiment.damage(Person.DamageLvlBuff(regiment.baseRegiment.type, regiment.baseRegiment.damageType) + Person.DamageTypeBuff(regiment.baseRegiment.damageType)) +
-                    Person.DamageBuff(regiment.baseRegiment.type, regiment.baseRegiment.damageType));
+                info.damage[(int)regiment.baseRegiment.damageType] += RegimentDamage(regiment);
             }
-
         }
         Effect effect;
         if(Person.HaveEffect(EffectType.Charge, out effect))
@@ -615,6 +611,25 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
             Person.StopUseSkillOnHim(effect);
             UpdateSpeed();
         }
+        return info;
+    }
+
+    private float RegimentDamage(Regiment regiment)
+    {
+        return (regiment.NormalCount + 1) * 0.5f *
+            (regiment.baseRegiment.damage(Person.DamageLvlBuff(regiment.baseRegiment.type, regiment.baseRegiment.damageType) + Person.DamageTypeBuff(regiment.baseRegiment.damageType)) +
+            Person.DamageBuff(regiment.baseRegiment.type, regiment.baseRegiment.damageType));
+    }
+
+    public DamageInfo GetDamage()
+    {
+        var info = new DamageInfo();
+
+        foreach (Regiment regiment in army)
+        {
+            info.damage[(int)regiment.baseRegiment.damageType] += RegimentDamage(regiment);
+        }
+
         return info;
     }
 

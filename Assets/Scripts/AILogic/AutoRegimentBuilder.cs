@@ -7,7 +7,7 @@ using UnityEngine;
 public class AutoRegimentBuilder : AutoManager
 {
     private StateAI stateAI;
-    private HashSet<RegionProxi> RiskI, RiskII, RiskIII;
+    public HashSet<RegionProxi> RiskI, RiskII, RiskIII;
     public Treasury NeedTreasure => deficit;
 
     private Dictionary<int, Dictionary<RegimentIdentifier, float>> templates;
@@ -24,7 +24,8 @@ public class AutoRegimentBuilder : AutoManager
     private Treasury zero = Treasury.zero;
     private Treasury deficit = Treasury.zero;
     private float x = 1;
-    private int update = 0;
+    private int updateRegimentBase = 0;
+    private int updateRegion = 0;
     static AutoRegimentBuilder()
     {
         ID_PROV_TEMPLATE = (int)PersonType.Count;
@@ -91,11 +92,16 @@ public class AutoRegimentBuilder : AutoManager
         armyIncome =  stateAI.Data.Income * stateAI.armyBudget - stateAI.Data.allRegimentsUpkeep;
         armyBudget = stateAI.GetArmyBudget;
 
-        if (update-- == 0)
+        if (updateRegimentBase-- == 0)
         {
-            update = 5;
-            AnalizeRegions();
+            updateRegimentBase = 5;
             AddBase();
+        }
+
+        if (updateRegion-- == 0)
+        {
+            updateRegion = 5;
+            AnalizeRegions();
         }
 
         if (armyIncome >= zero)
@@ -127,7 +133,7 @@ public class AutoRegimentBuilder : AutoManager
         }
     }
 
-    private void AnalizeRegions()
+    public void AnalizeRegions()
     {
         RiskI.Clear();
         RiskII.Clear();
@@ -148,6 +154,8 @@ public class AutoRegimentBuilder : AutoManager
         Func(RiskI, (r, neib) => neib.owner != stateAI.Data);
         Func(RiskII, (r, neib) => RiskI.Contains(new RegionProxi(neib.data)) && !RiskI.Contains(new RegionProxi(r.data)));
         Func(RiskIII, (r, neib) => !RiskI.Contains(new RegionProxi(r.data)) && !RiskII.Contains(new RegionProxi(r.data)));
+
+        updateRegion = 5;
     }
     
     private void AddBase()
@@ -385,7 +393,7 @@ public class AutoRegimentBuilder : AutoManager
         }
     }
 
-    private struct RegionProxi
+    public struct RegionProxi
     {
         public ProvinceData data;
         public RegionProxi(ProvinceData provinceData) =>

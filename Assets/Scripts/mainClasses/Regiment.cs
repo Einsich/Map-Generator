@@ -20,8 +20,6 @@ public class Regiment
         count = t.maxcount;
         baseRegiment = t;
     }
-
-
 }
 public class BaseRegiment
 {
