@@ -20,12 +20,13 @@ public class ArmyAI : MonoBehaviour
     private PriorityQueue<(float, IFightable)> comparator = new PriorityQueue<(float, IFightable)>();
 
     private bool isPeace => owner.diplomacy.war.Count == 0;
-    public void DoRandomMove()
+    public void Logic()
     {
-            army_.TryMoveTo(owner.regions[Random.Range(0, owner.regions.Count)].Capital);
+        Tactical();
+            //army_.TryMoveTo(owner.regions[Random.Range(0, owner.regions.Count)].Capital);
     }
 
-    private void DefinitionAction()
+    private void Tactical()
     {
         HealMonitoring();
 
@@ -91,13 +92,13 @@ public class ArmyAI : MonoBehaviour
     {
         if (command.attack != null)
         {
-            if (army.navAgent.target != command.attack)
+            if (!army.navAgent.target.Equals(command.attack))
                 if (!army.TryMoveToTarget(command.attack, priorityDamage))
                     command.attack = null;
         }
         else
         {
-            if (army.navAgent.target.curPosition != command.stay)
+            if (!army.navAgent.target.curPosition.Equals(command.stay))
             {
                 if (!army.TryMoveTo(command.stay))
                 {
@@ -140,7 +141,7 @@ public class ArmyAI : MonoBehaviour
             }
             else
             {
-                if (army.navAgent.target.curPosition != command.stay)
+                if (!army.navAgent.target.curPosition.Equals(command.stay))
                 {
                     GoToTown();
                 }
@@ -152,7 +153,7 @@ public class ArmyAI : MonoBehaviour
             {
                 IFightable targetArmy = SearchEnemyInRadius(DamageInfo.AttackRange(DamageType.Range));
 
-                if (targetArmy != null && army.ActionState != ActionType.Attack && army.navAgent.target != targetArmy)
+                if (!(targetArmy == null && army.ActionState == ActionType.Attack && army.navAgent.target.Equals(targetArmy)))
                 {
                     army.TryMoveToTarget(targetArmy, priorityDamage);
                 }
@@ -194,5 +195,11 @@ public class ArmyAI : MonoBehaviour
     {
         public Vector2Int stay;
         public IFightable attack;
+
+        public StrategicCommand(Vector2Int stay, IFightable attack)
+        {
+            this.stay = stay;
+            this.attack = attack;
+        }
     }
 }

@@ -401,11 +401,11 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     }
     public static void ProcessAllArmyAI()
     {
-        return;
+        //return;
         AllArmyAI.RemoveAll(a => a.army.Destoyed);
         foreach (var ai in AllArmyAI)
             if (ai.enabled)
-                ai.DoRandomMove();
+                ai.Logic();
     }
     public void Heal(float heal)
     {

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using static AutoRegimentBuilder;
+using static ArmyAI;
 
 public class AutoArmyCommander : AutoManager
 {
@@ -14,12 +16,12 @@ public class AutoArmyCommander : AutoManager
                 return;
             if (value)
             {
-                //GameTimer.AddListener(TryTrade, state.Data);
+                GameTimer.AddListener(Strategy, stateAI.Data);
 
             }
             else
             {
-                //GameTimer.RemoveListener(TryTrade, state.Data);
+                GameTimer.RemoveListener(Strategy, stateAI.Data);
             }
             isOn = value;
         }
@@ -39,14 +41,25 @@ public class AutoArmyCommander : AutoManager
     {
         CollectEnemies();
 
-        foreach(Army a in stateAI.Data.army)
+        var stay = stateAI.Data.regions.Last().Capital;
+        var attack = DetectEnemyOnTerritory();
+
+        foreach (Army a in stateAI.Data.army)
         {
-            a.AI.strategicStay = stateAI.Data.regions.Last().Capital;
+            if (attack != null)
+            {
+                a.AI.command = new StrategicCommand(stay, attack);
+            }
+            else
+            {
+                a.AI.command = new StrategicCommand(stay, DetectTargetTown());
+            }
         }
     }
 
     private void CollectEnemies()
     {
+        enemies.Clear();
         foreach (Diplomacy enemyDiplomacy in stateAI.Data.diplomacy.war)
         {
             enemies.AddRange(enemyDiplomacy.state.army);
@@ -55,6 +68,29 @@ public class AutoArmyCommander : AutoManager
 
     private Army DetectEnemyOnTerritory()
     {
-        foreach ()
+        foreach (Army a in enemies)
+        {
+            if (a.curReg.owner.Equals(stateAI.Data))
+            {
+                return a;
+            }
+        }
+        return null;
+    }
+
+    private Region DetectTargetTown()
+    {
+        foreach (RegionProxi proxi in stateAI.autoRegimentBuilder.RiskI)
+        {
+            Region region = proxi.data.region;
+            foreach (Region neib in region.neib)
+            {
+                if (stateAI.Data.diplomacy.haveWar(neib.owner.diplomacy))
+                {
+                    return neib;
+                }
+            }
+        }
+        return null;
     }
 }
