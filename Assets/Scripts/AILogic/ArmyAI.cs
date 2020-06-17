@@ -12,12 +12,13 @@ public class ArmyAI : MonoBehaviour
         get => army_;
     }
     State owner;
+    public int regimentCount;
 
     private bool standInTown = false;
     private bool berserkerMode = false;
     private DamageType priorityDamage = DamageType.Melee;
 
-    public StrategicCommand command;
+    public StrategicCommand command = new StrategicCommand();
 
     private SortedDictionary<float, IFightable> comparator = new SortedDictionary<float, IFightable>();
 
@@ -31,8 +32,9 @@ public class ArmyAI : MonoBehaviour
     private void Tactical()
     {
         HealMonitoring();
+        RefreshPriorityDamage();
+        TestStrategicTask();
 
-        PriorityDamage();
         if (isPeace)
         {
             StrategicAction();
@@ -40,6 +42,25 @@ public class ArmyAI : MonoBehaviour
         else
         {
             Tactic();
+        }
+    }
+
+    private void TestStrategicTask()
+    {
+        if (command.attack != null)
+        {
+            if (command.attack is Region)
+            {
+                var tmp = (Region)command.attack;
+                if (tmp.ocptby != null)
+                    owner.stateAI.autoArmyCommander.Strategy();
+            }
+            else if (command.attack is Army)
+            {
+                var tmp = (Army)command.attack;
+                if (tmp.Destoyed)
+                    owner.stateAI.autoArmyCommander.Strategy();
+            }
         }
     }
 
@@ -63,6 +84,15 @@ public class ArmyAI : MonoBehaviour
             {
                 standInTown = false;
             }
+        }
+    }
+
+    private void RefreshPriorityDamage()
+    {
+        if (regimentCount != army.army.Count)
+        {
+            regimentCount = army.army.Count;
+            PriorityDamage();
         }
     }
 
@@ -94,13 +124,13 @@ public class ArmyAI : MonoBehaviour
     {
         if (command.attack != null)
         {
-            if (army.navAgent.target == null || !army.navAgent.target.Equals(command.attack))
+            if (isNotMoveToTarget(command.attack))
                 if (!army.TryMoveToTarget(command.attack, priorityDamage))
                     command.attack = null;
         }
         else
         {
-            if (army.navAgent.target == null || !army.navAgent.target.curPosition.Equals(command.stay))
+            if (isNotMoveToCoord(command.stay))
             {
                 if (!army.TryMoveTo(command.stay))
                 {
@@ -108,6 +138,18 @@ public class ArmyAI : MonoBehaviour
                 }
             }
         }
+    }
+
+    private bool isNotMoveToTarget(IFightable target)
+    {
+        return army.navAgent.target == null || !army.navAgent.target.Equals(target);
+    }
+
+    private bool isNotMoveToCoord(Vector2Int coord)
+    {
+        return army.navAgent.path == null ||
+            army.navAgent.path.Count == 0 ||
+            army.navAgent.path[0] != coord;
     }
 
     private void GoToTown()
@@ -144,7 +186,7 @@ public class ArmyAI : MonoBehaviour
             }
             else
             {
-                if (army.navAgent.target == null || !army.navAgent.target.curPosition.Equals(command.stay))
+                if (isNotMoveToCoord(command.stay))
                 {
                     GoToTown();
                 }
@@ -156,7 +198,7 @@ public class ArmyAI : MonoBehaviour
             {
                 IFightable targetArmy = SearchEnemyInRadius(DamageInfo.AttackRange(DamageType.Range));
 
-                if (army.navAgent.target == null || !army.navAgent.target.Equals(targetArmy))
+                if (isNotMoveToTarget(targetArmy))
                 {
                     if (targetArmy != null && army.ActionState != ActionType.Attack)
                     {
@@ -198,11 +240,12 @@ public class ArmyAI : MonoBehaviour
         }
     }
 
-    public struct StrategicCommand
+    public class StrategicCommand
     {
         public Vector2Int stay;
         public IFightable attack;
 
+        public StrategicCommand() { attack = null; }
         public StrategicCommand(Vector2Int stay, IFightable attack)
         {
             this.stay = stay;

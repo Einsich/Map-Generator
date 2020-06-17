@@ -37,7 +37,7 @@ public class AutoArmyCommander : AutoManager
 
     public List<Army> enemies = new List<Army>();
 
-    private void Strategy()
+    public void Strategy()
     {
         CollectEnemies();
 
@@ -49,6 +49,7 @@ public class AutoArmyCommander : AutoManager
             if (attack != null)
             {
                 a.AI.command = new StrategicCommand(stay, attack);
+
             }
             else
             {
@@ -86,23 +87,34 @@ public class AutoArmyCommander : AutoManager
     {
         foreach (Region r in stateAI.Data.regions)
         {
-            if (r.ocptby != null)
+            if (r.ocptby != null && r.ocptby.diplomacy.haveWar(stateAI.Data.diplomacy))
                 return r;
         }
 
-        foreach (RegionProxi proxi in stateAI.autoRegimentBuilder.RiskI)
+        foreach (Diplomacy enemyDiplomacy in stateAI.Data.diplomacy.war)
         {
-            Region region = proxi.data.region;
-            foreach (Region neib in region.neib)
+            foreach (Region r in enemyDiplomacy.state.regions)
             {
-                State neibSt = neib.owner;
-                if (neibSt != null)
+                if (neibOwnOwner(r) &&
+                    (r.ocptby == null || r.ocptby.diplomacy.haveWar(stateAI.Data.diplomacy)))
                 {
-                    if (stateAI.Data.diplomacy.haveWar(neibSt.diplomacy) && !stateAI.Data.Equals(neib.ocptby))
-                        return neib;
+                    return r;
                 }
             }
         }
+
         return null;
+    }
+
+    private bool neibOwnOwner(Region region)
+    {
+        foreach (Region neib in region.neib)
+        {
+            if (neib.owner == stateAI.Data || neib.ocptby == stateAI.Data)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

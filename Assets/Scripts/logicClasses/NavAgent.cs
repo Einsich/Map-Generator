@@ -40,7 +40,7 @@ public class NavAgent : MonoBehaviour
     public TerrainType TerrainType { get; private set; }
     Vector2 next, nextpl, end;
     public Vector2 CollideForce;
-    List<Vector2Int> path;
+    public List<Vector2Int> path;
     Vector2Int lastPathCell => path != null ?path.Count>0? path[path.Count - 1]:ToInt(end) : Vector2Int.zero;
     int pathIndex;
     private float SpeedLandCoef = 1;
