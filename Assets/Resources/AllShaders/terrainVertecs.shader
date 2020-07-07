@@ -1,17 +1,13 @@
 ﻿Shader "Custom/terrainVertecs" {
 	Properties {
 		_Color("Water Color", Color) = (1,1,1,1)
-		_MainTex("Color Map", 2D) = "white" {}
 		_TerrainTex("Terrain Map", 2DArray) = "white" {}
 		_TerrainNormTex("Normal Map", 2DArray) = "white" {}
 		_OccupeTex("Occupe Texture", 2D) = "white" {}
 		_OccupeMap("Occupe Map", 2D) = "white" {}
-		_ProvincesMap("Provinces Map",2D) = "white"{}
 		_TerrainMode("Terrain Mode",Range(0, 1)) = 0
 		_TerrainSource("Terrain source", 2DArray) = "white" {}
 		_TerrainNormSource("Terrain normals sourse", 2DArray) = "white" {}
-		_TesselationUVFactor("Tesselation uv factor", Float) = 1
-		_TesselationScaleFactor("Tesselation scale factor", Float) = 1
 		//[PerRendererData]
 		_BorderMod("Border mode",Float) = 1
 		//	[PerRendererData]
@@ -40,16 +36,14 @@
 		LOD 200
 
 		CGPROGRAM
-		#pragma surface surf Standard addshadow fullforwardshadows vertex:vert tessellate:tessFixed nolightmap 
-		//	#pragma surface surf Standart addshadow fullforwardshadows vertex:vert  nolightmap
+		#pragma surface surf Standard addshadow fullforwardshadows vertex:vert nolightmap 
 		#pragma target 4.6
 		#include "MapData.cginc"
 #include "Tessellation.cginc"
 
-		sampler2D _MainTex,_MainTexNorm,_OccupeTex,_OccupeMap;
+		sampler2D _MainTexNorm,_OccupeTex,_OccupeMap;
 		sampler2D _FogNoise, _MapBackgroung;
-	sampler2D _MainWaveTex, _FlowMap, _DerivHeightMap, _ProvincesMap;
-	float _TesselationUVFactor, _TesselationScaleFactor;
+	sampler2D _MainWaveTex, _FlowMap, _DerivHeightMap;
 	float _UJump, _VJump, _Tiling, _Speed, _FlowStrength, _FlowOffset;
 	float _HeightScale, _HeightScaleModulated,_TerrainMode;
 	UNITY_DECLARE_TEX2DARRAY(_TerrainTex);
@@ -59,6 +53,9 @@
 	float4 _Color;
 	float4 _Select;
 	float _SelectTime, _BorderMod;
+	#define BorderTreshold 0.45
+	#define StateBordLen 0.25
+	#define ProvBordLen 0.1
 		struct Input {
 			float2 uv_MainTex;
 			float3 worldPos;
@@ -68,14 +65,10 @@
 		UNITY_INSTANCING_BUFFER_START(Props)
 		UNITY_INSTANCING_BUFFER_END(Props)
 
-		float4 tessFixed()
-		{
-			return float4(3,1,3,3);
-		}
 		Input vert(inout appdata_full v) {
 			Input o;
 			v.vertex.y = GetHeight(v.texcoord);
-			v.vertex.xyz += GetNoise(v.texcoord * _TesselationUVFactor)* _TesselationScaleFactor;
+			v.vertex.xz += Perturb(v.texcoord - _Size.xy * 0.5, float2(1, 1));
 			return o;
 		}
 		float3 UnpackDerivativeHeight(float4 textureData) {
@@ -161,19 +154,12 @@
 			return ((texA + texB) * _Color);
 		}
 
-		bool equals(float4 a, float4 b)
-		{
-			a -= b;
-			a *= a;
-			float eps = 0.000001;
-			return  a.x< eps && a.y<eps&&a.z<eps;
-		}
 		float4 BorderColor(float2 t)
 		{
 			if (t.y == 0)
 				return float4(0,0,0,0);
 			float w;
-			if (t.y == 1.)
+			if (t.y == 2)
 				w = (((47.22*t.x - 94.44)*t.x + 57.03)*t.x - 9.81)*t.x + 1.0;
 			else
 				w = ((1.6*t.x - 2.27)*t.x + 0.27)*t.x + 1.0;
@@ -181,14 +167,14 @@
 		}
 		float lengthState, lengthProv;
 		float2 uvmid;
-		float4 p0;
-		float2 BordDirection(float4 p, float4 c, float2 uv, float2 d,float boost)
+		int provInd;
+		float2 BordDirection(int prInd, float4 c, float2 uv, float2 d,float boost)
 		{
-			float4 p1 = tex2D(_ProvincesMap, uvmid + d);
+			int prInd1 = GetProvincesIndex(uvmid + d);
 			float2 ans = 0;
-			if (equals(p, p1))
+			if (prInd == prInd1)
 				return ans;
-			p1 = tex2D(_MainTex, uvmid + d);
+			float4 p1 = GetStateColor(uvmid + d);
 			bool equal = equals(c, p1);
 			if ((c.a == 0 || p1.a == 0) && !equal)
 				equal = true;
@@ -230,7 +216,7 @@
 		float4 Border(float2 uv)
 		{
 
-			float3 delta = GetNoise(uv * _TesselationUVFactor) * _TesselationScaleFactor;
+			float3 delta = GetNoise(uv ) ;
 			//uv.x += delta.x * _Size.x;
 			//uv.y += delta.z * _Size.y;
 			float2 ans = 0,buf;
@@ -238,7 +224,7 @@
 			float2 dy = float2(0, _Size.y);
 			
 
-			float4 c0 = tex2D(_MainTex, uvmid);
+			float4 c0 = GetStateColor(uvmid);
 			float2 d = dx;
 			int cS = 0,cP = 0;
 			lengthProv = 0.1;
@@ -246,7 +232,7 @@
 			uint i;
 			for (i = 0; i < 4; i++)
 			{
-				buf = BordDirection(p0, c0, uv, d,1);
+				buf = BordDirection(provInd, c0, uv, d,1);
 				if (buf.y > 0)
 				{
 					if (ans.y != 1.)
@@ -266,7 +252,7 @@
 			lengthState *= boost;
 			for (i = 0; i<4; i++)
 			{
-				buf = BordDirection(p0, c0, uv, d,boost);
+				buf = BordDirection(provInd, c0, uv, d,boost);
 				if (buf.y > 0)
 				{
 					if (buf.y == 1.||(ans.y!=1.&& cP != 1))
@@ -279,6 +265,159 @@
 			}
 
 			return BorderColor(ans);
+		}
+		float2 GetNormal(float2 fixed_uv)
+		{
+			float2 angle = GetAngle(fixed_uv - _Size.xy * 0.5, float2(1, 1));
+			if (angle.x == 0 || angle.y == 0)
+				return angle;
+			else
+				return float2(angle.y, -angle.x)*0.5;
+		}
+		float2 BorderDist(float2 uvmid, float2 world, float2 ang1, float2 ang2)
+		{
+			float2 p0, p1, p2, b0, b1, c0, c1;
+			p0 = (uvmid * _Size.zw + ang1 * 0.5);
+			p2 = (uvmid * _Size.zw + ang2 * 0.5);
+			p1 = (p0 + p2) * 0.5;
+			b0 = GetNormal(p0 * _Size.xy);
+			b1 = GetNormal(p2 * _Size.xy);
+
+			p0 += Perturb(uvmid, ang1);
+			p2 += Perturb(uvmid, ang2);
+			p1 += GetNoise(p1 * _Size.xy).xz * 0.2;
+
+			if (p0.x < p2.x)
+			{
+				float2 temp = p0;
+				p0 = p2;
+				p2 = temp;
+				temp = b0;
+				b0 = b1;
+				b1 = temp;
+			}
+			if (dot(p2 - p0, b0) < 0)
+				b0 = -b0;
+			if (dot(p2 - p0, b1) < 0)
+				b1 = -b1;
+			float2 s1 = p2 - p0, s2 = world - p0;
+			float signMid = s1.x * s2.y - s1.y * s2.x; 
+			float sighPoint = 0;
+			float2 r1 = p0, r2;
+			const float a = 0.5, b = 0.5;
+			const int N = 5;
+			const float dt = 1.0 / N;
+			float len = min(length(world - p0), length(world - p2));
+			for (int i = 1; i <= N; i++)
+			{
+				float t = i * dt;
+				r2 = lerp(lerp(p0, p1, t), lerp(p1, p2, t), t);
+				float tau = t;
+				if (tau < a)
+					r2 = r2 * sqrt(tau / a) + (1 - sqrt(tau / a)) * (p0 + t * b0);
+				if (t > b)
+					r2 = r2 * (1 - sqrt((tau - b) / (1 - b))) + sqrt((tau - b) / (1 - b)) * (p2 + (t - 1) * b1);
+				float2 a = world - r1, b = world - r2, c = r2 - r1;
+				float dist = (a.x * b.y - a.y * b.x) / length(c);
+				if (dot(a, c) < 0 || dot(b, -c) < 0)
+					dist = min(length(r1 - world), length(r2 - world));
+				else
+					dist = abs(dist);
+				if (dist < len)
+				{
+					len = dist;
+					sighPoint = c.x * a.y - c.y * a.x;
+				}
+				r1 = r2;
+			}
+			return float2(len, sighPoint * signMid);
+		}
+		float2 BestBordTypeLen(float2 b1, float2 b2)
+		{
+			if (b1.x < b2.x)
+			{
+				return b2;
+			}
+			else if (b1.x > b2.x)
+			{
+				return b1;
+			}
+			else
+			{
+				return b1.y < b2.y ? b1 : b2;
+			}
+				
+		}
+		float2 AnalizeBordType(bool similarState, float dist)
+		{
+			float type = 0;
+			if (similarState)
+			{
+				if (dist < ProvBordLen)
+				{
+					type = 1;
+				}
+			}
+			else
+			{
+				if (dist < StateBordLen)
+				{
+					type = 2;
+				}
+			}
+			return float2(type, dist);
+		}
+		float4 ImproveBorder(float2 uvmid, float2 world)
+		{
+			float2 ang[4] = { float2(1, 1), float2(-1, 1), float2(-1, -1), float2(1, -1) };
+			float2 dir[4] = { float2(0, 1), float2(-1, 0), float2(0, -1), float2(1, 0) };
+			float2 dir_corn[4] = { float2(1, 1), float2(-1, 1), float2(-1, -1), float2(1, -1) };
+			float2 ang_corn[8] = { float2(1, -1), float2(-1, 1), float2(-1, -1), float2(1, 1), float2(-1, 1),float2(1, -1),  float2(1, 1), float2(-1, -1) };
+			float2 typeLen = float2(0, 100);//1 - provbord, 2 - statebord
+			float2 correctUV = uvmid;
+			for (int i = 0; i < 4; i++)
+			{
+				if (!SimilarProvince(uvmid, uvmid + dir[i] * _Size.xy))
+				{
+					float2 dist = BorderDist(uvmid, world, ang[i], ang[(i + 1) & 3]);
+					float2 r = AnalizeBordType(SimilarState(uvmid, uvmid + dir[i] * _Size.xy), dist.x);
+					if (dist.y < 0)
+						correctUV = uvmid + dir[i] * _Size.xy;
+					float2 test = testingWater(uvmid, uvmid + dir[i] * _Size.xy);
+					if (test.x != 0 && test.y == 0)
+						r = float2(0, 100);
+					typeLen = BestBordTypeLen(typeLen, r);
+				}
+			}
+			for (int i = 0; i < 4; i++)
+			{
+				float2 corn = (uvmid * _Size.zw + dir_corn[i] * 0.5) + Perturb(uvmid, dir_corn[i]);
+				if (length(world - corn) < BorderTreshold && !SimilarProvince(uvmid, uvmid + dir_corn[i] * _Size.xy))
+				{
+					float2 r1 = float2(0, 100), r2 = float2(0, 100);
+					if (SimilarState(uvmid, uvmid + float2(dir_corn[i].x, 0) * _Size.xy))
+					{
+						float2 dist = BorderDist(uvmid + dir_corn[i] * _Size.xy, world, -dir_corn[i], ang_corn[i * 2]);
+						r1 = AnalizeBordType(SimilarState(uvmid + dir_corn[i] * _Size.xy, uvmid + float2(dir_corn[i].x, 0) * _Size.xy), dist.x);
+						float2 test = testingWater(uvmid + dir_corn[i] * _Size.xy, uvmid + float2(dir_corn[i].x, 0) * _Size.xy);
+						if (test.x != 0 && test.y == 0)
+							r1 = float2(0, 100);
+					}
+
+					if (SimilarState(uvmid, uvmid + float2(0, dir_corn[i].y) * _Size.xy))
+					{
+						float2 dist = BorderDist(uvmid + dir_corn[i] * _Size.xy, world, -dir_corn[i], ang_corn[i * 2 + 1]);
+						r2 = AnalizeBordType(SimilarState(uvmid + dir_corn[i] * _Size.xy, uvmid + float2(0, dir_corn[i].y) * _Size.xy), dist.x);
+						float2 test = testingWater(uvmid + dir_corn[i] * _Size.xy, uvmid + float2(0, dir_corn[i].y) * _Size.xy);
+						if (test.x != 0 && test.y == 0)
+							r2 = float2(0, 100);
+					}
+					typeLen = BestBordTypeLen(typeLen, BestBordTypeLen(r1, r2));
+				}
+			}
+			float norma = typeLen.x == 1 ? ProvBordLen : StateBordLen;
+			typeLen.y = typeLen.y < norma ? typeLen.y / norma : 1;
+			return float4(correctUV, typeLen);
 		}
 		float4 FogAndIncognito(float3 pos)
 		{
@@ -300,7 +439,10 @@
 		void surf (Input IN, inout SurfaceOutputStandard o) {	
 			
 			float2 uv = IN.uv_MainTex;
-			float4 c = tex2D(_MainTex, uv);
+			float2 world =  uv * _Size.zw;
+			uvmid = float2(((int)world.x + 0.5)* _Size.x, ((int)world.y + 0.5)* _Size.y);
+			float4 impr = ImproveBorder(uvmid, IN.worldPos.xz);
+			float4 c = GetStateColor(impr.xy);
 			float2 ocuv = float2(IN.worldPos.x, IN.worldPos.z);
 			float4 d = tex2D(_OccupeTex, ocuv*0.5f) * tex2D(_OccupeMap, uv);			
 			c = c*(1 - d.a) + d;
@@ -315,17 +457,16 @@
 				c = Terrain(uv,ocuv);
 			}
 			c = c * (c.a) + water * (1 - c.a);
-			float2 world = float2(uv.x* _Size.z, uv.y* _Size.w);
-			uvmid = float2(((int)world.x + 0.5)* _Size.x, ((int)world.y + 0.5)* _Size.y);
-			p0 = tex2D(_ProvincesMap, uvmid);
-
-			if (equals(p0, _Select))
+			provInd = GetProvincesIndex(uvmid);
+			if (equals(GetProvincesColor(impr.xy), _Select))
 			{
-				c *= (0.5*sin((_Time.y - _SelectTime)*4) + 1.5);
+				c *= (0.2*sin((_Time.y - _SelectTime)*4) + 1.2);
 			}
-			float4 border =  Border(uv);
-			if (border.a > 0)
-				c *= border;
+			if(impr.b != 0)
+			c *= BorderColor(float2(impr.a, impr.b ));
+			//float4 border =  Border(uv);
+			//if (border.a > 0)
+				//c *= border;
 			float4 fog = FogAndIncognito(IN.worldPos);
 			//c = ShadedColor(IN.worldPos, c);
 			

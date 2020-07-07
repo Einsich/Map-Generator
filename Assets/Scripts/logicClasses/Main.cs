@@ -207,11 +207,12 @@ public class Main : MonoBehaviour
         MapMetrics.UpdateOccupedMap();
         MapMetrics.UpdateProvincesMap();
         System.IO.File.WriteAllBytes("DasIst.png", regionMap.EncodeToPNG());
-        terrainMat.SetTexture("_MainTex", MapMetrics.map);
         terrainMat.SetTexture("_OccupeMap", MapMetrics.occupemap);
-        terrainMat.SetTexture("_ProvincesMap", MapMetrics.provincemap);
         terrainMat.SetColor("_Select", Color.white);
 
+        Shader.SetGlobalTexture("_StateColor", MapMetrics.map);
+        Shader.SetGlobalTexture("_ProvincesColor", MapMetrics.provincemap);
+        Shader.SetGlobalVector("_NoiseConst", new Vector4(MapMetrics.noiseScale, MapMetrics.cellPerturbStrength, 0, 0));
         Shader.SetGlobalTexture("_SplatMap", MapMetrics.GetSplatMap());
         Shader.SetGlobalVector("_Size", new Vector4(1f / w, 1f / h, w, h));
         Shader.SetGlobalTexture("_HeightMap", MapMetrics.GetHeightMap);

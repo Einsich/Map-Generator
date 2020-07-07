@@ -66,6 +66,7 @@ static class MapMetrics
 
     public static Vector3 Perturb(Vector3 position,Vector2Int dir = default)
     {
+        return position;
         Vector4 sample = SampleNoise(position);
         if (dir == default)
         {
