@@ -7,7 +7,7 @@ using UnityEngine;
 public class AutoRegimentBuilder : AutoManager
 {
     private StateAI stateAI;
-    private HashSet<RegionProxi> RiskI, RiskII, RiskIII;
+    public HashSet<RegionProxi> RiskI, RiskII, RiskIII;
     public Treasury NeedTreasure => deficit;
 
     private Dictionary<int, Dictionary<RegimentIdentifier, float>> templates;

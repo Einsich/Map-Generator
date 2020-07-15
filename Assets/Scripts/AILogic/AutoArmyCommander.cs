@@ -16,8 +16,8 @@ public class AutoArmyCommander : AutoManager
                 return;
             if (value)
             {
+                Strategy();
                 GameTimer.AddListener(Strategy, stateAI.Data);
-
             }
             else
             {
@@ -35,26 +35,43 @@ public class AutoArmyCommander : AutoManager
         this.stateAI = stateAI;
     }
 
-    public List<Army> enemies = new List<Army>();
+    public Dictionary<ArmyAI, ArmyTargets> targets = new Dictionary<ArmyAI, ArmyTargets>();
+
+    private List<Army> enemies = new List<Army>();
+    private List<Region> regions = new List<Region>();
+    private List<Region> defends = new List<Region>();
 
     public void Strategy()
     {
+        ActualizeCommandsList();
+
         CollectEnemies();
+        CollectTargetRegion();
+        CollectDefend();
 
-        var stay = stateAI.Data.regions.First().Capital;
-        var attack = DetectEnemyOnTerritory();
-
-        foreach (Army a in stateAI.Data.army)
+        foreach (var t in targets)
         {
-            if (attack != null)
+            if (!t.Key.army.Destoyed)
             {
-                a.AI.command = new StrategicCommand(stay, attack);
+                var command = t.Value;
+                command.armies.Clear();
+                command.armies.AddRange(enemies);
+                command.regions.Clear();
+                command.regions.AddRange(regions);
+                command.defends.Clear();
+                command.defends.AddRange(defends);
+            }
+        }
+    }
 
-            }
-            else
-            {
-                a.AI.command = new StrategicCommand(stay, DetectTargetTown());
-            }
+    private void ActualizeCommandsList()
+    {
+        foreach (Army army in stateAI.Data.army)
+        {
+            var ai = army.AI;
+
+            if (!targets.ContainsKey(ai))
+                targets.Add(ai, new ArmyTargets());
         }
     }
 
@@ -63,33 +80,21 @@ public class AutoArmyCommander : AutoManager
         enemies.Clear();
         foreach (Diplomacy enemyDiplomacy in stateAI.Data.diplomacy.war)
         {
-            foreach (Army enemy in enemyDiplomacy.state.army)
-            {
-                if (!enemy.Destoyed)
-                    enemies.Add(enemy);
-            }
+            enemies.AddRange(enemyDiplomacy.state.army);
         }
     }
 
-    private Army DetectEnemyOnTerritory()
+    private void CollectTargetRegion()
     {
-        foreach (Army a in enemies)
-        {
-            if (a.curReg.owner.Equals(stateAI.Data))
-            {
-                return a;
-            }
-        }
-        return null;
-    }
-
-    private Region DetectTargetTown()
-    {
+        regions.Clear();
         foreach (Region r in stateAI.Data.regions)
         {
             if (r.ocptby != null && r.ocptby.diplomacy.haveWar(stateAI.Data.diplomacy))
-                return r;
+                regions.Add(r);
         }
+
+        if (regions.Count > 0)
+            return;
 
         foreach (Diplomacy enemyDiplomacy in stateAI.Data.diplomacy.war)
         {
@@ -98,12 +103,10 @@ public class AutoArmyCommander : AutoManager
                 if (neibOwnOwner(r) &&
                     (r.ocptby == null || r.ocptby.diplomacy.haveWar(stateAI.Data.diplomacy)))
                 {
-                    return r;
+                    regions.Add(r);
                 }
             }
         }
-
-        return null;
     }
 
     private bool neibOwnOwner(Region region)
@@ -116,5 +119,44 @@ public class AutoArmyCommander : AutoManager
             }
         }
         return false;
+    }
+
+    private void CollectDefend()
+    {
+        defends.Clear();
+
+        foreach (RegionProxi r in stateAI.autoRegimentBuilder.RiskI)
+        {
+            if (neibOwnerEnemy(r.data.region))
+                defends.Add(r.data.region);
+        }
+
+        if (defends.Count == 0)
+            defends.Add(stateAI.Data.regions.First());
+    }
+
+    private bool neibOwnerEnemy(Region r)
+    {
+
+        foreach (Region neib in r.neib)
+        {
+
+            if (!neib.iswater && neib.owner.diplomacy.haveWar(stateAI.Data.diplomacy))
+                return true;
+        }
+        return false;
+    }
+}
+public class ArmyTargets
+{
+    public readonly List<Army> armies;
+    public readonly List<Region> regions;
+    public readonly List<Region> defends;
+
+    public ArmyTargets()
+    {
+        armies = new List<Army>();
+        regions = new List<Region>();
+        defends = new List<Region>();
     }
 }

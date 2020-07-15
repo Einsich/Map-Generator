@@ -18,7 +18,7 @@ public class ArmyAI : MonoBehaviour
     private bool berserkerMode = false;
     private DamageType priorityDamage = DamageType.Melee;
 
-    public StrategicCommand command = new StrategicCommand();
+    private Region targetDef;
 
     private SortedDictionary<float, IFightable> comparator = new SortedDictionary<float, IFightable>();
 
@@ -26,14 +26,16 @@ public class ArmyAI : MonoBehaviour
     public void Logic()
     {
         Tactical();
-        //army_.TryMoveTo(owner.regions[Random.Range(0, owner.regions.Count)].Capital);
     }
 
     private void Tactical()
     {
+        RemoveInvalidTargets();
+
+        targetDef = owner.stateAI.autoArmyCommander.targets[this].defends.FirstOrDefault();
+
         HealMonitoring();
         RefreshPriorityDamage();
-        TestStrategicTask();
 
         if (isPeace)
         {
@@ -45,23 +47,12 @@ public class ArmyAI : MonoBehaviour
         }
     }
 
-    private void TestStrategicTask()
+    private void RemoveInvalidTargets()
     {
-        if (command.attack != null)
-        {
-            if (command.attack is Region)
-            {
-                var tmp = (Region)command.attack;
-                if (tmp.ocptby != null)
-                    owner.stateAI.autoArmyCommander.Strategy();
-            }
-            else if (command.attack is Army)
-            {
-                var tmp = (Army)command.attack;
-                if (tmp.Destoyed)
-                    owner.stateAI.autoArmyCommander.Strategy();
-            }
-        }
+        var targets = owner.stateAI.autoArmyCommander.targets[this];
+
+        targets.armies.RemoveAll(a => a.Destoyed);
+        targets.regions.RemoveAll(r => r.ocptby != null && !r.ocptby.diplomacy.haveWar(owner.diplomacy));
     }
 
     private void HealMonitoring()
@@ -122,21 +113,42 @@ public class ArmyAI : MonoBehaviour
 
     private void StrategicAction()
     {
-        if (command.attack != null)
+        var targets = owner.stateAI.autoArmyCommander.targets[this];
+
+        Army targetArmy = targets.armies.FirstOrDefault(a => a.curReg.owner == owner);
+        Region targetRegion = targets.regions.FirstOrDefault(r => r.ocptby == null || r.owner.diplomacy.haveWar(owner.diplomacy));
+
+        if (targetArmy != default(Army) && priorityDamage != DamageType.Siege)
         {
-            if (isNotMoveToTarget(command.attack))
-                if (!army.TryMoveToTarget(command.attack, priorityDamage))
-                    command.attack = null;
+            if (isNotMoveToTarget(targetArmy))
+                if (!army.TryMoveToTarget(targetArmy, priorityDamage))
+                    targets.armies.Remove(targetArmy);
+        }
+        else if (targetRegion != default(Region))
+        {
+            if (targetRegion.data.garnison.Count > 0)
+            {
+                if (isNotMoveToTarget(targetRegion))
+                    if (!army.TryMoveToTarget(targetRegion, priorityDamage))
+                        targets.regions.Remove(targetRegion);
+            }
+            else
+            {
+
+                if (isNotMoveToTarget(targetRegion))
+                    if (!army.TryMoveToTarget(targetRegion, DamageType.Melee))
+                        targets.regions.Remove(targetRegion);
+            }
+        }
+        else if (targetDef != default(Region))
+        {
+            if (isNotMoveToCoord(targetDef.Capital))
+                if (!army.TryMoveTo(targetDef.Capital))
+                    targets.defends.Remove(targetDef);
         }
         else
         {
-            if (isNotMoveToCoord(command.stay))
-            {
-                if (!army.TryMoveTo(command.stay))
-                {
-                    GoToTown();
-                }
-            }
+            GoToTown();
         }
     }
 
@@ -148,11 +160,10 @@ public class ArmyAI : MonoBehaviour
     private bool isNotMoveToCoord(Vector2Int coord)
     {
         return army.navAgent.path == null ||
-            army.navAgent.path.Count == 0 ||
-            army.navAgent.path[0] != coord;
+            !army.navAgent.path.Contains(coord);
     }
 
-    private void GoToTown()
+    private void GoToTown() //переделать если будет накорректное возвращение
     {
         comparator.Clear();
         foreach (Region r in owner.regions)
@@ -161,12 +172,15 @@ public class ArmyAI : MonoBehaviour
             if (!comparator.ContainsKey(dist))
                 comparator.Add(dist, r);
         }
-        Vector2Int target = comparator.First().Value.curPosition;
+        Region target = comparator.First().Value as Region;
 
-        command.stay = target;
-        if (!army.TryMoveTo(target))
+        if (!army.TryMoveTo(target.Capital))
         {
             berserkerMode = true;
+        }
+        else
+        {
+            owner.stateAI.autoArmyCommander.targets[this].defends.Add(target);
         }
     }
 
@@ -184,12 +198,15 @@ public class ArmyAI : MonoBehaviour
                         army.TryMoveToTarget(targetArmy, army.maxRangeType);
                 }
             }
+            else if (targetDef != default(Region))
+            {
+                if (isNotMoveToCoord(targetDef.Capital))
+                    if (!army.TryMoveTo(targetDef.Capital))
+                        owner.stateAI.autoArmyCommander.targets[this].defends.Remove(targetDef);
+            }
             else
             {
-                if (isNotMoveToCoord(command.stay))
-                {
-                    GoToTown();
-                }
+                GoToTown();
             }
         }
         else
@@ -220,10 +237,10 @@ public class ArmyAI : MonoBehaviour
     private IFightable SearchEnemyInRadius(float radius)
     {
         comparator.Clear();
-        foreach (Army enemy in owner.stateAI.autoArmyCommander.enemies)
+        foreach (Army enemy in owner.stateAI.autoArmyCommander.targets[this].armies)
         {
             float dist = (enemy.curPosition - army.curPosition).magnitude;
-            if (dist <= radius)
+            if (dist <= radius && !enemy.Destoyed)
             {
                 if (!comparator.ContainsKey(dist))
                     comparator.Add(dist, enemy);
@@ -237,19 +254,6 @@ public class ArmyAI : MonoBehaviour
         else
         {
             return null;
-        }
-    }
-
-    public class StrategicCommand
-    {
-        public Vector2Int stay;
-        public IFightable attack;
-
-        public StrategicCommand() { attack = null; }
-        public StrategicCommand(Vector2Int stay, IFightable attack)
-        {
-            this.stay = stay;
-            this.attack = attack;
         }
     }
 }
