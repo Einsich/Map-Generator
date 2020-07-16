@@ -90,7 +90,7 @@ public class NavAgent : MonoBehaviour
         }
         //direction = (pos - possave).normalized;
         //pos = possave +  direction * delta;
-        Vector3 position = MapMetrics.GetPosition(pos,true);
+        Vector3 position = MapMetrics.RayCastedGround(pos);
         if(delta > 0 && (position - transform.position).sqrMagnitude < 0.000001f)
         {
             if (target == null)
@@ -231,7 +231,7 @@ public class NavAgent : MonoBehaviour
         {
             point = Navigation.GetWayPoint();
             pos += DirectionInPoint(pos, next, nextpl) * WayPointStep;
-            point.transform.position = MapMetrics.GetPosition(pos,true);
+            point.transform.position = MapMetrics.RayCastedGround(pos);
             //point.SetActive(selectia.activeSelf);
             waypoints.Add(point);
             float dist = (next - pos).sqrMagnitude;

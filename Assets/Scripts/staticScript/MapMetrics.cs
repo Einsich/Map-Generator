@@ -8,7 +8,7 @@ static class MapMetrics
     public const int Tile = 100;
     public const int TextureStateSize = 32;
     public const float cellPerturbStrength = 0.5f;
-    public const float noiseScale = 0.3f;
+    public const float noiseScale = 1.3f;
     public const float MaxHeight = 5;
     public const float OctoScale = 1f / 255;
     public static int SizeN, SizeM;
@@ -36,12 +36,13 @@ static class MapMetrics
     public static void SetHeights(byte[] height,int n,int m)
     {
         heights = height;
-        HeightTexture = new Texture2D(m, n);
+        HeightTexture = new Texture2D(m, n, TextureFormat.RGBA32, false, true);
         HeightTexture.wrapMode = TextureWrapMode.Clamp;
         Color[] colors = new Color[n * m];
         for (int i = 0; i < n; i++)
             for (int j = 0; j < m; j++)
                 colors[i * m + j] = Color.white * (height[i * m + j] / 255f);
+  
         HeightTexture.SetPixels(colors);
         HeightTexture.Apply();
     }
@@ -64,31 +65,24 @@ static class MapMetrics
         return noise.GetPixelBilinear(position.x * noiseScale, position.z * noiseScale);
     }
 
-    public static Vector3 Perturb(Vector3 position,Vector2Int dir = default)
-    {
-        return position;
-        Vector4 sample = SampleNoise(position);
-        if (dir == default)
-        {
-            position.x += (sample.x * 2f - 1f) * cellPerturbStrength;
-            position.z += (sample.z * 2f - 1f) * cellPerturbStrength;
-        }
-        else
-        {
-            position.x += (sample.x+0.2f) * dir.x * 0.4f * cellPerturbStrength;
-            position.z += (sample.z+0.2f) * dir.y * 0.4f * cellPerturbStrength;
-        }
-        return position;
-    }
     public static int[,] dx = { { 1, 1, 0, 0 }, { 1, 1, 0, 0 }, { 0, 0, -1, -1 }, { 0, 0, -1, -1 } };
     public static int[,] dy = { { 1, 0, 0, 1 }, { 0, -1, -1, 0 }, { 0, -1, -1, 0 }, { 1, 0, 0, 1 } };
     
-    static Vector3 half = new Vector3(0.5f, 0, 0.5f);
     public static float Height(float x, float y, bool iswater = false) => Height(new Vector2(x, y), iswater);
     public static float Height(Vector2 p, bool iswater = false)
     {
-        float h = HeightTexture.GetPixelBilinear(p.x/SizeM, p.y/SizeN).r * MaxHeight;
+        float h = HeightTexture.GetPixelBilinear((p.x -0.5f) / (SizeM ), (p.y - 0.5f) /(SizeN )).r * MaxHeight;
         return (iswater && h < SeaLevel) ? SeaLevel : h;
+    }
+    public static Vector3 RayCastedGround(Vector2 pos)
+    {
+        Ray ray = new Ray(new Vector3(pos.x, 20, pos.y), Vector3.down);
+        RaycastHit hit;
+        if(Physics.Raycast(ray, out hit, 100f, 9))
+        {
+            return hit.point;
+        }
+        return new Vector3(pos.x, 10, pos.y);
     }
     public static Vector3 GetCellPosition(Vector2Int p, bool iswater = false)
     {
@@ -96,7 +90,7 @@ static class MapMetrics
     }
     public static Vector3 GetCellPosition(int y,int x, bool iswater = false)
     {
-        return new Vector3(x, Height(new Vector2(x, y) + Vector2.one * 0.5f, iswater), y) + half;
+        return new Vector3(x, Height(new Vector2(x, y) + Vector2.one * 0.5f, iswater), y) + new Vector3(0.5f, 0, 0.5f);
     }
     public static Region GetRegion(Vector2Int p)
     {
@@ -111,17 +105,46 @@ static class MapMetrics
     {
         return new Vector3(p.x, Height(p,iswater), p.y);
     }
-     public static Vector3 GetCornerPosition(Vector2Int p,bool iswater=false)
+    static Vector2Int GetAngle(Vector2Int Index)
     {
-        return GetCornerPosition(p.y, p.x, iswater);
+        int x = Mathf.Clamp(Index.x, 0, SizeM - 2), y = Mathf.Clamp(Index.y, 0 , SizeN - 2);
+        int a, b, c, d;
+        a = cellStateIndex[y, x];
+        b = cellStateIndex[y, x + 1];
+        c = cellStateIndex[y + 1, x + 1];
+        d = cellStateIndex[y + 1, x];
+        Vector2Int angle = Vector2Int.zero;
+        if (a == b && a == d && a != c)
+            angle = new Vector2Int(1, 1);
+        else if (b == a && b == c && b != d)
+            angle = new Vector2Int(-1, 1);
+        else if (c == b && c == d && c != a)
+            angle = new Vector2Int(-1, -1);
+        else if (d == a && d == c && d != b)
+            angle = new Vector2Int(1, -1);
+        return angle;
     }
-    public static Vector3 GetCornerPosition(int i,int j, bool iswater = false)
+    //dir = (+-1,+-1)
+   public static Vector2 Perturb(Vector2Int Index)
     {
-        Vector2Int dir;
-        Vector2 p = new Vector2(j, i);
-        Vector3 r = !Main.Angle(i, j, out dir)? Perturb(GetPosition(p, iswater)): Perturb(GetPosition(p,  iswater), dir);
-
-        return r;
+        Vector2Int angle = Vector2Int.zero;// GetAngle(Index);
+        Vector2 uvcorner = Index * new Vector2(1f / SizeN, 1f / SizeM) * 1230;
+        Color color = noise.GetPixelBilinear(uvcorner.x , uvcorner.y);
+        Vector2 perturb;
+        if (angle.sqrMagnitude < 1.1)
+        {
+            perturb = new Vector2(color.r, color.b) * 2 - new Vector2(1, 1);
+        }
+        else
+        {
+            perturb = (new Vector2(color.r, color.b) + new Vector2(0.3f, 0.3f)) * angle * 0.5f;
+        }
+        return  perturb * cellPerturbStrength;
+    }
+    public static Vector3 PerturbedCorner(Vector2Int Index)
+    {
+        Vector2 pos = Index + Perturb(Index);
+        return new Vector3(pos.x, Height(pos, true), pos.y);
     }
     public static Color GetColor(int i, int j)
     {

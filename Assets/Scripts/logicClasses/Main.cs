@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -155,7 +156,7 @@ public class Main : MonoBehaviour
         { n++; rot += new Vector2(-1, -1); }
         // rot /= n;
         Port port = Instantiate(PrefabHandler.GetPort(r.owner.fraction), Ports);
-        port.transform.position = MapMetrics.GetCornerPosition(loc.y, loc.x, true);
+        port.transform.position = MapMetrics.PerturbedCorner(loc);
         port.transform.rotation = Quaternion.Euler(0, Vector2.SignedAngle(rot, new Vector2(0, -1)), 0);
         port.CornerPosition = loc + rot.normalized * 0.5f;
         port.Region = r;
@@ -181,7 +182,6 @@ public class Main : MonoBehaviour
         
         SetProvNames();
         SetTowns();
-
         foreach (var state in states)
         {
             state.Text = Instantiate(Text);
@@ -236,7 +236,6 @@ public class Main : MonoBehaviour
 
     void SetTowns()
     {
-
         foreach (var reg in regions)
             if (!reg.iswater)
             {
@@ -245,6 +244,7 @@ public class Main : MonoBehaviour
                 go.tag = "Town";
                 go.AddComponent<SphereCollider>().radius = 0.71f ;
                 go.transform.SetParent(Towns);
+                go.layer = 9;
                 GameObject town = new GameObject();
                 town.transform.SetParent(go.transform);
                 town.transform.localPosition = Vector3.zero;
@@ -252,7 +252,7 @@ public class Main : MonoBehaviour
                 town = Instantiate(flagPrefab, go.transform);
                 town.transform.localPosition = Vector3.zero;
                 reg.flag = town.transform;
-                reg.pos = NavAgent.FromV3(go.transform.position = MapMetrics.GetCellPosition(reg.Capital));
+                reg.pos = NavAgent.FromV3(go.transform.position = MapMetrics.RayCastedGround(reg.Capital + Vector2.one * 0.5f));
                 go.transform.rotation = Quaternion.Euler(0, UnityEngine.Random.Range(-90, 90), 0);
                 go.transform.GetChild(1).localRotation = Quaternion.Inverse(go.transform.rotation);
                 if (reg.portIdto >= 0)
@@ -262,7 +262,6 @@ public class Main : MonoBehaviour
                 reg.RebuildTown();
             }
     }
-
     void CreateTerrain()
     {
         TerrainMaskArray = new Texture2DArray(w, h, 4, TerrainMask[0].format, TerrainMask[0].mipmapCount>0);

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4902111613586183706}
   - component: {fileID: 6472266035316926756}
   - component: {fileID: 2053020131477135549}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Tower 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -54,6 +54,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -87,7 +88,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8575268212840613248}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Walls
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,7 +132,7 @@ GameObject:
   - component: {fileID: 5535670609442518502}
   - component: {fileID: 8581928406981220242}
   - component: {fileID: 1171212588074608463}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Tower 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -174,6 +175,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -209,7 +211,7 @@ GameObject:
   - component: {fileID: 9107256805497290766}
   - component: {fileID: 8985805842113367670}
   - component: {fileID: 1334398379215545007}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wall (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -252,6 +254,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -287,7 +290,7 @@ GameObject:
   - component: {fileID: 2052862759038942586}
   - component: {fileID: 2431537883784960228}
   - component: {fileID: 8736624730466108567}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Tower 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -330,6 +333,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -365,7 +369,7 @@ GameObject:
   - component: {fileID: 7267571200014693664}
   - component: {fileID: 5800291167041745361}
   - component: {fileID: 8499530975771642056}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wall (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -408,6 +412,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -443,7 +448,7 @@ GameObject:
   - component: {fileID: 2477470762262148117}
   - component: {fileID: 6802430917019875026}
   - component: {fileID: 9016426249531357642}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Tower 5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -486,6 +491,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -521,7 +527,7 @@ GameObject:
   - component: {fileID: 1089827837272537654}
   - component: {fileID: 6554596174452416017}
   - component: {fileID: 4716951366016258004}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wall (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -564,6 +570,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -599,7 +606,7 @@ GameObject:
   - component: {fileID: 5053285707040196706}
   - component: {fileID: 1390686248756562059}
   - component: {fileID: 3081193339983882150}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wall (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -642,6 +649,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -677,7 +685,7 @@ GameObject:
   - component: {fileID: 6458122717576683939}
   - component: {fileID: 2459025919935557527}
   - component: {fileID: 1470198100236558007}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Tower 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -720,6 +728,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -755,7 +764,7 @@ GameObject:
   - component: {fileID: 1231756398445357069}
   - component: {fileID: 8465934399892999852}
   - component: {fileID: 2609568392640822827}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -798,6 +807,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -833,7 +843,7 @@ GameObject:
   - component: {fileID: 4211538926382510553}
   - component: {fileID: 6748340405398529354}
   - component: {fileID: 452730677664127374}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Wall (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -876,6 +886,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -911,7 +922,7 @@ GameObject:
   - component: {fileID: 1896735916154728041}
   - component: {fileID: 7401344252907539981}
   - component: {fileID: 4668051637907881389}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Tower
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -954,6 +965,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

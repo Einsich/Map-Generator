@@ -31,8 +31,7 @@ float4 ShadedColor(float3 worldPos, float4 c)
 float GetHeight(float2 uv)
 {
 	float h = tex2Dlod(_HeightMap, float4(uv, 0, 0)).r * _MaxHeight;
-	h = h <= _SeaLevel ? _SeaLevel : h;
-	return  h ;
+	return  h <= _SeaLevel ? _SeaLevel : h;
 }
 float3 GetNoise(float2 uv)
 {
@@ -41,12 +40,6 @@ float3 GetNoise(float2 uv)
 	pert.x = (pert.x * 2 - 1);
 	pert.y = (pert.y * 2 - 1);
 	return float3(pert.x, 0, pert.y);
-}
-float GetHeightUV(float2 uv)
-{
-	float h = tex2Dlod(_HeightMap, float4(uv, 0, 0)).r * _MaxHeight;
-	h = h <= _SeaLevel ? _SeaLevel : h;
-	return  h;
 }
 float4 Mask(float3 worldPos)
 {
@@ -108,7 +101,7 @@ float2 Perturb(float2 uv, float2 dir)
 {
 	float2 angle = GetAngle(uv, dir);
 	float2 uvcorner = (float2((int)(uv.x * _Size.z), (int)(uv.y * _Size.w)) + float2(0.5, 0.5) + dir * 0.5)* _Size.xy;
-	float2 noise = tex2Dlod(_Noise, float4(uvcorner* 123 , 0, 0)).xz;
+	float2 noise = tex2Dlod(_Noise, float4(uvcorner * 1230, 0, 0)).xz;
 	float2 perturb;
 	if (length(angle) < 1.1)
 	{
@@ -118,7 +111,7 @@ float2 Perturb(float2 uv, float2 dir)
 	{
 		perturb = (noise + float2(0.3, 0.3)) * angle * 0.5;
 	}
-	return perturb * _NoiseConst.y;
+	return perturb* _NoiseConst.y;
 }
 bool SimilarProvince(float2 uv1, float2 uv2)
 {
