@@ -46,6 +46,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -87,7 +88,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889952}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_back_bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -118,7 +119,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889954}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -164,7 +165,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889956}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_back_middle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -195,7 +196,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889958}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_back_bottom_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -225,7 +226,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889960}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_back_top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -256,7 +257,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889962}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_back_middle_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -286,7 +287,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889964}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_front_bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -317,7 +318,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889966}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_back_top_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -347,7 +348,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889968}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_front_middle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -378,7 +379,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889970}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_front_bottom_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -408,7 +409,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889972}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_front_top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -439,7 +440,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889974}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_front_middle_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -469,7 +470,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889976}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_middle__bottom
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -500,7 +501,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889978}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_front_top_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -530,7 +531,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889980}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_middle_middle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -561,7 +562,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889982}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_middle__bottom_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -591,7 +592,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889856}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_middle_top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -622,7 +623,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889858}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_middle_middle_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -652,7 +653,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889860}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_small_back
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -683,7 +684,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889862}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_middle_top_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -713,7 +714,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889864}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_small_front
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -744,7 +745,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889866}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_small_back_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -777,7 +778,7 @@ GameObject:
   - component: {fileID: 4759615582403909922}
   - component: {fileID: 4493193658130411110}
   - component: {fileID: 4674070050539618755}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: ship
   m_TagString: Ship
   m_Icon: {fileID: 0}
@@ -859,7 +860,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889870}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: sails_small_front_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -889,7 +890,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889922}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Armature
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -920,7 +921,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889924}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: cannon_01_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -950,7 +951,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889926}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: cannon_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -981,7 +982,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889928}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: cannon_02_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1011,7 +1012,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889930}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: cannon_02
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1042,7 +1043,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889932}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: cannon_03_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1072,7 +1073,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889934}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: cannon_03
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1103,7 +1104,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889936}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: cannons_04_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1133,7 +1134,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889938}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: cannons_04
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1164,7 +1165,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889940}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: flag_middle_middle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1195,7 +1196,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889942}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: flag_middle_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1226,7 +1227,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889944}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: flag_middle_tip_end
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1256,7 +1257,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4759615582394889946}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: flag_middle_tip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1288,7 +1289,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4759615582394889948}
   - component: {fileID: 4759615582408058848}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: mesh-1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1323,6 +1324,7 @@ SkinnedMeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1388,7 +1390,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4759615582394889950}
   - component: {fileID: 4759615582408058850}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: mesh-0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1423,6 +1425,7 @@ SkinnedMeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

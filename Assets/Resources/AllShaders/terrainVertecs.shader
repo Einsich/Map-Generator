@@ -67,8 +67,10 @@
 
 		Input vert(inout appdata_full v) {
 			Input o;
-			v.vertex.y = GetHeight(v.texcoord);
-			v.vertex.xz += Perturb(v.texcoord - _Size.xy * 0.5, float2(1, 1));
+
+			v.vertex.xz = v.texcoord * _Size.zw + Perturb(v.texcoord - _Size.xy * 0.5, float2(1, 1));
+			//if (sin(_Time.x * 100) > 0)
+			//v.vertex.y = GetHeight(v.vertex.xz * _Size.xy);
 			return o;
 		}
 		float3 UnpackDerivativeHeight(float4 textureData) {

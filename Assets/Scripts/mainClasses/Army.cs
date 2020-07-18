@@ -41,6 +41,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         selectia.SetActive(false);
         cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cube.transform.localScale *= 0.3f;
+        cube.layer = 9;
     }
     private void FixedUpdate()
     {

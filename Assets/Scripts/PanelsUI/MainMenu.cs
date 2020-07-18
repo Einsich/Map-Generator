@@ -50,7 +50,7 @@ public class MainMenu : MonoBehaviour {
     {
         GetSettings();
         Creator.Create(h, w, seed, (byte)sealvl, hm);
-        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(1);
         
     }
     void GetSettings()

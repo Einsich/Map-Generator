@@ -30,9 +30,9 @@ public class MapMesh : MonoBehaviour {
             for (int j = x0; j < x0 + tile + 1; j++)
             {
                 uvs.Add(new Vector2(1f * j / MapMetrics.SizeM, 1f * i / MapMetrics.SizeN));
-                Vector3 v = MapMetrics.GetCornerPosition(i, j, true);
+                Vector3 v = MapMetrics.PerturbedCorner(new Vector2Int(j, i));
                 Navigation.field[i + y0, j + x0] = new Vector2(v.x, v.z);
-                vertices.Add(v);
+                vertices.Add(new Vector3(v.x, v.y, v.z));
                 uvs1.Add(new Vector2(v.x, v.z));
             }
         for (int i = 0; i < tile; i++)
@@ -95,7 +95,6 @@ public class MapMesh : MonoBehaviour {
         for (int i = 0; i < bord.Count; i++)
         {
             bord[i] += Vector3.up * 0.1f;
-            bord[i] = MapMetrics.Perturb(bord[i]);
         }
         Vector3 dir1, dir2, norm = Vector3.zero;
         float width = 0.1f;
