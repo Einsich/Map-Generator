@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -22,17 +23,35 @@ public class ArmyAI : MonoBehaviour
 
     private SortedDictionary<float, IFightable> comparator = new SortedDictionary<float, IFightable>();
 
+    private System.Action aiLogic;
+    public ArmyTargets targets = new ArmyTargets();
+
     private bool isPeace => owner.diplomacy.war.Count == 0;
+
+    private void Start()
+    {
+        if (owner.stateAI.autoArmyCommander.IsOn)
+        {
+            aiLogic = Tactical;
+        }
+        else
+        {
+            aiLogic = () => { };
+        }
+    }
+
     public void Logic()
     {
-        Tactical();
+        //Tactical();
+        aiLogic();
     }
 
     private void Tactical()
     {
+
         RemoveInvalidTargets();
 
-        targetDef = owner.stateAI.autoArmyCommander.targets[this].defends.FirstOrDefault();
+        targetDef = targets.defends.FirstOrDefault();
 
         HealMonitoring();
         RefreshPriorityDamage();
@@ -49,8 +68,6 @@ public class ArmyAI : MonoBehaviour
 
     private void RemoveInvalidTargets()
     {
-        var targets = owner.stateAI.autoArmyCommander.targets[this];
-
         targets.armies.RemoveAll(a => a.Destoyed);
         targets.regions.RemoveAll(r => r.ocptby != null && !r.ocptby.diplomacy.haveWar(owner.diplomacy));
     }
@@ -113,8 +130,6 @@ public class ArmyAI : MonoBehaviour
 
     private void StrategicAction()
     {
-        var targets = owner.stateAI.autoArmyCommander.targets[this];
-
         Army targetArmy = targets.armies.FirstOrDefault(a => a.curReg.owner == owner);
         Region targetRegion = targets.regions.FirstOrDefault(r => r.ocptby == null || r.owner.diplomacy.haveWar(owner.diplomacy));
 
@@ -180,7 +195,7 @@ public class ArmyAI : MonoBehaviour
         }
         else
         {
-            owner.stateAI.autoArmyCommander.targets[this].defends.Add(target);
+            targets.defends.Add(target);
         }
     }
 
@@ -202,7 +217,7 @@ public class ArmyAI : MonoBehaviour
             {
                 if (isNotMoveToCoord(targetDef.Capital))
                     if (!army.TryMoveTo(targetDef.Capital))
-                        owner.stateAI.autoArmyCommander.targets[this].defends.Remove(targetDef);
+                        targets.defends.Remove(targetDef);
             }
             else
             {
@@ -237,10 +252,10 @@ public class ArmyAI : MonoBehaviour
     private IFightable SearchEnemyInRadius(float radius)
     {
         comparator.Clear();
-        foreach (Army enemy in owner.stateAI.autoArmyCommander.targets[this].armies)
+        foreach (Army enemy in targets.armies)
         {
             float dist = (enemy.curPosition - army.curPosition).magnitude;
-            if (dist <= radius && !enemy.Destoyed)
+            if (dist <= radius)
             {
                 if (!comparator.ContainsKey(dist))
                     comparator.Add(dist, enemy);
@@ -255,5 +270,19 @@ public class ArmyAI : MonoBehaviour
         {
             return null;
         }
+    }
+}
+
+public class ArmyTargets
+{
+    public readonly List<Army> armies;
+    public readonly List<Region> regions;
+    public readonly List<Region> defends;
+
+    public ArmyTargets()
+    {
+        armies = new List<Army>();
+        regions = new List<Region>();
+        defends = new List<Region>();
     }
 }

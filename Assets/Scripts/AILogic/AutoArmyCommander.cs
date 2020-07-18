@@ -16,7 +16,6 @@ public class AutoArmyCommander : AutoManager
                 return;
             if (value)
             {
-                Strategy();
                 GameTimer.AddListener(Strategy, stateAI.Data);
             }
             else
@@ -35,25 +34,23 @@ public class AutoArmyCommander : AutoManager
         this.stateAI = stateAI;
     }
 
-    public Dictionary<ArmyAI, ArmyTargets> targets = new Dictionary<ArmyAI, ArmyTargets>();
-
     private List<Army> enemies = new List<Army>();
     private List<Region> regions = new List<Region>();
     private List<Region> defends = new List<Region>();
 
     public void Strategy()
     {
-        ActualizeCommandsList();
-
         CollectEnemies();
         CollectTargetRegion();
         CollectDefend();
 
-        foreach (var t in targets)
+        foreach (Army a in stateAI.Data.army)
         {
-            if (!t.Key.army.Destoyed)
+            var ai = a.AI;
+
+            if (!a.Destoyed)
             {
-                var command = t.Value;
+                var command = ai.targets;
                 command.armies.Clear();
                 command.armies.AddRange(enemies);
                 command.regions.Clear();
@@ -61,17 +58,6 @@ public class AutoArmyCommander : AutoManager
                 command.defends.Clear();
                 command.defends.AddRange(defends);
             }
-        }
-    }
-
-    private void ActualizeCommandsList()
-    {
-        foreach (Army army in stateAI.Data.army)
-        {
-            var ai = army.AI;
-
-            if (!targets.ContainsKey(ai))
-                targets.Add(ai, new ArmyTargets());
         }
     }
 
@@ -145,18 +131,5 @@ public class AutoArmyCommander : AutoManager
                 return true;
         }
         return false;
-    }
-}
-public class ArmyTargets
-{
-    public readonly List<Army> armies;
-    public readonly List<Region> regions;
-    public readonly List<Region> defends;
-
-    public ArmyTargets()
-    {
-        armies = new List<Army>();
-        regions = new List<Region>();
-        defends = new List<Region>();
     }
 }

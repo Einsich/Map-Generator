@@ -232,6 +232,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         AI.army = this;
         Destoyed = false;
         Active = !Fogged;
+
         ArmyListChange += UpdateRange;
         ArmyListChange += UpdateSpeed;
         ArmyListChange += () => bar.UpdateInformation();
@@ -246,6 +247,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
             MapMetrics.UpdateAgentVision(navAgent.curCell, navAgent.curCell, VisionRadius, 1);
         }
     }
+
     public void ExchangeRegiment(Regiment regiment)
     {
         var list = curReg.data.garnison;
