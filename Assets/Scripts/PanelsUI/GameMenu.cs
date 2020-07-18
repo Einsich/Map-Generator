@@ -15,7 +15,7 @@ public class GameMenu : MonoBehaviour
     public void QuitFromGame()
     {
 
-        UnityEngine.SceneManagement.SceneManager.LoadScene(1);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
     }
     public void OpenSaveLoadMenu(bool saveMode)
     {

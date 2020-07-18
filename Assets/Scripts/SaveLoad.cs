@@ -158,4 +158,24 @@ public class SaveLoad : MonoBehaviour {
 
         }
     }
+    public static void WriteColorList(List<Color> colors, string path)
+    {
+        using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
+        {
+            writer.Write(colors.Count);
+            foreach (Color c in colors)
+            { writer.Write(c.r); writer.Write(c.g); writer.Write(c.b); }
+        }
+    }
+    public static List<Color> ReadColorList(string path)
+    {
+        List<Color> colors = new List<Color>();
+        using (BinaryReader reader = new BinaryReader(File.OpenRead(path)))
+        {
+            int n = reader.ReadInt32();
+            for (int i = 0; i < n; i++)
+                colors.Add(new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
+        }
+        return colors;
+    }
 }
