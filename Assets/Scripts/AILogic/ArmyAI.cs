@@ -121,7 +121,7 @@ public class ArmyAI : MonoBehaviour
     private void StrategicAction()
     {
         Army targetArmy = targets.armies.FirstOrDefault(a => a.curReg.owner == owner);
-        Region targetRegion = targets.regions.FirstOrDefault(r => r.curOwner.diplomacy.haveWar(owner.diplomacy));
+        Region targetRegion = targets.regions.FirstOrDefault(r => r.curOwner.diplomacy.haveWar(owner.diplomacy) );
 
         if (targetArmy != default(Army) && priorityDamage != DamageType.Siege)
         {
@@ -233,7 +233,7 @@ public class ArmyAI : MonoBehaviour
         comparator.Clear();
         foreach (Army enemy in targets.armies)
         {
-            float dist = (enemy.curPosition - army.curPosition).magnitude;
+            float dist = (enemy.position - army.position).magnitude;
             if (dist <= radius)
             {
                 if (!comparator.ContainsKey(dist))
