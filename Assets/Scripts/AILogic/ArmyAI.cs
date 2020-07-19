@@ -108,17 +108,7 @@ public class ArmyAI : MonoBehaviour
     {
         DamageInfo info = army.GetDamage();
 
-        float artaCount = 0;
-        foreach (var r in army.army)
-        {
-            if (r.baseRegiment.damageType == DamageType.Siege) artaCount++;
-        }
-
-        if (artaCount / army.Person.MaxRegiment > 0.5f)
-        {
-            priorityDamage = DamageType.Siege;
-        }
-        else if (info.RangeDamage * 3 >= info.MeleeDamage)
+        if (info.RangeDamage * 3 >= info.MeleeDamage)
         {
             priorityDamage = DamageType.Range;
         }
@@ -141,19 +131,8 @@ public class ArmyAI : MonoBehaviour
         }
         else if (targetRegion != default(Region))
         {
-            if (targetRegion.data.garnison.Count > 0)
-            {
-                if (isNotMoveToTarget(targetRegion))
-                    if (!army.TryMoveToTarget(targetRegion, priorityDamage))
-                        targets.regions.Remove(targetRegion);
-            }
-            else
-            {
-
-                if (isNotMoveToTarget(targetRegion))
-                    if (!army.TryMoveToTarget(targetRegion, DamageType.Melee))
-                        targets.regions.Remove(targetRegion);
-            }
+            if (isNotMoveToTarget(targetRegion) && !army.TryMoveToTarget(targetRegion, DamageType.Melee))
+                    targets.regions.Remove(targetRegion);
         }
         else if (targetDef != default(Region))
         {
