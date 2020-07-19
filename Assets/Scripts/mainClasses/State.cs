@@ -106,16 +106,17 @@ public class State
     {
         List<Regiment> list = new List<Regiment>();
         int i = regions.Count;
-        int a = i / 10;
-        i -= a;
-        int c = i / 4;
+        i = i / 2 + 2;
+        int c = i / 10;
+        i -= c;
+        int r = i / 4;
         i -= c;
         for (int j = 0; j < i; j++)
-            list.Add(new Regiment(ranger));
+            list.Add(new Regiment(melee));
         for (int j = 0; j < c; j++)
             list.Add(new Regiment(cavalry));
-        for (int j = 0; j < a; j++)
-            list.Add(new Regiment(artillery));
+        for (int j = 0; j < r; j++)
+            list.Add(new Regiment(ranger));
         return list;
     }
 
@@ -182,7 +183,7 @@ public class State
     public void DeclareWarPenalty(float penalty)
     {
         penalty = 1 - penalty;
-        SpendTreasure(treasury * penalty, BudgetType.OtherBudget);
+        //SpendTreasure(treasury * penalty, BudgetType.OtherBudget);
     }
     public bool WantTrade(ResourcesType sellType, float wesell, ResourcesType buyType, float webuy)
     {

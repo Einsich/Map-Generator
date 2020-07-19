@@ -304,17 +304,15 @@ public class Region :ITarget, IFightable
     public DamageInfo GetDamage(DamageType damageType)
     {
         DamageInfo info = new DamageInfo();
+        int walls = data.buildings[(int)BuildingType.Walls];
         foreach (Regiment regiment in data.garnison)
         {
             if (damageType <= regiment.baseRegiment.damageType)
             {
-                float d = regiment.baseRegiment.damageType >= DamageType.Range ? 50 : 0;
-                info.damage[(int)regiment.baseRegiment.damageType] += (regiment.NormalCount + 1) * 0.5f * (regiment.baseRegiment.damage(0)+ d);
+                int d = regiment.baseRegiment.damageType >= DamageType.Range ? 1 + walls * 2 : 0;
+                info.damage[(int)regiment.baseRegiment.damageType] += (regiment.NormalCount + 1) * 0.5f * regiment.baseRegiment.damage(d);
             }
         }
-        int walls = data.buildings[(int)BuildingType.Walls];
-        info.RangeDamage += 50 * walls;
-        info.SiegeDamage += 100* walls;
         return info;
     }
 
@@ -336,11 +334,13 @@ public class Region :ITarget, IFightable
             targets[i] = garnison[Random.Range(0, garnison.Count)];
         float q = 1f / targets.Length;
         int walls = data.buildings[(int)BuildingType.Walls];
+        walls = (walls * walls + 3 * walls) / 2;//0, 2, 5, 9, 14
+        walls = Mathf.Clamp(walls - damage.SiegeDamage, 0, 1000);
         foreach (var target in targets)
         {
             float d = 0;
             for (int i = 0; i < (int)DamageType.Count; i++)
-                d += damage.damage[i] * DamageInfo.Armor(target.baseRegiment.ArmorLvl((DamageType)i) + walls * 2);
+                d += damage.damage[i] * DamageInfo.Armor(target.baseRegiment.ArmorLvl((DamageType)i) + walls );
             d *= q;
             target.count -= d;
         }
@@ -351,12 +351,8 @@ public class Region :ITarget, IFightable
                 insider.army.RemoveAll(x => x.count <= 0);
                 insider.ArmyListChange();
             }
-        if(damage.MeleeDamage>0||damage.ChargeDamage>0)
-        {
-            return GetDamage(DamageType.Melee);
-            
-        }
-        return null;
+        return GetDamage(DamageType.Melee);
+        
     }
 }
 

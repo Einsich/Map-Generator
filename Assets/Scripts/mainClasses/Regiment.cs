@@ -30,7 +30,16 @@ public class BaseRegiment
     public float maxcount = 1000;
     public int MeleeArmor, ChargeArmor, RangeArmor, SiegeArmor;
     public int damageLvl;
-    public float damage(int buff) => 50 + (damageLvl + buff) * 20;
+    public float damage(int buff)
+    {
+        switch (damageType)
+        {
+            case DamageType.Melee: return 50 + (damageLvl + buff) * 20;
+            case DamageType.Charge: return 70 + (damageLvl + buff) * 30;
+            case DamageType.Range: return 30 + (damageLvl + buff) * 10;
+            default: return damageLvl;
+        }
+    }
     public Tech damTech;
 
     public float time;

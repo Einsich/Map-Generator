@@ -103,6 +103,10 @@ public class ProvinceData {
             buildings[i] = Random.Range(0, 2);
         for (int i = buildCount; i < specialCount; i++)
             buildings[i] = 0;
+        for (int i = 0, n = 1 + wallsLevel * (1 + Random.Range(0, 2)); i < n; i++)
+            garnison.Add(new Regiment(reg.owner.melee));
+        for (int i = 0, n = 1 + wallsLevel * (1 + Random.Range(0, 2)); i < n; i++)
+            garnison.Add(new Regiment(reg.owner.ranger));
     }
     static int Type(FractionType fraction)
     {
