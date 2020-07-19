@@ -351,7 +351,11 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         animator.Play("idle");
         ActionState = ActionType.Idle;
     }
-
+    public bool CanAttack(IFightable target, DamageType type)
+    {
+        return owner.diplomacy.haveWar(target.curOwner.diplomacy) && (!(target is Region) || (type == DamageType.Melee));
+        
+    }
     public float LastAttack { get; set; } = 0;
     public float AttackPeriod { get; set; } = 0.5f;
 

@@ -280,6 +280,7 @@ public class Player : MonoBehaviour {
                     }
                 }
                 State other = null;
+                IFightable target = null;
                 if (hit.transform.tag == "Unit")
                 {
                     Army sel = hit.transform.GetComponent<Army>();
@@ -288,6 +289,7 @@ public class Player : MonoBehaviour {
                         ArmyTap(sel, Input.GetMouseButtonDown(0));
                     }
                     other = sel.curOwner;
+                    target = sel;
                     if (CastingSkill)
                     {
                         if (CastSkill is IArmyCastable cast)
@@ -333,12 +335,13 @@ public class Player : MonoBehaviour {
                                 army.TryMoveTo(reg.Capital);
                             else
                             {
-                                if (army.besiege != reg)
+                                if (army.besiege != reg && TargetType == DamageType.Melee)
                                     army.TryMoveToTarget(reg, TargetType);
                             }
                         }
                     }
                     other = reg.curOwner;
+                    target = reg;
                     if (CastingSkill)
                     {
                         if(CastSkill is IRegionCastable cast)
@@ -368,7 +371,7 @@ public class Player : MonoBehaviour {
                     }
 
                 }
-                if (!CastingSkill && other !=null && other.diplomacy.haveWar(curPlayer.diplomacy))
+                if (!CastingSkill && target != null && army != null &&army.CanAttack(target, TargetType))
                 {
                     switch (TargetType)
                     {
