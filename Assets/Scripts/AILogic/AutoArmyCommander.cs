@@ -135,7 +135,8 @@ public class AutoArmyCommander : AutoManager
 
         foreach (RegionProxi r in stateAI.autoRegimentBuilder.RiskI)
         {
-            if (neibOwnerEnemy(r.data.region))
+            if (neibOwnerEnemy(r.data.region) && 
+                r.data.region.curOwner == stateAI.Data)
                 defends.Add(r.data.region);
         }
 

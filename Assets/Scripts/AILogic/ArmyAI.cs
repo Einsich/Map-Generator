@@ -121,7 +121,7 @@ public class ArmyAI : MonoBehaviour
     private void StrategicAction()
     {
         Army targetArmy = targets.armies.FirstOrDefault(a => a.curReg.owner == owner);
-        Region targetRegion = targets.regions.FirstOrDefault(r => r.ocptby == null || r.owner.diplomacy.haveWar(owner.diplomacy));
+        Region targetRegion = targets.regions.FirstOrDefault(r => r.curOwner.diplomacy.haveWar(owner.diplomacy));
 
         if (targetArmy != default(Army) && priorityDamage != DamageType.Siege)
         {
