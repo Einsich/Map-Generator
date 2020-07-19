@@ -24,6 +24,8 @@ public class Player : MonoBehaviour {
     public void Occupated(Region r, State occupant)
     {
         r.Destoyed = false;
+        State realOwner = r.owner;
+        State curOwner = r.curOwner;
         if (occupant != r.owner)
         {
             r.ocptby = occupant;
@@ -36,7 +38,8 @@ public class Player : MonoBehaviour {
 
             Debug.Log(string.Format("Страна {0} вернула {1}", occupant.name, r.name));
         }
-
+        realOwner.stateAI.autoArmyCommander.RecalculateRegions();
+        curOwner.stateAI.autoArmyCommander.RecalculateRegions();
         if (!r.InFogFrom(curPlayer))
         {
             MapMetrics.SetRegionSplatState(r.territory, LandShowMode.Visible);

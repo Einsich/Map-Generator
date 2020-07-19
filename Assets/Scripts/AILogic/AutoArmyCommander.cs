@@ -37,7 +37,11 @@ public class AutoArmyCommander : AutoManager
     private List<Army> enemies = new List<Army>();
     private List<Region> regions = new List<Region>();
     private List<Region> defends = new List<Region>();
-
+    public void DeclaredWar()
+    {
+        if (IsOn)
+            Strategy();
+    }
     public void Strategy()
     {
         CollectEnemies();
@@ -60,7 +64,25 @@ public class AutoArmyCommander : AutoManager
             }
         }
     }
+    public void RecalculateRegions()
+    {
+        CollectTargetRegion();
+        CollectDefend();
 
+        foreach (Army a in stateAI.Data.army)
+        {
+            var ai = a.AI;
+
+            if (!a.Destoyed)
+            {
+                var command = ai.targets;
+                command.regions.Clear();
+                command.regions.AddRange(regions);
+                command.defends.Clear();
+                command.defends.AddRange(defends);
+            }
+        }
+    }
     private void CollectEnemies()
     {
         enemies.Clear();

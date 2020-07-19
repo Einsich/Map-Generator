@@ -41,14 +41,13 @@ public class Diplomacy {
             war.Add(dip);
             state.DeclareWarPenalty(Mathf.Clamp01(relation[dip.state.ID] / warDeclareRelation));
             relation[dip.state.ID] = -100;
+            state.stateAI.autoArmyCommander.DeclaredWar();
         }
         else
         {
             war.Remove(dip);
         }
 
-        DiplomacyAction?.Invoke();
-        dip.DiplomacyAction?.Invoke();
     }
     public void ForceAccess(Diplomacy dip, bool access)
     {
