@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Action: IComparable<Action> {
+public class GameAction: IComparable<GameAction> {
     public float time,startTime;
     protected float T;
     public bool actually;
@@ -10,11 +10,11 @@ public class Action: IComparable<Action> {
     public System.Action  onAction;
     public float progress => (GameTimer.time - startTime) * T;
 
-    public int CompareTo(Action other)
+    public int CompareTo(GameAction other)
     {
         return time.CompareTo(other.time);
     }
-    public Action(float dt)
+    public GameAction(float dt)
     {
         time = GameTimer.time + dt;
         actually = true;
@@ -22,9 +22,9 @@ public class Action: IComparable<Action> {
         T = 1f / dt;
         GameTimer.actionQueue.Enqueue(this);
     }
-    public Action(float dt, System.Action action)
+    public GameAction(float dt, System.Action GameAction)
     {
-        onAction = action;
+        onAction = GameAction;
         time = GameTimer.time + dt;
         actually = true;
         startTime = GameTimer.time;
@@ -37,49 +37,49 @@ public class Action: IComparable<Action> {
     }
 
 }
-public enum TypeAction
+public enum TypeGameAction
 {
-    BuildAction,
-    RecruitAction,
-    PersonAliveAction,
-    SiegeAction
+    BuildGameAction,
+    RecruitGameAction,
+    PersonAliveGameAction,
+    SiegeGameAction
 }
-public class BuildAction:Action
+public class BuildAction:GameAction
 {
     public BuildAction(ProvinceData reg, float dt):base(dt)
     {
-        //type = TypeAction.BuildAction;
-        //onAction += () => reg.BuildComplete();
+        //type = TypeGameAction.BuildGameAction;
+        //onGameAction += () => reg.BuildComplete();
     }
 }
-public class RecruitAction : Action
+public class RecruitAction : GameAction
 {
     public BaseRegiment regiment;
     public RecruitAction(ProvinceData prov,BaseRegiment reg, float dt) : base(dt)
     {
-        //type = TypeAction.RecruitAction;
+        //type = TypeGameAction.RecruitGameAction;
         regiment = reg;
         onAction += () =>  prov.RecruitRegiment(this);
     }
 }
 
-public class PersonAliveAction : Action
+public class PersonAliveAction : GameAction
 {
     public PersonAliveAction(Person person, float dt) : base(dt)
     {
-        //type = TypeAction.PersonAliveAction;
+        //type = TypeGameAction.PersonAliveGameAction;
         onAction += () => person.Alive();
     }
 }
-public class SiegeAction : Action
+public class SiegeAction : GameAction
 {
     public SiegeAction(Region region, float dt) : base(dt)
     {
-        //type = TypeAction.SiegeAction;
+        //type = TypeGameAction.SiegeGameAction;
         onAction += () => region.WinSiege();
     }
 }
-public class ResearchAction : Action
+public class ResearchAction : GameAction
 {
     public ResearchAction(Tech tech, float dt):base(dt)
     {

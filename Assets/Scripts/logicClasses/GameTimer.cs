@@ -20,13 +20,13 @@ public static class GameTimer
         GlobalTrade.StartGlobalTrade();
     }
 
-    public static PriorityQueue<Action> actionQueue = new PriorityQueue<Action>();
+    public static PriorityQueue<GameAction> actionQueue = new PriorityQueue<GameAction>();
 
     public static void RealTimeUpdate()
     {
         while (actionQueue.Count > 0 && actionQueue.Peek().time <= time)
         {
-            Action action = actionQueue.Dequeue();
+            GameAction action = actionQueue.Dequeue();
             if (!action.actually)
                 continue;
             action.DoAction();

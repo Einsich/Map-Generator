@@ -17,7 +17,7 @@ public class ListFiller : MonoBehaviour
         rect = GetComponent<RectTransform>();
     }
 
-    public void UpdateList(List<object>listEl)
+    public void UpdateList(IEnumerable<object>listEl)
     {
         if (rect == null)
             Initialize();
