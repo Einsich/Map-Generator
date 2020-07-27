@@ -3,28 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RegimentTeches : InitGO, IHelpBaseRegiment
+public class RegimentTeches : MonoBehaviour,IHelpBaseRegiment
 {
-    public TechInterface[] ArmTeches;
-    public Image[] ArmPips;
-    public TechInterface DamTech;
-    public Image DamPips;
-    public Image icon;
+    public RegimentTech[] Teches;//4
+    public TechInterface researchRegiment;//1
+    public Text Name;
+    public Image Icon;
 
     public BaseRegiment BaseRegiment { get ; set ; }
 
-    public override void Init(object initElement)
+    public void Init(BaseRegiment regiment, Technology[] regTeches, Technology researchedRegiment)
     {
-        BaseRegiment regiment = (BaseRegiment)initElement;
         BaseRegiment = regiment;
-        icon.sprite = regiment.Icon;
-        for (int i = 0; i < (int)DamageType.Count; i++)
+        Icon.sprite = regiment.Icon;
+        Name.text = regiment.nameRegiment;
+        for (int i = 0; i < regTeches.Length; i++)
         {
-            ArmTeches[i].Init(regiment.armTeches[i]);
-            ArmPips[i].sprite = SpriteHandler.GetPipsSprite(regiment.ArmorLvl((DamageType)i));            
+            Teches[i].Init(regTeches[i]);       
         }
-
-        DamTech.Init(regiment.damTech);
-        DamPips.sprite = SpriteHandler.GetPipsSprite(regiment.damageLvl);
+        if (researchedRegiment != null)
+            researchRegiment.Init(researchedRegiment);
+        researchRegiment.gameObject.SetActive(researchedRegiment != null);
     }
 }

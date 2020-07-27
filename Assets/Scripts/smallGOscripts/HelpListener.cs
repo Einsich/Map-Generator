@@ -98,7 +98,7 @@ public class HelpListener : MonoBehaviour,IPointerEnterHandler,IPointerExitHandl
         switch (advance)
         {
             case HelpShowClass.BaseRegiment: return ((IHelpBaseRegiment)).BaseRegiment.ToString(); 
-            case HelpShowClass.Technology:  return ((IHelpTechology)).Technology.GetDescribe();
+            case HelpShowClass.Technology:  return ((IHelpTechology)).Technology.description;
             case HelpShowClass.Person:  return ((IHelpPerson)).Person.ToString();
              case HelpShowClass.Building: return ((IHelpBuilding)).BuildingDescribe();
             default: return Key;

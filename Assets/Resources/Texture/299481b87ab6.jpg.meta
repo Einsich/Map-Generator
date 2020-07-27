@@ -17,6 +17,24 @@ TextureImporter:
   - first:
       213: -3743279101129020751
     second: Skeletons
+  - first:
+      213: -7237840207081632957
+    second: archers
+  - first:
+      213: -4513853457807569198
+    second: pikiners
+  - first:
+      213: -7237840207081632957
+    second: archers
+  - first:
+      213: -4513853457807569198
+    second: militia
+  - first:
+      213: -2891055441841680260
+    second: alebarda
+  - first:
+      213: 3818504683271825672
+    second: horseArchers
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -189,11 +207,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 269
+        y: 268
         width: 91
         height: 90
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -201,6 +219,90 @@ TextureImporter:
       bones: []
       spriteID: 90a434ae2f580394b96c3775725e5a0e
       internalID: -3743279101129020751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: archers
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 179
+        width: 92
+        height: 89
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 34b0cdbeda60e8b90800000000000000
+      internalID: -7237840207081632957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: militia
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 269
+        width: 92
+        height: 90
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2de063f02329b51c0800000000000000
+      internalID: -4513853457807569198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: alebarda
+      rect:
+        serializedVersion: 2
+        x: 539
+        y: 268
+        width: 92
+        height: 89
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c701113a468e0e7d0800000000000000
+      internalID: -2891055441841680260
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: horseArchers
+      rect:
+        serializedVersion: 2
+        x: 541
+        y: 88
+        width: 90
+        height: 91
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 809259337cd0ef430800000000000000
+      internalID: 3818504683271825672
       vertices: []
       indices: 
       edges: []

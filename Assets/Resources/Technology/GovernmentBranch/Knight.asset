@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 237d140d2aef37143a6d4a12dfe8a948, type: 3}
+  m_Name: Knight
+  m_EditorClassIdentifier: 
+  science: 15
+  time: 15
+  lvl: 0
+  lvlmax: 1
+  name: "\u0420\u044B\u0446\u0430\u0440\u044C"
+  description: 
+  Icon: {fileID: -4614705615904554895, guid: 76bd255b858fb4246afac6995a068044, type: 3}
+  parent: {fileID: 0}
+  tree: {fileID: 0}
+  NodeID: 11
+  personType: 1

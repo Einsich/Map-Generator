@@ -34,4 +34,10 @@ public static class PrefabHandler
     public static ArmyBar GethpBarPrefab => PrefabData.HPBarBrefab;
     public static Ship GetShip => PrefabData.ShipPrefab;
     public static Port GetPort(FractionType fraction) => PrefabData.Ports[(int)fraction];
+    public static BaseRegiment GetSkeleton(int lvl) => PrefabData.Skelets[lvl];
+    public static int SkeletCount => PrefabData.Skelets.Length;
+
+    public static TechInterface TechnologyPanelPrefab => PrefabData.TechnologyPanel;
+    public static RegimentTeches RegimentTechnologyPanelPrefab => PrefabData.RegimentTechnologyPanel;
+    public static TechnologyTree TechnologyTree => PrefabData.TechnologyTree;
 }

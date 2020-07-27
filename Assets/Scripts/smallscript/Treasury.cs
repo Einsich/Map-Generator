@@ -57,17 +57,6 @@ public struct Treasury
             default: return "Наука";
         }
     }
-    public static TechType ToTechType(int i)
-    {
-        switch (i)
-        {
-            case 0: return TechType.GoldBonus;
-            case 1: return TechType.ManPowerBonus;
-            case 2: return TechType.WoodBonus;
-            case 3: return TechType.IronBonus;
-            default: return TechType.ScienceBonus;
-        }
-    }
     public void NormalizeToGold()
     {
         Manpower *= GlobalTrade.GetCource(ResourcesType.Gold, ResourcesType.Manpower);

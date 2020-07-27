@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1759af1f3cfc874fb4b34a32d922cf3, type: 3}
+  m_Name: "\u041A\u043E\u043F\u0435\u0439\u0449\u0438\u043A\u0438_attack"
+  m_EditorClassIdentifier: 
+  science: 2
+  time: 3
+  lvl: 2
+  lvlmax: 9
+  name: 
+  description: 
+  Icon: {fileID: 0}
+  parent: {fileID: 0}
+  tree: {fileID: 0}
+  NodeID: 17
+  regimentOffset: 2

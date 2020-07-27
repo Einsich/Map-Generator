@@ -9,16 +9,13 @@ public class TechButton : MonoBehaviour
     public Image back, front;
     public Button button;
     public Text descr;
-    Tech tech;
+    Technology tech;
     static Color blue = new Color(0.4f, 0.7f, 1f);
-    void Start()
-    {
-        
-    }
+    bool newRegimnetTech = false;
     public void StartResearch()
     {
-        Player.curPlayer.SpendTreasure(new Treasury(0, 0, 0, 0, tech.science), BudgetType.TechnologyBudget);
-        tech.researchAction = new ResearchAction(tech, tech.time);
+        Player.curPlayer.SpendTreasure(new Treasury(0, 0, 0, 0, tech.curScience), BudgetType.TechnologyBudget);
+        tech.researchAction = new ResearchAction(tech, tech.curTime);
         front.color = blue;
         button.interactable = false;
         descr.text = "0 %";
@@ -27,34 +24,35 @@ public class TechButton : MonoBehaviour
     {
 
         button.interactable = false;
-        front.color = tech.ableResearch ? Color.gray : Color.green;
+        front.color = tech.notLimited ? Color.gray : Color.green;
         front.fillAmount = 1f;
-        descr.text = tech.ableResearch ? "блок." : "макс.";
+        descr.text = tech.notLimited ? "блок." : "макс.";
 
     }
     public void EndResearch()
     {
         front.color = blue;
-        if (!tech.able)
+        if (!tech.researchOrAbleResearch)
             Complete();
         notres = tech.researchAction == null;
 
-        if (tech.able)
+        if (tech.researchOrAbleResearch)
         {
             front.color = colorAvailable;
             button.interactable = true;
             Bar();
         }
     }
-    public void SetTech(Tech technology)
+    public void SetTech(Technology technology)
     {
+        newRegimnetTech = technology is NewRegimentTechnology;
         if (tech != null)
             tech.buttonEvent -= EndResearch;
         tech = technology;
-        if (!tech.able)
+        if (!tech.researchOrAbleResearch)
             Complete();
 
-        if(tech.able)
+        if(tech.researchOrAbleResearch)
         {
             button.interactable = notres = tech.researchAction == null;
             front.color = notres ? colorAvailable : blue;            
@@ -66,33 +64,36 @@ public class TechButton : MonoBehaviour
     {
         if (notres)
         {
-            front.fillAmount = Mathf.Clamp01(Player.curPlayer.treasury.Science / tech.science);
+            front.fillAmount = Mathf.Clamp01(TechnologyTreeUI.treeOwner.treasury.Science / tech.curScience);
             button.interactable = front.fillAmount >= 1f;
-            descr.text = tech.science.ToString();
+            descr.text = "";
         }
         else
         {
             front.fillAmount = tech.researchAction.progress;
+            front.color = blue;
             int pc = (int)(front.fillAmount * 100);
             descr.text = pc + " %";
         }
     }
-    bool notres;
+    bool notres = false;
     void Update()
     {
-        if (!tech.able)
+        if (tech == null ||!tech.researchOrAbleResearch)
             return;
         if (tech.researchAction == null)
         {
-            front.fillAmount = Mathf.Clamp01(Player.curPlayer.treasury.Science / tech.science);
+            front.fillAmount = Mathf.Clamp01(TechnologyTreeUI.treeOwner.treasury.Science / tech.curScience);
             button.interactable = front.fillAmount >= 1f;
-            descr.text = tech.science.ToString();
+            descr.text = tech.curScience.ToString("N1");
+            front.color = colorAvailable;
             if (!notres)
                 EndResearch();
         }
         else
         {
             front.fillAmount = tech.researchAction.progress;
+            front.color = blue;
             int pc = (int)(front.fillAmount * 100);
             descr.text = pc + " %";
         }

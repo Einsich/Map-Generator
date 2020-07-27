@@ -2,18 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using TechnologySystem;
 [ExecuteInEditMode]
 public class TechnologyTreeBuilder : MonoBehaviour
 {
-
+    public static bool build => instance != null && instance.onEnable;
+    static TechnologyTreeBuilder instance;
     public bool onEnable = false;
+    public Transform PanelPater;
+    public static Transform PanelTransform;
+    private void Awake()
+    {
+        onEnable = false;
+    }
     private void Update()
     {
+        instance = this;
+        if (PanelPater != null)
+            PanelTransform = PanelPater;
         if (!onEnable)
             return;
         TechnologyTree tree = ScriptableObject.CreateInstance<TechnologyTree>();
-        TechnologyNode.nodeIDCounter = 0;
         BuildTree(tree, GetComponent<TechnologyNode>(), -1);
         AssetDatabase.CreateAsset(tree, "Assets/Resources/Technology/Trees/tree.asset");
     }
@@ -21,11 +29,10 @@ public class TechnologyTreeBuilder : MonoBehaviour
     {
         if (node == null || node.technology == null)
             return;
-        int id = node.getID;
+        int id = tree.technology.Count;
         tree.technology.Add(node.technology);
+        node.technology.NodeID = node.NodeID;
         tree.parents.Add(parent);
-        List<int> childs = new List<int>();
-        tree.childs.Add(childs);
         foreach (Transform son in node.transform)
         {
             TechnologyNode next = son.GetComponent<TechnologyNode>();
@@ -33,7 +40,6 @@ public class TechnologyTreeBuilder : MonoBehaviour
             {
                 if (next.technology != null)
                 {
-                    childs.Add(next.getID);
                     BuildTree(tree, next, id);
                 }
             } else
@@ -41,27 +47,24 @@ public class TechnologyTreeBuilder : MonoBehaviour
                 RegimentNode regNode = son.GetComponent<RegimentNode>();
                 if(regNode != null)
                 {
-                    var attack = ScriptableObject.CreateInstance<TechnologySystem.AttackTechnology>();
-                    attack.lvl = regNode.Attack;
-                    var mellee = ScriptableObject.CreateInstance<TechnologySystem.ArmorTechnology>();
-                    mellee.lvl = regNode.Attack;
-                    mellee.armorType = DamageType.Melee;
-                    var charge = ScriptableObject.CreateInstance<TechnologySystem.ArmorTechnology>();
-                    charge.lvl = regNode.Attack;
-                    charge.armorType = DamageType.Charge;
-                    var range = ScriptableObject.CreateInstance<TechnologySystem.ArmorTechnology>();
-                    range.lvl = regNode.Attack;
-                    range.armorType = DamageType.Range;
-                    mellee.regimentOffset = charge.regimentOffset = range.regimentOffset =
-                        attack.regimentOffset = regNode.regimentOffset;
-                    tree.technology.Add(attack);
-                    tree.technology.Add(mellee);
-                    tree.technology.Add(charge);
-                    tree.technology.Add(range);
-                    tree.parents.Add(id);
-                    tree.parents.Add(id);
-                    tree.parents.Add(id);
-                    tree.parents.Add(id);
+                    int realId = id;
+                    if(!regNode.researched)
+                    {
+                        realId = tree.technology.Count;
+                        regNode.researchRegiment.NodeID = regNode.NodeID;
+                        tree.technology.Add(regNode.researchRegiment);
+                        tree.parents.Add(id);
+                    }
+                    int i0 = tree.technology.Count;
+
+                    tree.technology.Add(regNode.regTeches[0]);
+                    tree.technology.Add(regNode.regTeches[1]);
+                    tree.technology.Add(regNode.regTeches[2]);
+                    tree.technology.Add(regNode.regTeches[3]);
+                    tree.parents.Add(realId);
+                    tree.parents.Add(realId);
+                    tree.parents.Add(realId);
+                    tree.parents.Add(realId);
                 }
             }
 

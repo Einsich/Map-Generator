@@ -1,7 +1,70 @@
 fileFormatVersion: 2
 guid: a02278be5af8e754492249a8effc8e8c
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: -7504914448335591871
+    second: pic1
+  - first:
+      213: -7504914448335591871
+    second: pic1
+  - first:
+      213: 9021817364729174565
+    second: pic2
+  - first:
+      213: 5774171843956038561
+    second: pic3
+  - first:
+      213: -6004626187766529023
+    second: pic4
+  - first:
+      213: -7355943168013025391
+    second: pic5
+  - first:
+      213: 1158436728239578931
+    second: pic6
+  - first:
+      213: -8360957288293297472
+    second: pic7
+  - first:
+      213: -4308514277721338086
+    second: pic8
+  - first:
+      213: -7951700712087983341
+    second: pic9
+  - first:
+      213: -5700480244964413118
+    second: pic10
+  - first:
+      213: 7225574881833700132
+    second: pic11
+  - first:
+      213: -102866081007992812
+    second: pic12
+  - first:
+      213: 3300079643253121452
+    second: pic13
+  - first:
+      213: 5530765708346895501
+    second: pic14
+  - first:
+      213: 2092398731110544424
+    second: pic15
+  - first:
+      213: 3551819588128869957
+    second: pic16
+  - first:
+      213: -2545413183689400404
+    second: pic17
+  - first:
+      213: 2667756210056116727
+    second: pic18
+  - first:
+      213: 3868254269276035853
+    second: pic19
+  - first:
+      213: 3113625014897876672
+    second: pic20
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -84,11 +147,431 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: pic1
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 464
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 146a24d621039d790800000000000000
+      internalID: -7504914448335591871
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic2
+      rect:
+        serializedVersion: 2
+        x: 250
+        y: 464
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 52a1225f71fe33d70800000000000000
+      internalID: 9021817364729174565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 414
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1abdf0ff2baf12050800000000000000
+      internalID: 5774171843956038561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic4
+      rect:
+        serializedVersion: 2
+        x: 100
+        y: 364
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1040b2dcb484baca0800000000000000
+      internalID: -6004626187766529023
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic5
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 365
+        width: 48
+        height: 47
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 19f3f9289a07ae990800000000000000
+      internalID: -7355943168013025391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic6
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 364
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 33f5c711118931010800000000000000
+      internalID: 1158436728239578931
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic7
+      rect:
+        serializedVersion: 2
+        x: 250
+        y: 364
+        width: 48
+        height: 47
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0c2901105a9e7fb80800000000000000
+      internalID: -8360957288293297472
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic8
+      rect:
+        serializedVersion: 2
+        x: 300
+        y: 364
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a1f88b687151534c0800000000000000
+      internalID: -4308514277721338086
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic9
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 364
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 31b66cf0552e5a190800000000000000
+      internalID: -7951700712087983341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic10
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 364
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 241b3cd6b63d3e0b0800000000000000
+      internalID: -5700480244964413118
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic11
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 364
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 42bcea18216664460800000000000000
+      internalID: 7225574881833700132
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic12
+      rect:
+        serializedVersion: 2
+        x: 50
+        y: 364
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 410051628db829ef0800000000000000
+      internalID: -102866081007992812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic13
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 314
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ca1a99273fc3ccd20800000000000000
+      internalID: 3300079643253121452
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic14
+      rect:
+        serializedVersion: 2
+        x: 100
+        y: 264
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d8cade5cb1a31cc40800000000000000
+      internalID: 5530765708346895501
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic15
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 214
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 82472585f81b90d10800000000000000
+      internalID: 2092398731110544424
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic16
+      rect:
+        serializedVersion: 2
+        x: 350
+        y: 214
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 54e02b8d8199a4130800000000000000
+      internalID: 3551819588128869957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic17
+      rect:
+        serializedVersion: 2
+        x: 250
+        y: 215
+        width: 48
+        height: 47
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cafd8931230ecacd0800000000000000
+      internalID: -2545413183689400404
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic18
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 214
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7f9bcbf7326c50520800000000000000
+      internalID: 2667756210056116727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic19
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 164
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d0b161553cccea530800000000000000
+      internalID: 3868254269276035853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: pic20
+      rect:
+        serializedVersion: 2
+        x: 450
+        y: 214
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0ce12c05471d53b20800000000000000
+      internalID: 3113625014897876672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 543423ccea2befc4a87f9a4e545931d9
     internalID: 0
     vertices: []
     indices: 

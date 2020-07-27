@@ -223,17 +223,17 @@ public class SkeletonArmy : Effect
     {
         type = EffectType.SkeletonArmy;
     }
-    static BaseRegiment[] Skelets =
+    /*static BaseRegiment[] Skelets =
     {
         null,
         new BaseRegiment(null,RegimentName.Skeletons, RegimentType.Infantry, DamageType.Melee, 2,0,10,0,2,500,default,default,0),
         new BaseRegiment(null,RegimentName.Skeletons, RegimentType.Infantry, DamageType.Melee, 4,2,10,0,5,700,default,default,0),
         new BaseRegiment(null,RegimentName.Skeletons, RegimentType.Infantry, DamageType.Melee, 7,4,15,0,8,900,default,default,0)
-    };
-    public static int MaxLevel => Skelets.Length - 1;
+    };*/
+    public static int MaxLevel => PrefabHandler.SkeletCount;//3
     public static int[] Count = { 0, 2, 4, 5 };
     public static int SkeletCount(int Level) => Count[Level];
-    public static Regiment GetSkelet(int Level) => new Regiment(Skelets[Level]);
+    public static Regiment GetSkelet(int Level) => new Regiment(PrefabHandler.GetSkeleton(Level - 1));
 
 }
 public class Fear : Effect

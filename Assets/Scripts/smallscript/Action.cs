@@ -81,8 +81,8 @@ public class SiegeAction : GameAction
 }
 public class ResearchAction : GameAction
 {
-    public ResearchAction(Tech tech, float dt):base(dt)
+    public ResearchAction(Technology tech, float dt):base(dt)
     {
-        onAction += () => tech.research();
+        onAction += () => tech.Research();
     }
 }

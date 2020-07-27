@@ -164,6 +164,8 @@ public class AutoRegimentBuilder : AutoManager
 
         foreach (BaseRegiment baseRegiment in stateAI.Data.regiments)
         {
+            if (baseRegiment == null)
+                continue;
             var key = new RegimentIdentifier(baseRegiment.type, baseRegiment.damageType);
             //if (!stateRegiments.ContainsKey(key))
                 stateRegiments.Add(key, baseRegiment);

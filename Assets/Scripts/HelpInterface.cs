@@ -9,7 +9,7 @@ public interface IHelpBaseRegiment
 }
 public interface IHelpTechology
 {
-    Tech Technology { get; set; }
+    Technology Technology { get; set; }
 
 }
 public interface IHelpPerson

@@ -88,7 +88,7 @@ public class MainStatistic : MonoBehaviour {
     public void ShowTechnology(bool show)
     {
         if (show)
-            technologyPanel.ShowTechnology(state.technology);
+            technologyPanel.ShowTechnology(state.technologyTree);
         technologyPanel.gameObject.SetActive(show);
     }
     public void ShowTrade(bool show)

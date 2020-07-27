@@ -6,24 +6,37 @@ using UnityEngine.UI;
 public class TechInterface : InitGO,IHelpTechology
 {
     public TechButton techButton;
-    public Text descr;
-    public Tech Technology { get; set; }
-    public void Init(Tech tech)
+    public Image icon;
+    public Text nameTech, timeCost, scienceCost;
+    public Technology Technology { get; set; }
+    public void Init(Technology tech)
     {
         if (Technology != null)
             Technology.buttonEvent -= UpdateText;
         Technology = tech;
         tech.buttonEvent += UpdateText;
         techButton.SetTech(tech);
-        descr.text = tech.ToString();
+        if (icon != null)
+            icon.sprite = tech.Icon;
+        timeCost.gameObject.SetActive(true);
+        scienceCost.gameObject.SetActive(true);
+        UpdateText();
     }
     void UpdateText()
     {
-        descr.text = Technology.ToString();
+        if (nameTech != null)
+            nameTech.text = Technology.name;
+        timeCost.text = Technology.curTime.ToString("N1");
+        scienceCost.text = Technology.curScience.ToString("N1");
+        if(Technology.lvl == Technology.lvlmax)
+        {
+            timeCost.gameObject.SetActive(false);
+            scienceCost.gameObject.SetActive(false);
+        }
     }
     public override void Init(object initElement)
     {
-        if (initElement is Tech tech)
+        if (initElement is Technology tech)
             Init(tech);
     }
 }

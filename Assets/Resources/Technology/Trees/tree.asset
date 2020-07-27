@@ -12,7 +12,89 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96942de5e78f06441bde2ddaee0fcba2, type: 3}
   m_Name: tree
   m_EditorClassIdentifier: 
-  technologyEra: 0
+  technologyEra: 1
+  regiments:
+  - {fileID: 11400000, guid: 89d66ecc9f5d32144b3eaa031b6c45e1, type: 2}
+  - {fileID: 11400000, guid: bd4afce180df4254b88ea395d8bbadec, type: 2}
+  wallsCostReduce: 1
+  moveSpeedBonus: 1
+  buildingsMaxLevel: 000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  portTradeBonus: 1
+  regimentCostReduce: 1
+  regimentUpkeepReduce: 1
+  recruitInCountry: 4
+  recruitInTown: 60
+  passiveExperience: 0
+  activeExperienceBonus: 1
+  inquisitionBonus: 0
+  maxPerson: 1
+  burnedLandEffect: 0
+  openedPerson: 
   technology:
-  - {fileID: 11400000, guid: d6e85549483ecaf468f1091e93b1b105, type: 2}
-  keys: ffffffff
+  - {fileID: 11400000, guid: 970a060654a984b4d905e671835af25f, type: 2}
+  - {fileID: 11400000, guid: 97a00bf8c32e8ff4a8265377d68a28cf, type: 2}
+  - {fileID: 11400000, guid: 0d891171098f6de41ad20a8fcf4193d4, type: 2}
+  - {fileID: 11400000, guid: 9faf92df0ba95f64e9d1270b120e31b1, type: 2}
+  - {fileID: 11400000, guid: caf51ee76cce8ae4b941a048db4afdda, type: 2}
+  - {fileID: 11400000, guid: fa676a5927ef73749b2e460cf9885354, type: 2}
+  - {fileID: 11400000, guid: 89a5727121276b6469c03d5ef8271572, type: 2}
+  - {fileID: 11400000, guid: 87045d871b99f0f40bfef56274ad3ca2, type: 2}
+  - {fileID: 11400000, guid: 3eaead22642f13b4790486eaf9ef1ce0, type: 2}
+  - {fileID: 11400000, guid: e5661e0161598f545b81f9c303118af1, type: 2}
+  - {fileID: 11400000, guid: 006ca12a9808b62409b0ee14bc1f3afa, type: 2}
+  - {fileID: 11400000, guid: 1fd1cf09acfbcfd4fa2a1da097857a37, type: 2}
+  - {fileID: 11400000, guid: 68d527055dc0631408911841718975fa, type: 2}
+  - {fileID: 11400000, guid: e2fe26aa34434924c96d03187412b0b4, type: 2}
+  - {fileID: 11400000, guid: 24e12a06455027c469d13a1a6dae1798, type: 2}
+  - {fileID: 11400000, guid: f91eb299e86130e419a6b67fd70d8622, type: 2}
+  - {fileID: 11400000, guid: a2f2600f837b10945b4209431b34ade2, type: 2}
+  - {fileID: 11400000, guid: 422a36b17033e3c429bed837bea43ea2, type: 2}
+  - {fileID: 11400000, guid: ab5d0c34275a8864a86fe346f6966a8b, type: 2}
+  - {fileID: 11400000, guid: af44c22561ce19f4a8212d07e66040c8, type: 2}
+  - {fileID: 11400000, guid: 6f11e885c1b2a7042acd1f2113d8de48, type: 2}
+  - {fileID: 11400000, guid: 93092e1e851854a479b3f21780d98147, type: 2}
+  - {fileID: 11400000, guid: 9fc3e50032e420c4eaa7f34bc86fbeb0, type: 2}
+  - {fileID: 11400000, guid: 4a3c964db2438b24cb844e4b410bfdc2, type: 2}
+  - {fileID: 11400000, guid: 6e58bbf881ee67f47b556f46f037fda4, type: 2}
+  - {fileID: 11400000, guid: 1349524406ee3a743a70ed5e042316dc, type: 2}
+  - {fileID: 11400000, guid: 8279aac68ff785a469abd80d4de675b2, type: 2}
+  - {fileID: 11400000, guid: 9b6c62bc8d555de4b91819ab7a744ef9, type: 2}
+  - {fileID: 11400000, guid: 869283c41581c514cadbcaca5863179e, type: 2}
+  - {fileID: 11400000, guid: 307dfa8d06d748c41b8a2d880c534c4a, type: 2}
+  - {fileID: 11400000, guid: cdee95d0b9d478741909ce834030826b, type: 2}
+  - {fileID: 11400000, guid: e1130bcfce2677841b22a83dea6b0c39, type: 2}
+  - {fileID: 11400000, guid: 23604784146a7fc42889575960be8dc3, type: 2}
+  - {fileID: 11400000, guid: a38a725e503e0cf44aec922887296245, type: 2}
+  - {fileID: 11400000, guid: eeb5cfe502024a2459cde0b284954178, type: 2}
+  - {fileID: 11400000, guid: aa2363db7e3766140bb0ce73de4c246c, type: 2}
+  - {fileID: 11400000, guid: ca98c2fe406c0824e8f3d57967fdc34f, type: 2}
+  - {fileID: 11400000, guid: 92f2860e6d25a8646b77899ef1cc6622, type: 2}
+  - {fileID: 11400000, guid: 4c817a9735799e741bf070ccfa925472, type: 2}
+  - {fileID: 11400000, guid: 6de3b898d1ec0754ea607c7562bab595, type: 2}
+  - {fileID: 11400000, guid: 8bfd3dece5ec461449ca67d11accd5df, type: 2}
+  - {fileID: 11400000, guid: b2f17b8c89486604d8704d4b585c4833, type: 2}
+  - {fileID: 11400000, guid: 82ce03c45978fe346be7f95e7a152f71, type: 2}
+  - {fileID: 11400000, guid: 82045bd4b2f4f084cab8d61149b14b4c, type: 2}
+  - {fileID: 11400000, guid: 20f81ce085ddc1b4eaffaf3b92b9797c, type: 2}
+  - {fileID: 11400000, guid: 3824fa8ceb510f8419cc9b8a8103a7f4, type: 2}
+  - {fileID: 11400000, guid: ddc638f822ebf1d4bb5ce8f7a782559c, type: 2}
+  - {fileID: 11400000, guid: 9dd2ab00ec2b3c84daba325e76c6bcba, type: 2}
+  - {fileID: 11400000, guid: e3cf1dc0809a53843aab59d94a0b64b9, type: 2}
+  - {fileID: 11400000, guid: 5e8cb1faf38dbcc4fb74b6775d7fc956, type: 2}
+  - {fileID: 11400000, guid: 080ed333ace23f948aae59e834495be7, type: 2}
+  - {fileID: 11400000, guid: 8215d4f8a4610d74dbc333fd12022118, type: 2}
+  - {fileID: 11400000, guid: 23aef90329a16b3429e84a62d37c021c, type: 2}
+  - {fileID: 11400000, guid: 800a77772d7d27945bb24307fd05ef4a, type: 2}
+  - {fileID: 11400000, guid: daafcc4b5c454f346a2d159ecd9beb76, type: 2}
+  - {fileID: 11400000, guid: 1e8af4c321fd52f4cb82c39adc7775bf, type: 2}
+  - {fileID: 11400000, guid: d4de3f96dd4dd0540a47071cba5278cb, type: 2}
+  - {fileID: 11400000, guid: d9382b5b23551ba44988ff03b511e8dd, type: 2}
+  - {fileID: 11400000, guid: 30e454905e5bca9409695e50f032e783, type: 2}
+  - {fileID: 11400000, guid: 34a5b600370e07240937e25822e83af2, type: 2}
+  - {fileID: 11400000, guid: a2c8f7b74fefa6f4aa6b6c1bbeb01ef3, type: 2}
+  - {fileID: 11400000, guid: 61733b5a77551a64ebba9b934d921a6e, type: 2}
+  - {fileID: 11400000, guid: ab9cd7f13438f5e4bbc2c9f904114fba, type: 2}
+  - {fileID: 11400000, guid: d3294f547a006dc46b340c24b115dd4d, type: 2}
+  - {fileID: 11400000, guid: 7acda40ae5cf09e4a9979b6a13552169, type: 2}
+  - {fileID: 11400000, guid: 2b2ee51219167404d877dc636d526ab7, type: 2}
+  parents: ffffffff000000000000000000000000000000000000000000000000000000000000000000000000090000000a0000000a0000000a0000000a000000090000000f0000000f0000000f0000000f000000090000001400000014000000140000001400000009000000190000001a0000001a0000001a0000001a000000190000001f0000001f0000001f0000001f000000090000002400000025000000250000002500000025000000000000002a0000002a0000002a0000002a0000002a0000002a000000300000002a0000003200000032000000000000003500000035000000350000003800000038000000380000003b0000003b000000350000003e0000003500000035000000

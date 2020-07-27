@@ -10,4 +10,8 @@ public class PrefabData : ScriptableObject
     [SerializeField] public ArmyBar HPBarBrefab;
     [SerializeField] public Port[] Ports;
     [SerializeField] public Ship ShipPrefab;
+    [SerializeField] public BaseRegiment[] Skelets;
+    [SerializeField] public TechInterface TechnologyPanel;
+    [SerializeField] public RegimentTeches RegimentTechnologyPanel;
+    [SerializeField] public TechnologyTree TechnologyTree;
 }

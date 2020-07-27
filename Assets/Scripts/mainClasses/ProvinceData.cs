@@ -35,7 +35,7 @@ public class ProvinceData {
         
         try
         {
-            return cost * levelCoef[1 + lvl] * region.owner.technology.BuildCostBonus;
+            return cost * levelCoef[1 + lvl];
         }
         catch
         {
@@ -103,6 +103,7 @@ public class ProvinceData {
             buildings[i] = Random.Range(0, 2);
         for (int i = buildCount; i < specialCount; i++)
             buildings[i] = 0;
+        return;
         for (int i = 0, n = 1 + wallsLevel * (1 + Random.Range(0, 2)); i < n; i++)
             garnison.Add(new Regiment(reg.owner.melee));
         for (int i = 0, n = 1 + wallsLevel * (1 + Random.Range(0, 2)); i < n; i++)
@@ -172,8 +173,8 @@ public class ProvinceData {
     {
         int ind = (int)build;
         int lvl = buildings[ind];
-        if (lvl > region.owner.technology.BuildLvl[ind])
-            return false;
+       // if (lvl > region.owner.technology.BuildLvl[ind])
+         //   return false;
         if (ind < buildCount)
         {
             if (build == BuildingType.Port && region.Port == null)
@@ -228,7 +229,7 @@ public class ProvinceData {
         for (int build = 0; build < specialCount; build++)
             incomeclear += Income((BuildingType)build, buildings[build])* PortBonus * IndustryVectorBonus;
 
-        income = incomeclear * IncomeCoefFromDistance() * IncomeCoefFromOrder() * region.owner.technology.TreasureBonus;
+        income = incomeclear * IncomeCoefFromDistance() * IncomeCoefFromOrder();// * region.owner.technology.TreasureBonus;
         SomeChanges?.Invoke();
         return income;
 

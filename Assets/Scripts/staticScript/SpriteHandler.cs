@@ -5,7 +5,6 @@ using UnityEngine;
 
 public static class SpriteHandler
 {
-    static Sprite[] RegimentTypes;
     static Sprite[] PersonIcons;
     static Sprite[] Dots = new Sprite[13];
     static Sprite[] Skills;
@@ -26,24 +25,9 @@ public static class SpriteHandler
             for (int i = 0; i < dx.Length; i++)
                 Buildings[frac, i] = Sprite.Create(SpriteDataBase.Buildings[frac], new Rect(height * dx[i], 0, height, height), new Vector2(0.5f, 0.5f));
 
-        RegimentTypes = SpriteDataBase.RegimentTypes;
         PersonIcons = SpriteDataBase.PersonTypes;
         Skills = SpriteDataBase.Skills;
         BuildFrames = SpriteDataBase.BuildFrames;
-    }
-    public static Sprite GetRegimentSprite(BaseRegiment regiment)
-    {
-        RegimentName name = regiment.name;
-        Sprite s = null;
-        switch(name)
-        {
-            case RegimentName.SimpleArta:s = RegimentTypes[3];break;
-            case RegimentName.SimpleCavalry:s = RegimentTypes[2];break;
-            case RegimentName.SimpleRanger:s = RegimentTypes[1] ; break;
-            case RegimentName.SimpleMelee:s = RegimentTypes[0]; break;
-            case RegimentName.Skeletons:s = RegimentTypes[4]; break;
-        }
-        return s;
     }
     public static Sprite GetPipsSprite(int level)
     {

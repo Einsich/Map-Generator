@@ -5,14 +5,14 @@ using UnityEngine;
 public class AutoReasercher :AutoManager
 {
     private StateAI state;
-    private Technology technology;
+    private TechnologyTree technologyTree;
     private PriorityQueue<ResearchTask> queue = new PriorityQueue<ResearchTask>();
     private int queueCounter;
-    public Treasury NeedTreasure => queue.Count == 0 ? new Treasury() : new Treasury(ResourcesType.Science,queue.Peek().tech.science);
+    public Treasury NeedTreasure => queue.Count == 0 ? new Treasury() : new Treasury(ResourcesType.Science, queue.Peek().tech.curScience);
      public AutoReasercher(StateAI state)
     {
         this.state = state;
-        technology = state.Data.technology;
+        technologyTree = state.Data.technologyTree;
     }
     private bool isOn = false;
     public bool IsOn
@@ -26,13 +26,13 @@ public class AutoReasercher :AutoManager
             {
                 RandomResearch();
                 GameTimer.AddListener(RandomResearch, state.Data);
-                technology.TechWasResearchedEvent += RandomResearch;
+                technologyTree.TechWasResearchedEvent += RandomResearch;
 
             }
             else
             {
                 GameTimer.RemoveListener(RandomResearch, state.Data);
-                technology.TechWasResearchedEvent -= RandomResearch;
+                technologyTree.TechWasResearchedEvent -= RandomResearch;
             }
             isOn = value;
 
@@ -47,11 +47,11 @@ public class AutoReasercher :AutoManager
         bool change = false;
         while (queue.Count > 0)
         {
-            Tech tech = queue.Peek().tech;
-            if ( tech.science <= state.GetTechnologyBudget.Science )
+            Technology tech = queue.Peek().tech;
+            if ( tech.curScience <= state.GetTechnologyBudget.Science )
             {
-                state.AutoManagersSpentResources(new Treasury(0, 0, 0, 0, tech.science), BudgetType.TechnologyBudget);
-                tech.researchAction = new ResearchAction(tech, tech.time);
+                state.AutoManagersSpentResources(new Treasury(0, 0, 0, 0, tech.curScience), BudgetType.TechnologyBudget);
+                tech.researchAction = new ResearchAction(tech, tech.curTime);
                 queue.Dequeue();
                 change = true;
             } else
@@ -66,20 +66,20 @@ public class AutoReasercher :AutoManager
     {
         queueCounter = 5;
         queue.Clear();
-        foreach (Tech tech in technology.allTeches)
-            if (tech.canResearch && technology.TreeCondition(tech))
+        foreach (Technology tech in technologyTree.technology)
+            if (tech.researchType == ResearchType.CanResearch)
             {
                 queue.Enqueue(new ResearchTask(tech));
             }
     }
     class ResearchTask:IComparable<ResearchTask>
     {
-        public Tech tech;
-        public ResearchTask(Tech tech) => this.tech = tech;
+        public Technology tech;
+        public ResearchTask(Technology tech) => this.tech = tech;
 
         public int CompareTo(ResearchTask other)
         {
-            return tech.science.CompareTo(other.tech.science);
+            return tech.curScience.CompareTo(other.tech.curScience);
         }
     }
 }

@@ -77,6 +77,9 @@ TextureImporter:
   - first:
       213: -1495443890214241260
     second: Sacrifice
+  - first:
+      213: -5535416819998431728
+    second: rangeArmor
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -673,7 +676,7 @@ TextureImporter:
         width: 48
         height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -681,6 +684,27 @@ TextureImporter:
       bones: []
       spriteID: 9c96dc4c0b186274bafb291b396edf98
       internalID: -1495443890214241260
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: rangeArmor
+      rect:
+        serializedVersion: 2
+        x: 550
+        y: 826
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0166548eabf3e23b0800000000000000
+      internalID: -5535416819998431728
       vertices: []
       indices: 
       edges: []
