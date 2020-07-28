@@ -70,7 +70,7 @@ public class ProvinceData {
     public FractionType fraction;
     public const int buildCount = 6, specialCount = buildCount + 6;
     public int[]buildings;
-    public Action[] BuildingAction;
+    public GameAction[] BuildingAction;
     //public int isBuildInd;
     public float order = 1f;
     public Treasury income = new Treasury(), incomeclear;
@@ -98,7 +98,7 @@ public class ProvinceData {
         region = reg;
         this.fraction = fraction;
         buildings = new int[specialCount];
-        BuildingAction = new Action[specialCount];
+        BuildingAction = new GameAction[specialCount];
         for (int i = 0; i < buildCount; i++)
             buildings[i] = Random.Range(0, 2);
         for (int i = buildCount; i < specialCount; i++)
@@ -138,7 +138,7 @@ public class ProvinceData {
         else
         {
             region.owner.SpendTreasure(Cost(building, lvl), BudgetType.BuildingBudget);
-            BuildingAction[ind] = new Action(Time(building, lvl), () => BuildComplete(ind));
+            BuildingAction[ind] = new GameAction(Time(building, lvl), () => BuildComplete(ind));
         }
         SomeChanges?.Invoke();
     }
@@ -146,7 +146,7 @@ public class ProvinceData {
     {
         int ind = (int)building;
         int lvl = buildings[ind];
-        BuildingAction[ind] = new Action(Time(building, lvl), () => BuildComplete(ind));
+        BuildingAction[ind] = new GameAction(Time(building, lvl), () => BuildComplete(ind));
     }
     public void BuildComplete(int BuildIndex)
     {

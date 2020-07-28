@@ -19,7 +19,7 @@ public class Skill
         Level += Level == MaxLevel ? 0 : 1;
         PassiveEffect?.LevelUp();
     }
-    public Action SkillAction;
+    public GameAction SkillAction;
     public EffectType EffectType;
     public Effect PassiveEffect;
     public System.Action ButtonUpdate;
@@ -37,8 +37,8 @@ public class Skill
         Effect effect = GetEffect();
         if (Active)
         {
-            effect.EffectAction = new Action(ActionTime, () => who.StopUseSkillOnHim(effect));
-            SkillAction = new Action(CullDown, () => StopUse());
+            effect.EffectAction = new GameAction(ActionTime, () => who.StopUseSkillOnHim(effect));
+            SkillAction = new GameAction(CullDown, () => StopUse());
         }
         who.UseSkillOnHim(effect);
     }
@@ -126,8 +126,8 @@ public class SiegeSkill : Skill,IRegionCastable
         }
         Use = true;
         Siege effect = new Siege(Level, Person.curArmy);
-        effect.EffectAction = new Action(SiegeTime, () => region.WinSiege());
-        SkillAction = new Action(CullDown, () => StopUse());
+        effect.EffectAction = new GameAction(SiegeTime, () => region.WinSiege());
+        SkillAction = new GameAction(CullDown, () => StopUse());
         region.SiegeBegin(effect);
         return true;
 
@@ -178,9 +178,9 @@ public class ChargeSkill:Skill
     {
         Use = true;
         Charge effect = new Charge(Level);
-        effect.EffectAction = new Action(ActionTime, () => Person.StopUseSkillOnHim(effect));
+        effect.EffectAction = new GameAction(ActionTime, () => Person.StopUseSkillOnHim(effect));
         effect.EffectAction.onAction += () => Person.curArmy.UpdateSpeed();
-        SkillAction = new Action(CullDown, () => StopUse());        
+        SkillAction = new GameAction(CullDown, () => StopUse());        
         Person.UseSkillOnHim(effect);
         Person.curArmy.UpdateSpeed();
     }
@@ -513,8 +513,8 @@ public class TheBatsSkill : Skill,IArmyCastable
         Use = true;
         TheBats effect = new TheBats(Level, Person);
         Person who = army.Person;
-        effect.EffectAction = new Action(ActionTime, () => who.StopUseSkillOnHim(effect));
-        SkillAction = new Action(CullDown, () => StopUse());
+        effect.EffectAction = new GameAction(ActionTime, () => who.StopUseSkillOnHim(effect));
+        SkillAction = new GameAction(CullDown, () => StopUse());
         
         who.UseSkillOnHim(effect);
         return true;
@@ -568,14 +568,14 @@ public class SkeletonArmySkill : Skill
         Use = true;
         Army cur = Person.curArmy;
 
-             new Action(ActionTime, () => {
+             new GameAction(ActionTime, () => {
                  for (int i = 0; i < count; i++)
                  {
                      cur.army.Remove(skeleton[i]);
                  }
                  cur.ArmyListChange();
              });
-            SkillAction = new Action(CullDown, () => StopUse());
+            SkillAction = new GameAction(CullDown, () => StopUse());
         
     }
     public override Effect GetEffect()
@@ -699,7 +699,7 @@ public class SacrificeSkill : Skill
 
         list.Remove(sacrifice);
         Person.curArmy.Heal(heal* Sacrifice.SacrificeEffect(Level));
-        SkillAction = new Action(CullDown, () => StopUse());
+        SkillAction = new GameAction(CullDown, () => StopUse());
     }
     public override Effect GetEffect()
     {

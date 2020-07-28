@@ -12,7 +12,7 @@ public class BuildingButton : MonoBehaviour, IHelpBuilding
     Button button;
     public int BuildIndex;
     private ProvinceData data;
-    private Action CurBuildAction;
+    private GameAction CurBuildAction;
     private BuildState state;
     void Awake()
     {

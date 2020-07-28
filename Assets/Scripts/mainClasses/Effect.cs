@@ -6,7 +6,7 @@ public class Effect
 {
     protected int Level;
     public EffectType type;
-    public Action EffectAction;
+    public GameAction EffectAction;
     public Effect(int Level)
     {
         this.Level = Level;

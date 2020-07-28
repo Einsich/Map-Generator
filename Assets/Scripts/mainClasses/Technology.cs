@@ -35,7 +35,7 @@ public class Technology
     public bool ArmyBranch = false;
     static GetCost ArmyBranchCost = (lvl)=>{ return new TimeCost(15, 100); };
 
-    public List<BaseRegiment> regiments;
+    public BaseRegiment[] regiments;
     public int Pips;
     static GetCost PipsCost = (lvl) => { return new TimeCost(2 + lvl * 2, 10 + lvl * 5); };
     public float pipsCostBonus = 1f;

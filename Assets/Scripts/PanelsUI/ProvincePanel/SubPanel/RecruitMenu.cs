@@ -27,7 +27,7 @@ public class RecruitMenu : MonoBehaviour
         if (region == null)
             return;
         var list = region.owner.regiments;
-        toRecruit.UpdateList(list.ConvertAll(x => (object)x));
+        toRecruit.UpdateList(Array.ConvertAll(list,(x => (object)x)));
         UpdateQueue();
     }
     void UpdateQueue()

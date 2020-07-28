@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,6 +29,6 @@ public class TechnologyPanel : MonoBehaviour
         {
             economyTech.UpdateList(technology.economyTeches.ConvertAll((x) => (object)x));
         }
-        regimentTech.UpdateList(technology.regiments.ConvertAll((x) => (object)x));
+        regimentTech.UpdateList(Array.ConvertAll(technology.regiments, (x) => (object)x));
     }
 }

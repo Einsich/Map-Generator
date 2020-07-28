@@ -19,6 +19,7 @@ public class State
     public Color mainColor;
     public Diplomacy diplomacy;
     public Technology technology;
+    public TechnologySystem.TechnologyTree technologyTree;
     public StateAI stateAI;
     public Treasury Income;
     public Treasury allRegimentsUpkeep;
@@ -35,11 +36,12 @@ public class State
         persons = new List<Person>();
         ships = new List<Ship>();
         regiments =
-        new List<BaseRegiment>() { new BaseRegiment(this,RegimentName.SimpleMelee, RegimentType.Infantry, DamageType.Melee, 3, 1, 0, 0, 1,1000, new Treasury(100,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1),
+        new BaseRegiment[8] {
+        new BaseRegiment(this,RegimentName.SimpleMelee, RegimentType.Infantry, DamageType.Melee, 3, 1, 0, 0, 1,1000, new Treasury(100,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1),
         new BaseRegiment(this,RegimentName.SimpleRanger, RegimentType.Infantry, DamageType.Range, 0, 0, 1, 0, 0,1000, new Treasury(400,1000,10,10,0), new Treasury(10, 0, 0, 0, 0),1.5f),
-        new BaseRegiment(this,RegimentName.SimpleCavalry, RegimentType.Cavalry, DamageType.Charge, 1, 3, 0, 0, 4,1000, new Treasury(400,1000,10,10,0), new Treasury(20, 0, 0, 0, 0),2),
-        new BaseRegiment(this,RegimentName.SimpleArta, RegimentType.Artillery, DamageType.Siege, 0, 0, 0, 0, 6,1000, new Treasury(500,1000,50,50,10), new Treasury(40, 0, 0, 0, 0),4) };
-        
+       // new BaseRegiment(this,RegimentName.SimpleCavalry, RegimentType.Cavalry, DamageType.Charge, 1, 3, 0, 0, 4,1000, new Treasury(400,1000,10,10,0), new Treasury(20, 0, 0, 0, 0),2),
+       // new BaseRegiment(this,RegimentName.SimpleArta, RegimentType.Artillery, DamageType.Siege, 0, 0, 0, 0, 6,1000, new Treasury(500,1000,50,50,10), new Treasury(40, 0, 0, 0, 0),4) };
+        null,null,null,null,null,null };
         technology = new Technology(this, 0);
         stateAI = new StateAI(this);
         stateAI.IncomeResources(new Treasury(10000));
@@ -97,7 +99,7 @@ public class State
         foreach (Army a in army)
             a.navAgent.RecalculatePath();
     }
-    public List<BaseRegiment> regiments;
+    public BaseRegiment[] regiments;
     public BaseRegiment melee => regiments[0];
     public BaseRegiment ranger => regiments[1];
     public BaseRegiment cavalry => regiments[2];
