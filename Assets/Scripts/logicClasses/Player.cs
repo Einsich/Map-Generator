@@ -38,8 +38,18 @@ public class Player : MonoBehaviour {
 
             Debug.Log(string.Format("Страна {0} вернула {1}", occupant.name, r.name));
         }
-        realOwner.stateAI.autoArmyCommander.RecalculateRegions();
-        curOwner.stateAI.autoArmyCommander.RecalculateRegions();
+
+        if (realOwner.stateAI.autoArmyCommander.IsOn)
+            realOwner.stateAI.autoArmyCommander.RecalculateRegions();
+        foreach (Diplomacy d in realOwner.diplomacy.war)
+        {
+            AutoArmyCommander autoArmy = d.state.stateAI.autoArmyCommander;
+            if (autoArmy.IsOn)
+            {
+                autoArmy.RecalculateRegions();
+            }
+        }
+
         if (!r.InFogFrom(curPlayer))
         {
             MapMetrics.SetRegionSplatState(r.territory, LandShowMode.Visible);

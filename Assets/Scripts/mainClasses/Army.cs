@@ -289,32 +289,48 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     }
     public bool TryMoveToTarget(IFightable target, DamageType damageType)
     {
-        if (inTown && curReg.CurrentSiege!= null)
-            return false;
-        if (!owner.diplomacy.haveWar(target.curOwner.diplomacy))
-            return false;
-        this.damageType = damageType;
-        bool inRadius = target != null && (target.position - position).magnitude <= AttackRange;
-        if (inRadius)
+        if (target.curOwner == curOwner)
         {
-            if (ActionState == ActionType.Move)
+            if (target is Army)
             {
-                navAgent.Stop();
-                Stop();
+                return TryMoveTo(target.position);
             }
-            Fight(target);
-            navAgent.target = target;
+            else if (target is Region)
+            {
+                return TryMoveTo(target.curPosition);
+            }
+
             return false;
         }
         else
         {
-            bool res = navAgent.MoveToTarget(target);
-            if (res)
+            if (inTown && curReg.CurrentSiege != null)
+                return false;
+            if (!owner.diplomacy.haveWar(target.curOwner.diplomacy))
+                return false;
+            this.damageType = damageType;
+            bool inRadius = target != null && (target.position - position).magnitude <= AttackRange;
+            if (inRadius)
             {
-                Move();
+                if (ActionState == ActionType.Move)
+                {
+                    navAgent.Stop();
+                    Stop();
+                }
+                Fight(target);
+                navAgent.target = target;
+                return false;
             }
+            else
+            {
+                bool res = navAgent.MoveToTarget(target);
+                if (res)
+                {
+                    Move();
+                }
 
-            return res;
+                return res;
+            }
         }
     }
     public bool TryMoveTo(Vector3 p)=> TryMoveTo(new Vector2Int((int)p.x, (int)p.z), p);

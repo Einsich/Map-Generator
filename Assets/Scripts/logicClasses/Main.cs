@@ -378,7 +378,52 @@ public class Main : MonoBehaviour
     public static int[] dx = MapMetrics.Odx, dy = MapMetrics.Ody;
     public static PriorityQueue<Node> pq = new PriorityQueue<Node>();
     public static Queue<Vector2Int> used = new Queue<Vector2Int>();
-    public static List<Vector2Int> FindPath(Vector2Int from, Vector2Int to,State goer)
+    private static List<Region> visitedRegions = new List<Region>();
+    private static PriorityQueue<Node> attended = new PriorityQueue<Node>();
+
+    public static bool isPossibleMove(Vector2Int from, Vector2Int to, State goer)
+    {
+        Region startRegion = MapMetrics.GetRegion(from);
+        Region endRegion = MapMetrics.GetRegion(to);
+
+        if (startRegion == endRegion)
+            return true;
+        else if (startRegion.Continent != endRegion.Continent)
+            return false;
+
+        attended.Clear();
+        visitedRegions.Clear();
+
+        attended.Enqueue(new Node(0, from));
+
+        while (attended.Count != 0)
+        {
+            Node invest = attended.Dequeue();
+            var investRegion = MapMetrics.GetRegion(invest.pos);
+
+            visitedRegions.Add(investRegion);
+
+            foreach (var neib in investRegion.neib)
+            {
+                bool lastcell = neib == endRegion;
+
+                if (lastcell)
+                {
+                    return CanMoveTo(investRegion.curPosition, neib.curPosition, goer, lastcell);
+                }
+                if (!visitedRegions.Contains(neib) && !pq.Contains(invest) &&
+                    CanMoveTo(investRegion.curPosition, neib.curPosition, goer, lastcell))
+                {
+                    var next = new Node(Heuristic(neib.curPosition, to), neib.curPosition);
+                    attended.Enqueue(next);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static List<Vector2Int> FindPath(Vector2Int from, Vector2Int to, State goer)
     {
         if (MapMetrics.GetRegion(from).Continent != MapMetrics.GetRegion(to).Continent)
             return null;
@@ -589,5 +634,10 @@ public class PriorityQueue<T> where T : IComparable<T>
     public void Clear()
     {
         list.Clear();
+    }
+
+    public bool Contains(T item)
+    {
+        return list.Contains(item);
     }
 }
