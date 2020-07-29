@@ -19,7 +19,7 @@ public static class SpriteHandler
             Dots[i] = Sprite.Create(dots, new Rect(32 * i, 0, 32, 20), new Vector2(0.5f, 0.5f));
 
         float height = SpriteDataBase.Buildings[0].height;
-        int[] dx = { 0, 1, 2, 4, 5, 7, 11, 13, 14, 15, 16, 12 };
+        int[] dx = new int[ProvinceData.buildingsCount]{ 0, 1, 3, 7, 11, 13, 6, 10, 16 };
         Buildings = new Sprite[(int)FractionType.Count, dx.Length];
         for (int frac = 0; frac < (int)FractionType.Count; frac++)
             for (int i = 0; i < dx.Length; i++)

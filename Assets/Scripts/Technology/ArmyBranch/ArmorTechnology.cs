@@ -14,5 +14,6 @@ public class ArmorTechnology : Technology
             case DamageType.Melee: tree.regiments[regimentOffset].MeleeArmor++; break;
             case DamageType.Charge: tree.regiments[regimentOffset].ChargeArmor++; break;
         }
+        tree.regiments[regimentOffset].AllUpdate();
     }
 }

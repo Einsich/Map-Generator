@@ -6,5 +6,5 @@ using UnityEngine;
 public class UnlockBuildTechnology : Technology
 {
     public BuildingType[] unlockType;
-    public override void LevelUp() { foreach(var type in unlockType)tree.buildingsMaxLevel[(int)type] = 3; }
+    public override void LevelUp() { foreach(var type in unlockType)tree.buildingsMaxLevel[(int)type] = ProvinceData.maxBuildingLevel; }
 }

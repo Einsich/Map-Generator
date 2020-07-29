@@ -51,7 +51,6 @@ public class AutoBuilder : AutoManager
         {
             UpdateQueueAndResetCounter();
         }
-
         bool success = true;
         while (success && queue.Count > 0)
         {
@@ -63,7 +62,7 @@ public class AutoBuilder : AutoManager
             Treasury cost;
             if ((cost = prov.Cost(building)) <= state.GetBuildingBudget)
             {
-                if (prov.CanPhysicalyBuild(building) && !prov.IsBuilding(building))
+                if (prov.CanPhysicalyBuild(building))
                 {
                     queue.Dequeue();
                     prov.ForwardBuild(building);

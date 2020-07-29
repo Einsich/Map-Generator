@@ -21,14 +21,68 @@ public class BaseRegiment : ScriptableObject
             case DamageType.Melee: return 50 + (damageLvl + buff) * 20;
             case DamageType.Charge: return 70 + (damageLvl + buff) * 30;
             case DamageType.Range: return 30 + (damageLvl + buff) * 10;
-            default: return damageLvl;
+            default: return 1 + damageLvl;
         }
     }
 
-    public float time;
-    public Treasury cost, upkeep;
+    public float time => bufTime.HasValue ? bufTime.Value : (bufTime = TimeUpdate()).Value;
+    public Treasury cost => bufCost.HasValue ? bufCost.Value : (bufCost = CostUpdate()).Value;
+    public Treasury upkeep => bufUpkeep.HasValue ? bufUpkeep.Value : (bufUpkeep = UpkeepUpdate()).Value;
     public State owner;
-
+    private Treasury? bufCost, bufUpkeep;
+    private float? bufTime;
+    public void AllUpdate()
+    {
+        bufCost = CostUpdate();
+        bufUpkeep = UpkeepUpdate();
+        bufTime = TimeUpdate();
+    }
+    private Treasury CostUpdate()
+    {
+        int armor = MeleeArmor + ChargeArmor + RangeArmor;
+        float gold = 0;
+        float wood = (damageType == DamageType.Range? damageLvl * 1.0f : 0) + (type == RegimentType.Artillery ? 10 : 0);
+        float iron = 0;
+        switch(type)
+        {
+            case RegimentType.Infantry: gold = 5 + 1.0f * armor + 2.0f * damageLvl; iron = 1 + 0.5f * armor + 0.5f * damageLvl; break;
+            case RegimentType.Cavalry: gold = 10 + 2.0f * armor + 4.0f * damageLvl; iron = 3 + 1.0f * armor + 1.6f * damageLvl; break;
+            case RegimentType.Artillery: gold = 30 + 2.0f * armor + 10.0f * damageLvl;break;
+        }
+        return new Treasury(gold, maxcount, wood, iron, 0);
+    }
+    private Treasury UpkeepUpdate()
+    {
+        int armor = MeleeArmor + ChargeArmor + RangeArmor;
+        float gold = 0;
+        float wood = (damageType == DamageType.Range ? damageLvl * 0.1f : 0);
+        float iron = 0;
+        switch (type)
+        {
+            case RegimentType.Infantry: gold = 0.4f + 0.2f * armor + 0.2f * damageLvl; iron = 0.05f * (armor+ damageLvl); break;
+            case RegimentType.Cavalry: gold = 0.8f + 0.3f * armor + .4f * damageLvl; iron = 0.1f + 0.1f * (armor + damageLvl); break;
+            case RegimentType.Artillery: gold = 2 + 0.5f * armor + 1.0f * damageLvl; break;
+        }
+        return new Treasury(gold, 0, wood, iron, 0);
+    }
+    private float TimeUpdate()
+    {
+        int armor = MeleeArmor + ChargeArmor + RangeArmor;
+        float time = 0;
+        switch (type)
+        {
+            case RegimentType.Infantry: time = 1.4f + 0.2f * armor + 0.2f * damageLvl; break;
+            case RegimentType.Cavalry: time = 1.8f + 0.3f * armor + .4f * damageLvl; break;
+            case RegimentType.Artillery: time = 10 + 0.5f * armor + 1.0f * damageLvl; break;
+        }
+        switch(damageType)
+        {
+            case DamageType.Melee:break;
+            case DamageType.Charge:time *= 2f; break;
+            case DamageType.Range:time *= 1.5f; break;
+        }
+        return time;
+    }
     public Treasury GetBonusUpkeep()
     {
         return upkeep * (owner != null ? owner.technologyTree.regimentUpkeepReduce : 1);
@@ -43,21 +97,6 @@ public class BaseRegiment : ScriptableObject
             case DamageType.Range: return RangeArmor;
             default: return 0;
         }
-    }
-    public BaseRegiment(State state, RegimentType type, DamageType damageType, int MeleeArmor, int ChargeArmor, int RangeArmor, int SiegeArmor, int damage, float maxcount,
-        Treasury cost, Treasury upkeep, float time)
-    {
-        owner = state;
-        this.type = type;
-        this.damageType = damageType;
-        this.damageLvl = damage;
-        this.MeleeArmor = MeleeArmor;
-        this.ChargeArmor = ChargeArmor;
-        this.RangeArmor = RangeArmor;
-        this.maxcount = maxcount;
-        this.cost = cost;
-        this.upkeep = upkeep;
-        this.time = time;
     }
     public override string ToString()
     {

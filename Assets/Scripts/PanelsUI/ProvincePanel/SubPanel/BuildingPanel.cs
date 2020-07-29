@@ -8,7 +8,7 @@ public class BuildingPanel : MonoBehaviour
     private void Awake()
     {
         BuildingButtons = GetComponentsInChildren<BuildingButton>();
-        for (int i = 0; i < ProvinceData.specialCount; i++)
+        for (int i = 0; i < ProvinceData.buildingsCount; i++)
             BuildingButtons[i].BuildIndex = i;
     }
     public void ShowBuildings(bool show)

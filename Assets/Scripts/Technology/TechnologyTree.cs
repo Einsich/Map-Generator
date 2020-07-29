@@ -14,7 +14,7 @@ public class TechnologyTree : ScriptableObject
     public float wallsCostReduce = 1;
     public float moveSpeedBonus = 1;
     //economica
-    public int[] buildingsMaxLevel = new int[ProvinceData.specialCount];
+    public int[] buildingsMaxLevel = new int[ProvinceData.buildingsCount];
     public float portTradeBonus = 1;
     public float regimentCostReduce = 1;
     public float regimentUpkeepReduce = 1;
@@ -40,8 +40,8 @@ public class TechnologyTree : ScriptableObject
     {
         this.state = state;
         state.technologyTree = this;
-        buildingsMaxLevel[(int)(BuildingType.Infrastructure)] = 3;
-        buildingsMaxLevel[(int)(BuildingType.Trade)] = 3;
+        buildingsMaxLevel[(int)(BuildingType.Infrastructure)] = ProvinceData.maxBuildingLevel;
+        buildingsMaxLevel[(int)(BuildingType.Trade)] = ProvinceData.maxBuildingLevel;
         if (regiments != null)
             for (int i = 0; i < regiments.Length; i++)
                 if (regiments[i] != null)

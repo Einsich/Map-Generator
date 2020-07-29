@@ -17,7 +17,7 @@ public class RecruitListElement : InitGO,IHelpBaseRegiment
         gameObject.SetActive(true);
         icon.sprite = BaseRegiment.Icon;
 
-        for (int i = 0; i < (int)DamageType.Count; i++)
+        for (int i = 0; i < 3; i++)
         {
             ArmPips[i].sprite = SpriteHandler.GetPipsSprite(BaseRegiment.ArmorLvl((DamageType)i));
         }

@@ -190,7 +190,7 @@ public class Region :ITarget, IFightable
         foreach (Transform go in town)
             GameObject.Destroy(go.gameObject);
         int ind = -1;
-        for (int i = ProvinceData.buildCount; i < ProvinceData.specialCount; i++)
+        /*for (int i = ProvinceData.buildCount; i < ProvinceData.specialCount; i++)
             if (data.buildings[i] != 0)
                 ind = i;
         ind -= ProvinceData.buildCount;
@@ -198,7 +198,7 @@ public class Region :ITarget, IFightable
         {
             GameObject t1 = GameObject.Instantiate(ProvinceMenu.GetSpecialBuilding(ind), town);
             t1.transform.localPosition = Vector3.right * 1.4f;
-        }
+        }*/
         GameObject t0 = GameObject.Instantiate(Fraction.TownPrefab[(int)data.fraction].transform.GetChild(lvl).gameObject, town);
         t0.transform.localPosition = Vector3.zero;
         if (data.wallsLevel > 0)

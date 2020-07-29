@@ -64,10 +64,10 @@ public class ProvinceMenu : MonoBehaviour {
         science.text = string.Format("{0:N1}\n({1:N1})", t.Science, tc.Science); 
 
         wievButtons[0].gameObject.SetActive(current.owner != Player.curPlayer);
-        wievButtons[3].gameObject.SetActive(current.data.haveFervie);
+        wievButtons[3].gameObject.SetActive(current.data.portLevel != 0);
         if (current.owner == Player.curPlayer)
             buttonSelector.Hidden(0);
-        if (!current.data.haveFervie)
+        if (current.data.portLevel == 0)
             buttonSelector.Hidden(3);
 
         buttonSelector.Update();

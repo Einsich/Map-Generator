@@ -93,10 +93,8 @@ public class State
             a.navAgent.RecalculatePath();
     }
     public BaseRegiment[] regiments;
-    public BaseRegiment melee => regiments[0];
-    public BaseRegiment ranger => regiments[1];
-    public BaseRegiment cavalry => regiments[2];
-    public BaseRegiment artillery => regiments[3];
+    public BaseRegiment melee => regiments[1];
+    public BaseRegiment ranger => regiments[0];
     public List<Regiment> defaultArmy()
     {
         List<Regiment> list = new List<Regiment>();

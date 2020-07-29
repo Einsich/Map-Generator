@@ -595,6 +595,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         {
             Speed *= (effect as DeadMarch).SpeedBonus;
         }
+        Speed *= owner.technologyTree.moveSpeedBonus;
     }
     void UpdateRange()
     {

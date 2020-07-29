@@ -5,5 +5,5 @@ using UnityEngine;
 public class AttackTechnology : Technology
 {
     public int regimentOffset;
-    public override void LevelUp() { tree.regiments[regimentOffset].damageLvl++;  }
+    public override void LevelUp() { tree.regiments[regimentOffset].damageLvl++; tree.regiments[regimentOffset].AllUpdate(); }
 }

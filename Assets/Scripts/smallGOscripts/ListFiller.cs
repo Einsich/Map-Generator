@@ -25,6 +25,8 @@ public class ListFiller : MonoBehaviour
         InitGO element;
         foreach (var x in listEl)
         {
+            if (x == null)
+                continue;
             if (i < list.Count)
                 element = list[i];
             else
