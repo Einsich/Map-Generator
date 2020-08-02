@@ -37,7 +37,7 @@ public class State
         regiments = new BaseRegiment[GameConst.MaxRegimentCount];
         GameObject.Instantiate(PrefabHandler.TechnologyTree).InitializeTree(this);
         stateAI = new StateAI(this);
-        stateAI.IncomeResources(new Treasury(10000));
+        stateAI.IncomeResources(new Treasury(500,2000, 100, 100, 20));
         GameTimer.AddListener(StateDecaSecondUpdate,this);
     }
     public void DestroyState()

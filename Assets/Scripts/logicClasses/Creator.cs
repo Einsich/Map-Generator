@@ -35,7 +35,7 @@ static class Creator {
         CreateMap();
         CreateTerrein();
         CreateProvinces(10, 15);
-        CreateState(1, 20);
+        CreateState(4, 5);
         CreateProvincesData();
         CreateDiplomacy();
         wasCreate = true;
@@ -586,7 +586,7 @@ static class Creator {
 
             state.fraction = (FractionType)(k % 2);
             k++;
-            state.AddAllPerson();
+            state.defaultLeader();
         }
     }
    static void AddRegions(int i0, List<int>st, int size)

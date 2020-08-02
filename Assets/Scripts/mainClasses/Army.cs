@@ -21,7 +21,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     public bool CanExchangeRegimentWith(Region region)=> navAgent.curCell == region?.Capital && owner == region.curOwner;
     public bool Destoyed { get; set; } = false;
     public System.Action HitAction;
-    GameObject cube;
+    //GameObject cube;
     public NavAgent navAgent;
     Animation animator;
     public float Speed { get; set; }
@@ -33,22 +33,19 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     public DamageType damageType;
     public System.Action ArmyListChange;
 
-    private void Start()
+    private void Started()
     {
-        UpdateRegion(curReg);
-        animator = GetComponent<Animation>();
-        Stop();
-        selectia.SetActive(false);
-        cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cube.transform.localScale *= 0.3f;
-        cube.layer = 9;
+        
+        //cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        //cube.transform.localScale *= 0.3f;
+        //cube.layer = 9;
     }
     private void FixedUpdate()
     {
         UpdateRotation();
-        cube.transform.position = MapMetrics.GetCellPosition(navAgent.curCell);
-        if (inTown)
-            cube.transform.position += Vector3.up * 2;
+        //cube.transform.position = MapMetrics.GetCellPosition(navAgent.curCell);
+        //if (inTown)
+        //    cube.transform.position += Vector3.up * 2;
         StateLogic();
     }
     private void StateLogic()
@@ -234,14 +231,14 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         Destoyed = false;
         Active = !Fogged;
 
-        ArmyListChange += UpdateRange;
-        ArmyListChange += UpdateSpeed;
-        ArmyListChange += () => bar.UpdateInformation();
         // ArmyListChange();
         UpdateRange();
         UpdateSpeed();
         UpdateAttackSpeed();
-
+        UpdateRegion(curReg);
+        animator = GetComponent<Animation>();
+        Stop();
+        selectia.SetActive(false);
         owner.IncomeChanges?.Invoke();
         if (Player.curPlayer == curOwner)
         {
@@ -274,12 +271,17 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
 
         GameObject def = Instantiate(PrefabHandler.GetArmyPrefab(person.personType));
         Army army = def.GetComponent<Army>();
+
         army.AI = def.AddComponent<ArmyAI>();
         army.siegeModel = Instantiate(PrefabHandler.GetSiegePrefab, Main.instance.Towns);
         army.siegeModel.SetActive(false);
         state.army.Add(army);
         ArmyBar bar = Instantiate(PrefabHandler.GethpBarPrefab, Main.instance.mainCanvas);
         army.bar = bar;
+
+        army.ArmyListChange += army.UpdateRange;
+        army.ArmyListChange += army.UpdateSpeed;
+        army.ArmyListChange += () => bar.UpdateInformation();
         army.InitArmy(list, home, person);
         bar.currentArmy = army;
         AllArmy.Add(army);

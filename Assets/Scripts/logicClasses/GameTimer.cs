@@ -46,6 +46,8 @@ public static class GameTimer
     {
         foreach (var army in Army.AllArmy)
             army.UpdateManpower();
+        foreach (var state in Main.states)
+            state.stateAI.autoPersonControl.PersonUpdate();
     }
     public static void EveryDecaSecondUpdate()
     {

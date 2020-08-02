@@ -5,12 +5,13 @@ using UnityEngine;
 public class StateAI
 {
     public State Data;
+    private AutoManager[] autoManagers;
     public AutoBuilder autoBuilder;
     public AutoReasercher autoReasercher;
     public AutoTrader autoTrader;
     public AutoRegimentBuilder autoRegimentBuilder;
     public AutoArmyCommander autoArmyCommander;
-
+    public AutoPersonControl autoPersonControl;
     public StateAI(State state)
     {
         Data = state;
@@ -19,6 +20,7 @@ public class StateAI
         autoTrader = new AutoTrader(this);
         autoRegimentBuilder = new AutoRegimentBuilder(this);
         autoArmyCommander = new AutoArmyCommander(this);
+        autoPersonControl = new AutoPersonControl(this);
     }
     public float armyBudget { get; private set; } = 0.1f;
     public float buildingBudget { get; private set; } = 0.9f;

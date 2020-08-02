@@ -53,9 +53,16 @@ public class Player : MonoBehaviour {
         foreach (var reg in annexator.regions)
             if (reg.ocptby == target)
                 reg.ocptby = null;
+        foreach (var army in annexator.army)
+            if (army.navAgent.target?.curOwner == target)
+                army.navAgent.target = null;
         foreach (var reg in target.regions)
             if (reg.ocptby == annexator)
                 reg.ocptby = null;
+
+        foreach (var army in target.army)
+            if (army.navAgent.target?.curOwner == annexator)
+                army.navAgent.target = null;
 
         foreach (var reg in regions)
             reg.UpdateSplateState(annexator);
@@ -123,6 +130,7 @@ public class Player : MonoBehaviour {
             states[i].stateAI.autoTrader.IsOn = (state != states[i]);
             states[i].stateAI.autoRegimentBuilder.IsOn = (state != states[i]);
             states[i].stateAI.autoArmyCommander.IsOn = (state != states[i]);
+            states[i].stateAI.autoPersonControl.IsOn = (state != states[i]);
         }
         foreach (var army in Army.AllArmy)
         {

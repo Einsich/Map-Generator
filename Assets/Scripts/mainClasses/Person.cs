@@ -21,12 +21,12 @@ public class Person
     public int MaxRegiment => LeadershipLvl * 2 + 4;
     public float AttackSpeed => 1f / (0.1f * (lvl+ AttackSpeedLvl) + 1f);
 
-    public int DamageTypeBuff(DamageType type) => (type == DamageType.Melee || type == DamageType.Charge) ? MeleeBuffLvl : RangeBuffLvl;
+    public int DamageTypeBuff(DamageType type) => (type == DamageType.Melee || type == DamageType.Charge) ? MeleeBuffLvl : (type == DamageType.Range ? RangeBuffLvl: 0);
     /*
      сл. хар-ки имееют целую величину = lvl от 0 до какого-то предельного значения.
      Лидерство(макс. кол-во отрядов = lvl * 2 + 2)
     Скорость атаки = 1/(0.1f*lvl+1)
-Баф на дальную атаку +lvl к damageLvl всех с Range|Siege атакой
+Баф на дальную атаку +lvl к damageLvl всех с Range атакой
 Баф на ближнюю атаку +lvl к damageLvl всех с Melee|Charge атакой
 Уменьшение урона
          */
@@ -109,14 +109,15 @@ public class Person
         name = names[Random.Range(0, names.Length)];
         die = Random.Range(0, 2) == 1;
         die = false;
-       // exp += 10000;
+
+        GameTimer.OftenUpdate += () => exp += (1 + state.technologyTree.activeExperienceBonus) * state.technologyTree.activeExperienceBonus;
 
     }
-    virtual public void NewLevel() { lvlPoint++; }
+    virtual public void NewLevel() { lvlPoint++;}
 
-    int exp_ = 0;
+    float exp_ = 0;
     public int lvlPoint { get; private set; } = 0;
-    public int exp
+    public float exp
     {
         get => exp_; set
         {
@@ -132,7 +133,7 @@ public class Person
     }
     public System.Action ExpChanged, SkillCulldowned;
     public int lvl { get; private set; } = 1;
-    public int nextLvl => lvl * lvl * 100;
+    public int nextLvl => lvl * 100;
     public float expf => 1f * exp_ / nextLvl;
     public int DamageLvlBuff(RegimentType regimentType, DamageType damageType)
     {
@@ -214,7 +215,6 @@ public class Warrior:Person
     {
         personType = PersonType.Warrior;
         Skills = new Skill[] { new BraveSpeechSkill(this), new SiegeSkill(this), new DisciplineSkill(this) };
-        GameTimer.OftenUpdate += () => exp += 15;
     }
 }
 public class Knight : Person

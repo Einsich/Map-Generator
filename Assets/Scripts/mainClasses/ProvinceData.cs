@@ -85,8 +85,9 @@ public class ProvinceData {
         this.fraction = fraction;
         buildings = new int[buildingsCount];
         BuildingAction = new GameAction[buildingsCount];
-        for (int i = 0; i < buildingsCount; i++)
-            buildings[i] = Random.Range(0, 2);
+        buildings[(int)BuildingType.Infrastructure] = Random.Range(0, 2);
+        buildings[(int)BuildingType.Trade] = Random.Range(0, 2);
+        buildings[(int)BuildingType.Walls] = Random.Range(0, 2);
         if (reg.owner.melee)
             for (int i = 0, n = 1 + wallsLevel * (1 + Random.Range(0, 2)); i < n; i++)
                 garnison.Add(new Regiment(reg.owner.melee));

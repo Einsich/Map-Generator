@@ -167,7 +167,7 @@ public class AutoRegimentBuilder : AutoManager
             if (baseRegiment == null)
                 continue;
             var key = new RegimentIdentifier(baseRegiment.type, baseRegiment.damageType);
-            //if (!stateRegiments.ContainsKey(key))
+            if (!stateRegiments.ContainsKey(key))
                 stateRegiments.Add(key, baseRegiment);
         }
     }
