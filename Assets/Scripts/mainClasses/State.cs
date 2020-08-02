@@ -34,11 +34,33 @@ public class State
         army = new List<Army>();
         persons = new List<Person>();
         ships = new List<Ship>();
-        regiments = new BaseRegiment[8];
+        regiments = new BaseRegiment[GameConst.MaxRegimentCount];
         GameObject.Instantiate(PrefabHandler.TechnologyTree).InitializeTree(this);
         stateAI = new StateAI(this);
         stateAI.IncomeResources(new Treasury(10000));
         GameTimer.AddListener(StateDecaSecondUpdate,this);
+    }
+    public void DestroyState()
+    {
+        stateAI.autoArmyCommander.IsOn = false;
+        stateAI.autoBuilder.IsOn = false;
+        stateAI.autoReasercher.IsOn = false;
+        stateAI.autoRegimentBuilder.IsOn = false;
+        stateAI.autoTrader.IsOn = false;
+        foreach (var army in army)
+            army.DestroyArmy();
+        Capital.Corona.SetActive(false);
+        Text.SetActive(false);
+        GameTimer.RemoveListener(StateDecaSecondUpdate, this);
+    }
+    public void Annexation(State target)
+    {
+        List<Region> annexate = new List<Region>();
+        foreach (var reg in target.regions)
+            if (reg.ocptby == this)
+                annexate.Add(reg);
+        Player.instance.Annexation(this, target, annexate);
+             
     }
     public void SetName()
     {
@@ -98,15 +120,16 @@ public class State
     public List<Regiment> defaultArmy()
     {
         List<Regiment> list = new List<Regiment>();
-        return list;
         int i = regions.Count;
         i = i / 2 + 2;
         int c = i / 10;
         i -= c;
         int r = i / 4;
         i -= c;
+        if(melee)
         for (int j = 0; j < i; j++)
             list.Add(new Regiment(melee));
+        if(ranger)
         for (int j = 0; j < r; j++)
             list.Add(new Regiment(ranger));
         return list;

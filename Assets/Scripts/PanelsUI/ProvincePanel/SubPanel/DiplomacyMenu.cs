@@ -7,7 +7,7 @@ public class DiplomacyMenu : MonoBehaviour
 {
 
     public Text stateName, war, trade, access, casusbelli, insult, patron, union, descr, Relation, EnemyIs, selltext,buytext;
-    public Button warbut, tradebut, accessbut, casusbut, insultbut, patronbut, unionbut, YesButton;
+    public Button warbut, tradebut, accessbut, casusbut, insultbut, patronbut, unionbut, YesButton, annexation, whitePeace;
     public GameObject actions, choise;
     public Slider actionSlider, sellres;
     public Image flag;
@@ -31,10 +31,13 @@ public class DiplomacyMenu : MonoBehaviour
     private void OnEnable()
     {
         GameTimer.OftenUpdate += UpdateCasusBelliStatistic;
+        GameTimer.OftenUpdate += War;
     }
     private void OnDisable()
     {
         GameTimer.OftenUpdate -= UpdateCasusBelliStatistic;
+        GameTimer.OftenUpdate -= War;
+
     }
     void OpenYesNo(bool open)
     {
@@ -86,6 +89,8 @@ public class DiplomacyMenu : MonoBehaviour
         OpenYesNo(false);
         actionSlider.gameObject.SetActive(false);
         tradepanel.SetActive(false);
+        annexation.gameObject.SetActive(false);
+        whitePeace.gameObject.SetActive(false);
         UpdateCasusBelliStatistic();
 
         war.text = player.haveWar(select) ? "Предложить мир" : "Объявить войну";
@@ -103,10 +108,17 @@ public class DiplomacyMenu : MonoBehaviour
         actions.SetActive(false);
         OpenYesNo(true);
         dipstate = 0;
-        if (player.haveWar(select))
+        WarData war = player.getWar(select);
+        if (war != null)
         {
             descr.text = "Вы действительно хотите предложить мир державе " + stateName.text+" ?";
-            YesButton.interactable = true;
+            bool peace = war.canAcceptWhitePeace(select.state);
+            bool annex = war.canWasAnnexated(select.state);
+            YesButton.interactable = false;
+            annexation.gameObject.SetActive(true);
+            whitePeace.gameObject.SetActive(true);
+            whitePeace.interactable = peace;
+            annexation.interactable = annex;
         }
         else
         {
@@ -223,8 +235,9 @@ public class DiplomacyMenu : MonoBehaviour
     {
         switch (dipstate)
         {
-            case 0: player.DeclareWar(select, !player.haveWar(select));
-                break;
+            case 0: Diplomacy.DeclareWar(player, select, true);
+                War();
+                return;
             case 1:
                 GlobalTrade.MakeDeal(deal);
 
@@ -262,6 +275,19 @@ public class DiplomacyMenu : MonoBehaviour
     {
 
         SchowDiplomacy();
+    }
+    public void AnnexationButton()
+    {
+        player.state.Annexation(select.state);
+        Diplomacy.DeclareWar(player, select, false);
+        ProvinceMenu.instance.UpdateMenu();
+    }
+    public void WhitePeaceButton()
+    {
+        Player.instance.WhitePeace(player.state, select.state);
+        Diplomacy.DeclareWar(player, select, false);
+        SchowDiplomacy();
+
     }
     public static string ColoredRelation(float relation, float delta)
     {

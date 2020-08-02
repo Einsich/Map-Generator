@@ -86,6 +86,16 @@ public class CodePanel : MonoBehaviour {
                     }
                     else Error();
                     break;
+                case "присоединить":
+                    for (int i = 0; i < state.Count; i++)
+                        if (state[i].name == t[1])
+                        {
+                            j = i;
+                            break;
+                        }
+                    if (j < 0) Error();
+                    else Player.instance.Annexation(Player.curPlayer, state[j], new List<Region>(state[j].regions));
+                    break;
                 default:Error();break;
             }
         }

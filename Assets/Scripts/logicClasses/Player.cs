@@ -21,6 +21,51 @@ public class Player : MonoBehaviour {
     {
         instance = this;
     }
+    public void Annexation(State annexator, State target, List<Region> land)
+    {
+        foreach (var reg in annexator.regions)
+            if (reg.ocptby == target)
+                reg.ocptby = null;
+        foreach(var reg in land)
+        {
+            reg.owner.regions.Remove(reg);
+            reg.owner = annexator;
+            reg.ocptby = null;
+            annexator.regions.Add(reg);
+        }
+        foreach (var reg in regions)
+            reg.UpdateSplateState(annexator);
+        annexator.SetName();
+        if(target.regions.Count == 0)
+        {
+            target.DestroyState();
+        }
+        if (target.stateAI.autoArmyCommander.IsOn)
+            target.stateAI.autoArmyCommander.RecalculateRegions();
+        if (annexator.stateAI.autoArmyCommander.IsOn)
+            annexator.stateAI.autoArmyCommander.RecalculateRegions();
+        MapMetrics.UpdateColorMap();
+        MapMetrics.UpdateOccupedMap();
+        MapMetrics.UpdateSplatMap();
+    }
+    public void WhitePeace(State annexator, State target)
+    {
+        foreach (var reg in annexator.regions)
+            if (reg.ocptby == target)
+                reg.ocptby = null;
+        foreach (var reg in target.regions)
+            if (reg.ocptby == annexator)
+                reg.ocptby = null;
+
+        foreach (var reg in regions)
+            reg.UpdateSplateState(annexator);
+        if (target.stateAI.autoArmyCommander.IsOn)
+            target.stateAI.autoArmyCommander.RecalculateRegions();
+        if (annexator.stateAI.autoArmyCommander.IsOn)
+            annexator.stateAI.autoArmyCommander.RecalculateRegions();
+        MapMetrics.UpdateOccupedMap();
+        MapMetrics.UpdateSplatMap();
+    }
     public void Occupated(Region r, State occupant)
     {
         r.Destoyed = false;
@@ -41,14 +86,13 @@ public class Player : MonoBehaviour {
 
         if (realOwner.stateAI.autoArmyCommander.IsOn)
             realOwner.stateAI.autoArmyCommander.RecalculateRegions();
-        foreach (Diplomacy d in realOwner.diplomacy.war)
+        
+        AutoArmyCommander autoArmy = realOwner.stateAI.autoArmyCommander;
+        if (autoArmy.IsOn)
         {
-            AutoArmyCommander autoArmy = d.state.stateAI.autoArmyCommander;
-            if (autoArmy.IsOn)
-            {
-                autoArmy.RecalculateRegions();
-            }
+            autoArmy.RecalculateRegions();
         }
+        
 
         if (!r.InFogFrom(curPlayer))
         {

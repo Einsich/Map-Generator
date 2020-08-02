@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Diplomacy {
-    public List<Diplomacy> war;
+    public List<WarData> war;
     private List<Diplomacy> forceAccess;
     public List<float> relation;
     public List<(Diplomacy, float)> fabricateCB, uniqueCB, patronage;
@@ -21,31 +21,37 @@ public class Diplomacy {
     public bool canInsulting(Diplomacy dip) => relation[dip.state.ID] > 0;
     public bool canPatronage(Diplomacy dip) => !haveWar(dip);
     public bool canUniate(Diplomacy dip) => !haveWar(dip) && relation[dip.state.ID] >= 70;
-    public bool haveWar(Diplomacy dip) => war.Contains(dip);
+    public bool haveWar(Diplomacy dip) => war.Exists((x) => x.Contains(dip.state));
+    public WarData getWar(Diplomacy dip) => war.Find((x) => x.Contains(dip.state));
     public bool haveAccess(Diplomacy dip) => forceAccess.Contains(dip);
     public bool haveDeal(Diplomacy dip) => tradeDeals.Exists((x) => x.State1 == dip.state  || x.State2 == dip.state );
     public TradeDeal findDeal(Diplomacy dip) => tradeDeals.Find((x) => x.State1 == dip.state || x.State2 == dip.state);
     public bool fabricatingCasus(Diplomacy dip) => fabricateCB.Exists((x) => x.Item1 == dip);
     public bool havePatronage(Diplomacy dip) => patronage.Exists((x) => x.Item1 == dip);
-    public void DeclareWar(Diplomacy dip, bool declare)
+    public static void DeclareWar(Diplomacy attacker, Diplomacy defender, bool declare)
     {
-        DeclaredWar(dip, declare);
-        dip.DeclaredWar(this, declare);
-        DiplomacyAction?.Invoke();
-        dip.DiplomacyAction?.Invoke();
+        WarData war = new WarData(attacker.state, defender.state);
+        attacker.war.Add(war);
+        defender.war.Add(war);
+        attacker.DeclaredWar(defender, declare);
+        defender.DeclaredWar(attacker, declare);
+        if(declare)
+        {
+            attacker.state.DeclareWarPenalty(Mathf.Clamp01(attacker.relation[defender.state.ID] / warDeclareRelation));
+        }
+        attacker.DiplomacyAction?.Invoke();
+        defender.DiplomacyAction?.Invoke();
     }
     private void DeclaredWar(Diplomacy dip, bool declare)
     {
         if (declare)
         {
-            war.Add(dip);
-            state.DeclareWarPenalty(Mathf.Clamp01(relation[dip.state.ID] / warDeclareRelation));
             relation[dip.state.ID] = -100;
             state.stateAI.autoArmyCommander.DeclaredWar();
         }
         else
         {
-            war.Remove(dip);
+            war.RemoveAll((x) => x.Contains(dip.state));
         }
 
     }
@@ -176,7 +182,7 @@ public class Diplomacy {
         this.state = state;
         tradeDeals = state.stateAI.autoTrader.deals;
         diplomacies[state.ID] = this;
-        war = new List<Diplomacy>();
+        war = new List<WarData>();
         forceAccess = new List<Diplomacy>();
         relation = new List<float>(diplomacies.Length);
         for(int i=0;i< diplomacies.Length;i++)
@@ -213,5 +219,47 @@ public class Diplomacy {
             else
                 relation[i] = 0;
         
+    }
+}
+public class WarData
+{
+    public State[] states = new State[2];
+    private int[] occupated = new int[2];
+    private float startWarTime;
+    public float WarProgress(State state) => (float)OccupatedBy(state) / state.regions.Count - (float)OccupatedIn(state) / (Enemy(state).regions.Count);
+    public int OccupatedBy(State occupator) => OccupatedIn(Enemy(occupator));
+    public int OccupatedIn(State target)
+    {
+        target = target == states[0] ? states[0] : states[1];
+        State occupator = target == states[0] ? states[1] : states[0];
+        int occupate = 0;
+        foreach (var reg in target.regions)
+            occupate += reg.ocptby == occupator ? 1 : 0;
+        return occupate;
+    }
+    public int OccupatedTotalIn(State target)
+    {
+        target = target == states[0] ? states[0] : states[1];
+        int occupate = 0;
+        foreach (var reg in target.regions)
+            occupate += reg.ocptby != null ? 1 : 0;
+        return occupate;
+    }
+    public bool canAcceptWhitePeace(State who)//for AI 
+    {
+        return GameTimer.time - startWarTime > 5 && (OccupatedBy(who) < 3 || WarProgress(who) < 0.2f);
+    }
+    public bool canWasAnnexated(State who)
+    {
+        return OccupatedTotalIn(who) == who.regions.Count;
+    }
+    public bool Contains(State state) => state == states[0] || state == states[1];
+    public State Enemy(State state)=>state == states[0] ? states[1] : states[0];
+    public WarData(State attacker, State defender)
+    {
+        states[0] = attacker;
+        states[1] = defender;
+        startWarTime = GameTimer.time;
+
     }
 }

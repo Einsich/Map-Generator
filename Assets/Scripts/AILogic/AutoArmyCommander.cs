@@ -82,9 +82,10 @@ public class AutoArmyCommander : AutoManager
     private void CollectEnemies()
     {
         enemyArmies.Clear();
-        foreach (Diplomacy enemyDiplomacy in stateAI.Data.diplomacy.war)
+        foreach (var warDate in stateAI.Data.diplomacy.war)
         {
-            enemyArmies.AddRange(enemyDiplomacy.state.army);
+            State enemy = warDate.Enemy(stateAI.Data);
+            enemyArmies.AddRange(enemy.army);
         }
     }
 
@@ -99,9 +100,10 @@ public class AutoArmyCommander : AutoManager
             }
         }
 
-        foreach (Diplomacy enemyDiplomacy in stateAI.Data.diplomacy.war)
+        foreach (var warDate in stateAI.Data.diplomacy.war)
         {
-            foreach (Region r in enemyDiplomacy.state.regions)
+            State enemy = warDate.Enemy(stateAI.Data);
+            foreach (Region r in enemy.regions)
             {
                 if (neibOwnOwner(r) &&
                     (r.ocptby == null || r.ocptby.diplomacy.haveWar(stateAI.Data.diplomacy)))

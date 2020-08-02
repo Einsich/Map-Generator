@@ -7,7 +7,7 @@ public class ProvinceMenu : MonoBehaviour {
 
     public Text Name;
     public Text gold, manPower, wood, iron, science, Info;
-    static ProvinceMenu instance;
+    public static ProvinceMenu instance;
     public static Region current;
   //  public Sprite[] buildState;
   //  public static Sprite GetBuildState(int index) => instance.buildState[index];
