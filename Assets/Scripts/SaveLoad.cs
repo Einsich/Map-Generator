@@ -160,22 +160,23 @@ public class SaveLoad : MonoBehaviour {
     }
     public static void WriteColorList(List<Color> colors, string path)
     {
-        using (BinaryWriter writer = new BinaryWriter(File.Open(path, FileMode.Create)))
-        {
-            writer.Write(colors.Count);
-            foreach (Color c in colors)
-            { writer.Write(c.r); writer.Write(c.g); writer.Write(c.b); }
-        }
+        int size = (int)Mathf.Sqrt(colors.Count) + 1;
+
+        Texture2D map = new Texture2D(size, size);
+        for (int i = 0; i < colors.Count; i++)
+            map.SetPixel(i % size, i / size, colors[i]);
+        map.Apply();
+        var bytes = map.EncodeToJPG(100);
+        File.WriteAllBytes(path, bytes);
     }
-    public static List<Color> ReadColorList(string path)
+    public static List<Color> ReadColorList()
     {
         List<Color> colors = new List<Color>();
-        using (BinaryReader reader = new BinaryReader(File.OpenRead(path)))
-        {
-            int n = reader.ReadInt32();
-            for (int i = 0; i < n; i++)
-                colors.Add(new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
-        }
+        Texture2D map = SpriteHandler.StateColors;
+        Color[] c = map.GetPixels();
+        foreach (var a in c)
+            if (a != Color.white)
+                colors.Add(a);
         return colors;
     }
 }

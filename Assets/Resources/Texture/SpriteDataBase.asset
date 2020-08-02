@@ -12,12 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df6c8107e60146d429e049f9abc1a7fd, type: 3}
   m_Name: SpriteDataBase
   m_EditorClassIdentifier: Assembly-CSharp::SpriteDataBase
-  RegimentTypes:
-  - {fileID: 2645466304180209008, guid: 613204c61a61c7d4bb95bba590455133, type: 3}
-  - {fileID: 3627274601324900727, guid: 613204c61a61c7d4bb95bba590455133, type: 3}
-  - {fileID: 3757007576231947516, guid: 613204c61a61c7d4bb95bba590455133, type: 3}
-  - {fileID: -5847314549475422344, guid: 613204c61a61c7d4bb95bba590455133, type: 3}
-  - {fileID: -3743279101129020751, guid: 613204c61a61c7d4bb95bba590455133, type: 3}
   PersonTypes:
   - {fileID: 354311051636227858, guid: 76bd255b858fb4246afac6995a068044, type: 3}
   - {fileID: -4614705615904554895, guid: 76bd255b858fb4246afac6995a068044, type: 3}
@@ -66,3 +60,4 @@ MonoBehaviour:
   BuildFrames:
   - {fileID: 21300000, guid: 64aa08f12937f4f4c819d565e0b67e0d, type: 3}
   - {fileID: 21300000, guid: 7e4ce2f6a682cb54ea5b0d7c7b680a7b, type: 3}
+  StateColor: {fileID: 2800000, guid: ccdb4872656abab449c161f4e0aac20b, type: 3}

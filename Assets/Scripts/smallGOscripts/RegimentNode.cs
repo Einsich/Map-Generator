@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-
+/*
 [ExecuteInEditMode]
 public class RegimentNode : MonoBehaviour
 {
-#if UNITY_EDITOR
     public int NodeID = -1;
     public bool researched = false;
     public BaseRegiment regInst;
@@ -85,5 +84,5 @@ public class RegimentNode : MonoBehaviour
         else
             name = "null";
     }
-#endif
 }
+*/

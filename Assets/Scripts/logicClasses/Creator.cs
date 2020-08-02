@@ -563,7 +563,7 @@ static class Creator {
             }
         }
         string[] names = Resources.Load<TextAsset>("Textes/States").text.Split('\n');
-        List<Color> normcolor = SaveLoad.ReadColorList("Assets/Resources/Texture/StateColor.bin");
+        List<Color> normcolor = SaveLoad.ReadColorList();
         int n = normcolor.Count;
         int[] idstate = new int[n];
         for (int i = 0; i < n; i++) idstate[i] = i;

@@ -61,5 +61,6 @@ public static class SpriteHandler
     public static Sprite[] GetCursors => SpriteDataBase.Cursors;
     public static Sprite GetBuilding(int buildingType, int fractionType) => Buildings[fractionType, buildingType];
     public static Sprite GetBuildFrame(BuildState state) => state == BuildState.CanBuild ? BuildFrames[0] : BuildFrames[1];
+    public static Texture2D StateColors => SpriteDataBase.StateColor;
 }
 

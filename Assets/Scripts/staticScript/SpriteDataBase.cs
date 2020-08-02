@@ -10,5 +10,7 @@ public class SpriteDataBase : ScriptableObject
     [SerializeField] public Sprite[] Cursors;
     [SerializeField] public Texture2D[] Buildings;
     [SerializeField] public Sprite[] BuildFrames;
+    [SerializeField] public Texture2D StateColor;
+
 }
 

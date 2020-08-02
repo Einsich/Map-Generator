@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+/*
 [ExecuteInEditMode]
 public class TechnologyNode : MonoBehaviour
 {
@@ -66,4 +67,4 @@ public class TechnologyNode : MonoBehaviour
             DFS(deep + 1, tr);
     }
 }
-
+*/
