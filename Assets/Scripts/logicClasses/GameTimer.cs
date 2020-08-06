@@ -39,8 +39,6 @@ public static class GameTimer
         OftenUpdate?.Invoke();
         Army.ProcessAllArmyAI();
 
-        foreach (var army in Army.AllArmy)
-            army.DeciUpdateTime();
     }
     public static void EverySecondUpdate()
     {

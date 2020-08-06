@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd446a54e38be49439705b1da422793f, type: 3}
   m_Name: "\u0410\u0440\u0431\u0430\u043B\u0435\u0442\u0447\u0438\u043A\u0438_range"
   m_EditorClassIdentifier: 
-  science: 1
-  time: 2
+  science: 2
+  time: 5
   lvl: 1
   lvlmax: 9
   name: 

@@ -505,58 +505,24 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
 
     }
 
-    private float timeFromDecaStart = 0;
-    private float upkeepDiscountInTown = 1;
-    private VassalDebt debt;
-
-    public void DeciUpdateTime()
-    {
-        if (inTown && curReg.curOwner == owner)
-        {
-            timeFromDecaStart += 0.1f;
-        }
-    }
-
-    public void ResetTimeAndRecalcUpkeepBonuses()
-    {
-        float normalTime = timeFromDecaStart * 0.1f;
-        timeFromDecaStart = 0;
-
-        upkeepDiscountInTown = GameConst.GarnisonUpkeepDiscount * normalTime + (1 - normalTime);
-
-        UpdateDebt();
-    }
-
-    private void UpdateDebt()
-    {
-        Effect effect;
-        if (Person.HaveEffect(EffectType.VassalDebt, out effect))
-        {
-            debt = effect as VassalDebt;
-        }
-        else
-        {
-            debt = null;
-        }
-    }
-
     public Treasury GetUpkeep()
     {
         Treasury upkeep = new Treasury(0);
+        Effect effect = null;
+        Person.HaveEffect(EffectType.VassalDebt, out effect);
 
         foreach (var g in army)
         {
-            upkeep += UpkeepInArmy(g.baseRegiment);
+            upkeep += UpkeepInArmy(g.baseRegiment, effect as VassalDebt);
         }
-        return upkeep;
+        return upkeep * owner.technologyTree.regimentUpkeepReduce;
     }
 
-    public Treasury UpkeepInArmy(BaseRegiment baseRegiment)
+    public Treasury UpkeepInArmy(BaseRegiment baseRegiment, VassalDebt debt)
     {
-        float bonus = 1f;
-        bonus *= debt != null ? debt.ReductionUpkeep(baseRegiment.type) : 1f;
-        bonus *= upkeepDiscountInTown;
-        return baseRegiment.GetBonusUpkeep() * bonus;
+        float bonus = debt != null ? debt.ReductionUpkeep(baseRegiment.type) : 1;
+        
+        return baseRegiment.upkeep * bonus;
     }
 
     public void UpdateSpeed()

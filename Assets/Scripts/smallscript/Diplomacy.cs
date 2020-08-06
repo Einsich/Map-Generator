@@ -30,15 +30,19 @@ public class Diplomacy {
     public bool havePatronage(Diplomacy dip) => patronage.Exists((x) => x.Item1 == dip);
     public static void DeclareWar(Diplomacy attacker, Diplomacy defender, bool declare)
     {
-        WarData war = new WarData(attacker.state, defender.state);
-        attacker.war.Add(war);
-        defender.war.Add(war);
-        attacker.DeclaredWar(defender, declare);
-        defender.DeclaredWar(attacker, declare);
+        
         if(declare)
         {
+            WarData war = new WarData(attacker.state, defender.state);
+            attacker.war.Add(war);
+            defender.war.Add(war);
             attacker.state.DeclareWarPenalty(Mathf.Clamp01(attacker.relation[defender.state.ID] / warDeclareRelation));
+            Debug.Log(string.Format("{0} declare war to {1} !", attacker.state.name, defender.state.name));
+            if (defender.state == Player.curPlayer)
+                Debug.Log("Вам объявили войну!");
         }
+        attacker.DeclaredWar(defender, declare);
+        defender.DeclaredWar(attacker, declare);
         attacker.DiplomacyAction?.Invoke();
         defender.DiplomacyAction?.Invoke();
     }
@@ -52,6 +56,9 @@ public class Diplomacy {
         else
         {
             war.RemoveAll((x) => x.Contains(dip.state));
+            var target = state.GetWarTarget();
+            if (target != null)
+                state.diplomacy.uniqueCB.Add((target.diplomacy, 1));
         }
 
     }

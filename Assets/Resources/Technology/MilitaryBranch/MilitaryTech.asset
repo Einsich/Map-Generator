@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ce3f7cc53cc1dd4daa00fed8fb29aa6, type: 3}
   m_Name: MilitaryTech
   m_EditorClassIdentifier: 
-  science: 13
-  time: 11
+  science: 10
+  time: 20
   lvl: 0
   lvlmax: 1
   name: "\u0412\u043E\u0435\u043D\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438"

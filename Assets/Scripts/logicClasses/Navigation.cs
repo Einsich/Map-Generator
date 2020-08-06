@@ -103,7 +103,7 @@ public static class Navigation
             if (Collide())
                 return;
         foreach (var d in MapMetrics.OctoDelta)
-            if ((region = MapMetrics.GetRegion(cell + d)).Capital == cell + d)
+            if ((region = MapMetrics.GetRegion(cell + d))?.Capital == cell + d)
                 if (Collide())
                     return;
         agent.InTown = false;

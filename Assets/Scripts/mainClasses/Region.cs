@@ -31,7 +31,7 @@ public class Region :ITarget, IFightable
     public List<Vector2Int> territory;
     public bool iswater,retreatused;
     public Vector2Int Capital;
-    public float sqrDistanceToCapital => (Capital - _owner.Capital.Capital).sqrMagnitude;
+    public float DistanceToCapital => (Capital - _owner.Capital.Capital).magnitude;
     public Vector2 pos;
     public GameObject Text,Town,Corona;
     public Port Port;

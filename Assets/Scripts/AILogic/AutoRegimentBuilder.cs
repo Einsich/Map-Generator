@@ -108,7 +108,7 @@ public class AutoRegimentBuilder : AutoManager
         {
             if (isPeace)
             {
-                CompleteArmy(2, UpkeepArmyInPeace);
+                CompleteArmy(2);
                 CalculatePiece();
                 CompletingProv(FIRST_LINE_PIECE, 1, RiskI, 4);
                 CompletingProv(TWO_LINE_PIECE, 1, RiskII, 1);
@@ -116,7 +116,7 @@ public class AutoRegimentBuilder : AutoManager
             }
             else
             {
-                CompleteArmy(1, UpkeepArmyInWar);
+                CompleteArmy(1);
                 CalculatePiece();
                 CompletingProv(FIRST_LINE_PIECE, x, RiskI, 4);
                 CompletingProv(TWO_LINE_PIECE, x, RiskII, 1);
@@ -172,7 +172,7 @@ public class AutoRegimentBuilder : AutoManager
         }
     }
 
-    private void CompleteArmy(int reductionRegiments, System.Func<Army, BaseRegiment, Treasury> upkeepArmyInDiplomacyAct)
+    private void CompleteArmy(int reductionRegiments)
     {
         foreach (Army a in stateAI.Data.army)
         {
@@ -190,23 +190,12 @@ public class AutoRegimentBuilder : AutoManager
 
                     if (needNumber > 0 && needRegiment.ContainsKey(regID) && needRegiment[regID] > 0)
                     {
-                        Treasury upkeepInGarnison = a.curReg.data.UpkeepInProvince(baseRegiment);
-                        Treasury upkeepMovingToArmy = upkeepArmyInDiplomacyAct(a, baseRegiment);
-
-                        Treasury upUpkeep = upkeepMovingToArmy - upkeepInGarnison;
-
-                        if (armyIncome > upUpkeep)
-                        {
-                            Debug.Log("removable: " + regiment);
-                            a.ExchangeRegiment(regiment);
-                            needNumber--;
-                            needRegiment[regID]--;
-                            armyIncome -= upUpkeep;
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        
+                        Debug.Log("removable: " + regiment);
+                        a.ExchangeRegiment(regiment);
+                        needNumber--;
+                        needRegiment[regID]--;
+                       
                     }
                 }
 
@@ -215,7 +204,7 @@ public class AutoRegimentBuilder : AutoManager
                     ProvinceData prov = a.curReg.data;
                     BaseRegiment regiment = stateRegiments[nr.Key];
                     Treasury cost = regiment.cost;
-                    Treasury upkeep = upkeepArmyInDiplomacyAct(a, regiment);
+                    Treasury upkeep = regiment.upkeep;
 
                     for (float i = 0; i < nr.Value; i++)
                     {
@@ -247,17 +236,6 @@ public class AutoRegimentBuilder : AutoManager
         }
     }
 
-    private Treasury UpkeepArmyInPeace(Army a, BaseRegiment regiment)
-    {
-        ProvinceData prov = a.curReg.data;
-
-        return prov.UpkeepInProvince(regiment);
-    }
-
-    private Treasury UpkeepArmyInWar(Army a, BaseRegiment regiment)
-    {
-        return regiment.GetBonusUpkeep();
-    }
 
     private Dictionary<RegimentIdentifier, float> CompletionRegimentList(List<Regiment> regiments, Dictionary<RegimentIdentifier, float> template)
     {
@@ -351,7 +329,7 @@ public class AutoRegimentBuilder : AutoManager
             {
                 BaseRegiment regiment = stateRegiments[nr.Key];
                 Treasury cost = regiment.cost;
-                Treasury upkeep = prov.UpkeepInProvince(regiment);
+                Treasury upkeep = regiment.upkeep;
                 for (float i = 0; i < nr.Value; i++)
                 {
                     if (riskUpkeep >= upkeep)

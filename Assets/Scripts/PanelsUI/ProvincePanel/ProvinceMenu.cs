@@ -54,7 +54,7 @@ public class ProvinceMenu : MonoBehaviour {
         Name.text = current.name + " (" + current.id + ") ";
 
         Info.text = string.Format("distance = {0:N2}\ndist coef = {1:N2}\norder coef = {2:N2}\n",
-            Mathf.Sqrt(current.sqrDistanceToCapital), current.data.IncomeCoefFromDistance(), current.data.IncomeCoefFromOrder());
+            current.DistanceToCapital, current.data.IncomeCoefFromDistance(), current.data.IncomeCoefFromOrder());
         Treasury t = current.data.income;
         Treasury tc = current.data.incomeclear;
         gold.text = string.Format("{0:N1}\n({1:N1})", t.Gold, tc.Gold);

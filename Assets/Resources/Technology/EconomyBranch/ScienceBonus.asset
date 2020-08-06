@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8adb9b4bb57d3546a28ef82e8020f44, type: 3}
   m_Name: ScienceBonus
   m_EditorClassIdentifier: 
-  science: 4
-  time: 3
+  science: 20
+  time: 30
   lvl: 0
   lvlmax: 3
   name: "\u041D\u0430\u0443\u0447\u043D\u043E\u0435 \u043E\u0431\u0449\u0435\u0441\u0442\u0432\u043E"

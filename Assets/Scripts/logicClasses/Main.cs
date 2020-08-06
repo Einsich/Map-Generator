@@ -85,12 +85,10 @@ public class Main : MonoBehaviour
         CreateTerrain();
         CreateArmy();
         SetMapMode(MapMode.Politic);
-        
         CameraController.SetPosition(new Vector3(st[0].Capital.position.x, seaLevelf, st[0].Capital.position.y));
         MenuManager.StartTimer();
         Player.SetState(st[0]);
     }
-
     void CreateWorldBorder()
     {
         WorldBorders = new GameObject("World Borders");

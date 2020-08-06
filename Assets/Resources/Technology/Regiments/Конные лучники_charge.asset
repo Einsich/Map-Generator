@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "\u041A\u043E\u043D\u043D\u044B\u0435 \u043B\u0443\u0447\u043D\u0438\u043A\u0438_charge"
   m_EditorClassIdentifier: 
   science: 2
-  time: 3
+  time: 5
   lvl: 0
   lvlmax: 9
   name: 

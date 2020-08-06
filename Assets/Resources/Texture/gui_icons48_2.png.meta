@@ -65,6 +65,9 @@ TextureImporter:
   - first:
       213: 3113625014897876672
     second: pic20
+  - first:
+      213: 1401410060940604245
+    second: zombi
   externalObjects: {}
   serializedVersion: 10
   mipmaps:
@@ -556,7 +559,7 @@ TextureImporter:
         width: 48
         height: 48
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -564,6 +567,27 @@ TextureImporter:
       bones: []
       spriteID: 0ce12c05471d53b20800000000000000
       internalID: 3113625014897876672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: zombi
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 314
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 553f503860fc27310800000000000000
+      internalID: 1401410060940604245
       vertices: []
       indices: 
       edges: []

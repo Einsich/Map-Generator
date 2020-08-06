@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c5778eef27956541913eeac760ad2c4, type: 3}
   m_Name: WallsCostReduceTech
   m_EditorClassIdentifier: 
-  science: 3
-  time: 16
+  science: 20
+  time: 40
   lvl: 0
   lvlmax: 1
   name: "\u041E\u0441\u0430\u0434\u043D\u043E\u0435 \u0434\u0435\u043B\u043E"

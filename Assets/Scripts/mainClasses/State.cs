@@ -173,8 +173,6 @@ public class State
             regions[i].MonthUpdate();
         GlobalTrade.AddIncome(Income);
 
-        foreach (Army a in army)
-            a.ResetTimeAndRecalcUpkeepBonuses();
         allRegimentsUpkeep = CountingUpkeep();
         SpendTreasure(allRegimentsUpkeep, BudgetType.ArmyBudget);
 
@@ -208,6 +206,17 @@ public class State
           Mathf.Min(GlobalTrade.GetCource(ResourcesType.Gold, sellType) * (treasury[sellType] - wesell),
              GlobalTrade.GetCource(ResourcesType.Gold, buyType) * (treasury[buyType] + webuy));
 
+    }
+    static List<State> targetSet = new List<State>();
+    public State GetWarTarget()
+    {
+        targetSet.Clear();
+        foreach (var reg in regions)
+            foreach (var neib in reg.neib)
+                if (neib.owner != this && !neib.iswater && !targetSet.Contains(neib.owner))
+                    targetSet.Add(neib.owner);
+        return targetSet.Count > 0 ? targetSet[Random.Range(0, targetSet.Count)] : null;
+        
     }
     public string ResourcesHelp(int t)
     {

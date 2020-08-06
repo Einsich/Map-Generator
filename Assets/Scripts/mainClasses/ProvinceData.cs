@@ -10,25 +10,27 @@ public class ProvinceData {
     {
         if (lvl == -1)
             lvl = buildings[(int)type];
+        if (lvl >= maxBuildingLevel)
+            return new Treasury(1000000);
         Treasury cost;
         switch(type)
         {
-            case BuildingType.Infrastructure:cost = new Treasury(100, 400, 100, 100, 0);break;
-            case BuildingType.Port:cost = new Treasury(200, 600, 20, 20, 0);break;
-            case BuildingType.Trade:cost = new Treasury(300, 100, 100, 100, 0);break;
-            case BuildingType.Walls: cost = new Treasury(300, 1000, 200, 200, 0) * tree.wallsCostReduce;break;
-            case BuildingType.Sawmill:cost = new Treasury(100, 500, 200, 100, 0);break;
-            case BuildingType.Military:cost = new Treasury(1000, 1000, 200, 100, 0);break;
-            case BuildingType.Pits:cost = new Treasury(100, 500, 100, 200, 0); break;
-            case BuildingType.Farms:cost = new Treasury(100, 500, 50, 50, 0);break;
-            case BuildingType.University:cost = new Treasury(500, 200, 100, 100, 0);break;
-            default: cost = new Treasury(); break;
+            case BuildingType.Infrastructure:cost = new Treasury(50, 100, 50, 0, 0);break;
+            case BuildingType.Port:cost = new Treasury(50, 200, 20, 20, 0);break;
+            case BuildingType.Trade:cost = new Treasury(200, 50, 0, 0, 0);break;
+            case BuildingType.Walls: cost = new Treasury(100, 500, 100, 100, 0) * tree.wallsCostReduce;break;
+            case BuildingType.Sawmill:cost = new Treasury(100, 200, 20, 20, 0);break;
+            case BuildingType.Military:cost = new Treasury(100, 200, 10, 10, 0);break;
+            case BuildingType.Pits:cost = new Treasury(100, 200, 20, 20, 0); break;
+            case BuildingType.Farms:cost = new Treasury(100, 100, 10, 10, 0);break;
+            case BuildingType.University:cost = new Treasury(400, 100, 10, 10, 0);break;
+            default: throw new System.Exception("Bad Building type: "+ type.ToString()); break;
         }
 
         return cost * levelCoef[1 + lvl];
         
     }
-    static float[] levelCoef = new float[maxBuildingLevel + 1]{ 0, 1, 1.5f, 1.75f};
+    static float[] levelCoef = new float[maxBuildingLevel + 1]{ 0, 1, 1.25f, 1.5f};
      Treasury Income(BuildingType type, int lvl)
     {
         if (lvl >= levelCoef.Length)
@@ -37,13 +39,13 @@ public class ProvinceData {
         switch (type)
         {
 
-            case BuildingType.Infrastructure: income = new Treasury(10, 100, 0, 0, 5); break;
-            case BuildingType.Trade: income = new Treasury(20, 0, 5, 5, 1); break;
-            case BuildingType.Farms: income = new Treasury(100, 0, 0, 0, 0); break;
-            case BuildingType.Military: income = new Treasury(0, 500, 0, 0, 0); break;
-            case BuildingType.Sawmill: income = new Treasury(0, 0, 50, 0, 0); break;
-            case BuildingType.Pits: income = new Treasury(0, 0, 0, 50, 0); break;
-            case BuildingType.University: income = new Treasury(0, 0, 0, 0, 20);break;
+            case BuildingType.Infrastructure: income = new Treasury(10, 50, 0, 0, 2); break;
+            case BuildingType.Trade: income = new Treasury(20, 0, 5, 5, 2) * tree.portTradeBonus; break;
+            case BuildingType.Farms: income = new Treasury(50, 0, 0, 0, 0); break;
+            case BuildingType.Military: income = new Treasury(0, 200, 0, 0, 0); break;
+            case BuildingType.Sawmill: income = new Treasury(0, 0, 20, 0, 0); break;
+            case BuildingType.Pits: income = new Treasury(0, 0, 0, 20, 0); break;
+            case BuildingType.University: income = new Treasury(0, 0, 0, 0, 10);break;
             default: return new Treasury();
         }
 
@@ -51,7 +53,7 @@ public class ProvinceData {
     }
     public int Time(BuildingType type, int lvl)
     {
-        return ((int)type) < 6 ? 5 * (1 + lvl) : 10;
+        return 5 * (1 + lvl);
     }
     public FractionType fraction;
     public const int buildingsCount = 9, maxBuildingLevel = 3;
@@ -61,7 +63,7 @@ public class ProvinceData {
     public float order = 1f;
     public Treasury income = new Treasury(), incomeclear;
     private Treasury pieceUpkeep;
-    static Treasury defaultTreasure = new Treasury(10, 50, 0, 0, 0);
+    static Treasury defaultTreasure = new Treasury(5, 20, 1, 1, 0);
     public List<RecruitAction> recruitQueue = new List<RecruitAction>();
     public int wallsLevel => buildings[(int)BuildingType.Walls];
     public int portLevel => buildings[(int)BuildingType.Port];
@@ -189,10 +191,9 @@ public class ProvinceData {
             return BuildState.CantBuild;
         return BuildState.CanBuild;
     }
-    public float PortBonus => 1f + 0.15f * buildings[(int)BuildingType.Port];
     public float IncomeCoefFromDistance()
     {
-        return 1f / (1f + 0.01f * region.sqrDistanceToCapital);
+        return 1f / (1f + 0.01f * region.DistanceToCapital);
     }
     public float IncomeCoefFromOrder()
     {
@@ -226,15 +227,11 @@ public class ProvinceData {
 
         foreach (var g in garnison)
         {
-            upkeep += UpkeepInProvince(g.baseRegiment);
+            upkeep += g.baseRegiment.upkeep;
         }
-        return upkeep;
+        return upkeep * tree.regimentUpkeepReduce;
     }
 
-    public Treasury UpkeepInProvince(BaseRegiment baseRegiment)
-    {
-        return baseRegiment.GetBonusUpkeep() * GameConst.GarnisonUpkeepDiscount;
-    }
 
     public string BuildingDescription(BuildingType type)
     {
@@ -247,7 +244,7 @@ public class ProvinceData {
         {
             case BuildingType.Infrastructure:s = "Инфраструктура города.\n Развитая инфраструктура позволяет собирать больше налогов.";break;
             case BuildingType.Port: s = "Порт.\n Увеличивает на некоторый процент доход от рынка за счет морской торговли, а также позволяет базироваться флоту. Позволяют строить флот.";
-                d = $"Текуший бонус {PortBonus.ToPercent()}\n"; break;
+                d = $"Текуший бонус {tree.portTradeBonus.ToPercent()}\n"; break;
             case BuildingType.Trade: s = "Рынок.\n Усиливает внутреннюю торговлю, из-за чего город получает небольшое количество всех ресурсов."; break;
             case BuildingType.Walls: s = "Стены.\n Главная основа обороны города, дают обороняющейся армии большие преимущества."; break;
             case BuildingType.Farms: s = "Фермерские плантации. \nЕще больше золота."; break;

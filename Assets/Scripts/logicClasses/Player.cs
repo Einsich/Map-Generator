@@ -34,7 +34,7 @@ public class Player : MonoBehaviour {
             annexator.regions.Add(reg);
         }
         foreach (var reg in regions)
-            reg.UpdateSplateState(annexator);
+            reg.UpdateSplateState(curPlayer);
         annexator.SetName();
         if(target.regions.Count == 0)
         {
@@ -131,6 +131,7 @@ public class Player : MonoBehaviour {
             states[i].stateAI.autoRegimentBuilder.IsOn = (state != states[i]);
             states[i].stateAI.autoArmyCommander.IsOn = (state != states[i]);
             states[i].stateAI.autoPersonControl.IsOn = (state != states[i]);
+            states[i].stateAI.autoDiplomacy.IsOn = (state != states[i]);
         }
         foreach (var army in Army.AllArmy)
         {

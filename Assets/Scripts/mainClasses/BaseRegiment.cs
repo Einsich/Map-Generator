@@ -20,7 +20,7 @@ public class BaseRegiment : ScriptableObject
         {
             case DamageType.Melee: return 50 + (damageLvl + buff) * 20;
             case DamageType.Charge: return 70 + (damageLvl + buff) * 30;
-            case DamageType.Range: return 30 + (damageLvl + buff) * 10;
+            case DamageType.Range: return 30 + (damageLvl + buff) * 15;
             default: return 1 + damageLvl;
         }
     }
@@ -82,10 +82,6 @@ public class BaseRegiment : ScriptableObject
             case DamageType.Range:time *= 1.5f; break;
         }
         return time;
-    }
-    public Treasury GetBonusUpkeep()
-    {
-        return upkeep * (owner != null ? owner.technologyTree.regimentUpkeepReduce : 1);
     }
 
     public int ArmorLvl(DamageType type)

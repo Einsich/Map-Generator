@@ -587,6 +587,7 @@ static class Creator {
             state.fraction = (FractionType)(k % 2);
             k++;
             state.defaultLeader();
+            
         }
     }
    static void AddRegions(int i0, List<int>st, int size)
@@ -630,13 +631,15 @@ static class Creator {
         {
             states[i].ID = i;
             states[i].diplomacy = new Diplomacy(states[i]);
+
         }
         for (int i = 0; i < states.Count; i++)
-            for (int j = i+1; j < states.Count; j++)
-            {
-                bool alliance = Random.value > 0.66f;
-               // states[i].diplomacy.DeclareWar(states[j].diplomacy, alliance ? false : Random.value > 0.5f);                
-            }
+        {
+
+            var target = states[i].GetWarTarget();
+            if (target != null)
+                states[i].diplomacy.uniqueCB.Add((target.diplomacy, 1));
+        }
     }
 }
 public enum TerrainType

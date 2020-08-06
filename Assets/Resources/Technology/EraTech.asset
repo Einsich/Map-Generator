@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1ac388195ea09c4ea8ec5ba7cf984db, type: 3}
   m_Name: EraTech
   m_EditorClassIdentifier: 
-  science: 10
-  time: 20
+  science: 50
+  time: 100
   lvl: 1
   lvlmax: 3
   name: "\u0422\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0447\u0435\u0441\u043A\u0430\u044F

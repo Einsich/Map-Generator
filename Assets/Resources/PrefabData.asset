@@ -28,9 +28,7 @@ MonoBehaviour:
   ShipPrefab: {fileID: 4493193658130411110, guid: cee34f914ee00e142abf416537249c3d,
     type: 3}
   Skelets:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 5012eb61134206846bcf2c4850ca0791, type: 2}
   TechnologyPanel: {fileID: 5680992134984719745, guid: 451e93d9fc6bb5c44819e8c5efbdf4d5,
     type: 3}
   RegimentTechnologyPanel: {fileID: 2595585941586640336, guid: 082cf0542ab60b6428fa70a7573ef617,
