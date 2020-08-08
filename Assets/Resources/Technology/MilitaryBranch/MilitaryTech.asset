@@ -17,7 +17,6 @@ MonoBehaviour:
   lvl: 0
   lvlmax: 1
   name: "\u0412\u043E\u0435\u043D\u043D\u044B\u0435 \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438"
-  description: 
   Icon: {fileID: -8360957288293297472, guid: a02278be5af8e754492249a8effc8e8c, type: 3}
   parent: {fileID: 0}
   tree: {fileID: 0}

@@ -19,6 +19,7 @@ public class AutoDiplomacy : AutoManager
                 return;
             if (value)
             {
+                DiplomacyUpdate();
                 GameTimer.AddListener(DiplomacyUpdate, state.Data);
             }
             else
@@ -33,25 +34,29 @@ public class AutoDiplomacy : AutoManager
 
     public void DiplomacyUpdate()
     {
+        new GameAction(Random.Range(0, 10), RealUpdate); 
+
+    }
+    private void RealUpdate()
+    {
         State state = this.state.Data;
         Diplomacy diplomacy = state.diplomacy;
-        var war = diplomacy.war.Count > 0 ? diplomacy.war[0] : null;
-        if(war != null)
+        for(int i = 0;i < diplomacy.war.Count; i++)
         {
+            var war = diplomacy.war[i];
             if (war.canWasAnnexated(war.Enemy(state)))
             {
                 state.Annexation(war.Enemy(state));
                 Diplomacy.DeclareWar(state.diplomacy, war.Enemy(state).diplomacy, false);
-                
+                i--;
             }
         }
         var dip = diplomacy.uniqueCB.Count > 0 ? diplomacy.uniqueCB[0] : (null, 0);
 
-        if(dip.Item1 != null)
+        if (dip.Item1 != null)
         {
             Diplomacy.DeclareWar(diplomacy, dip.Item1, true);
             diplomacy.uniqueCB.RemoveAt(0);
         }
-
     }
 }

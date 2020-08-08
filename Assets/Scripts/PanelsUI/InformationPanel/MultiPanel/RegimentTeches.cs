@@ -11,7 +11,15 @@ public class RegimentTeches : MonoBehaviour,IHelpBaseRegiment
     public Image Icon;
 
     public BaseRegiment BaseRegiment { get ; set ; }
+    private void Awake()
+    {
 
+        var listener = Icon.gameObject.AddComponent<HelpListener>();
+        listener.direction = HelpPanelDirection.DownRight;
+        listener.size = HelpPanelSize.Medium200x200;
+        listener.advance = HelpShowClass.BaseRegiment;
+
+    }
     public void Init(BaseRegiment regiment, Technology[] regTeches, Technology researchedRegiment)
     {
         BaseRegiment = regiment;

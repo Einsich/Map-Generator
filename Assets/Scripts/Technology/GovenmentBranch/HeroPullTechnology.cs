@@ -6,4 +6,8 @@ using UnityEngine;
 public class HeroPullTechnology : Technology
 {
     public override void LevelUp() => tree.maxPerson++;
+    public override string getDescription()
+    {
+        return string.Format("Увеличивает доличество доступных для найма героев.");
+    }
 }

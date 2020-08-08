@@ -7,6 +7,10 @@ using UnityEngine;
 public class EraTechnology : Technology
 {
     public override void LevelUp() => tree.technologyEra++;
+    public override string getDescription()
+    {
+        return string.Format("Новая технологическая эра, дает доступ к многоуровневым исследованиям.");
+    }
 }
 
 

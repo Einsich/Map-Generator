@@ -23,9 +23,10 @@ public class Player : MonoBehaviour {
     }
     public void Annexation(State annexator, State target, List<Region> land)
     {
-        foreach (var reg in annexator.regions)
-            if (reg.ocptby == target)
-                reg.ocptby = null;
+        foreach (var war in target.diplomacy.war)
+            foreach (var reg in war.Enemy(target).regions)
+                if (reg.ocptby == target)
+                    reg.ocptby = null;
         foreach(var reg in land)
         {
             reg.owner.regions.Remove(reg);
@@ -35,6 +36,10 @@ public class Player : MonoBehaviour {
         }
         foreach (var reg in regions)
             reg.UpdateSplateState(curPlayer);
+        foreach (var agent in curPlayer.army)
+            MapMetrics.UpdateAgentVision(agent.curPosition, agent.curPosition, agent.VisionRadius, 1);
+        foreach (var agent in curPlayer.ships)
+            MapMetrics.UpdateAgentVision(agent.curPosition, agent.curPosition, agent.VisionRadius, 1);
         annexator.SetName();
         if(target.regions.Count == 0)
         {
@@ -65,7 +70,11 @@ public class Player : MonoBehaviour {
                 army.navAgent.target = null;
 
         foreach (var reg in regions)
-            reg.UpdateSplateState(annexator);
+            reg.UpdateSplateState(curPlayer);
+        foreach (var agent in curPlayer.army)
+            MapMetrics.UpdateAgentVision(agent.curPosition, agent.curPosition, agent.VisionRadius, 1);
+        foreach (var agent in curPlayer.ships)
+            MapMetrics.UpdateAgentVision(agent.curPosition, agent.curPosition, agent.VisionRadius, 1);
         if (target.stateAI.autoArmyCommander.IsOn)
             target.stateAI.autoArmyCommander.RecalculateRegions();
         if (annexator.stateAI.autoArmyCommander.IsOn)

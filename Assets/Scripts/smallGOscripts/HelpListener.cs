@@ -5,9 +5,9 @@ using UnityEngine.EventSystems;
 
 public class HelpListener : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler
 {
-    [SerializeField]private HelpPanelDirection direction;
-    [SerializeField]private HelpPanelSize size;
-    [SerializeField]private HelpShowClass advance;
+    [SerializeField]public HelpPanelDirection direction;
+    [SerializeField] public HelpPanelSize size;
+    [SerializeField] public HelpShowClass advance;
     [SerializeField]private string Key;
     private bool HelpElement;
     private IHelpBaseRegiment IHelpBaseRegiment;
@@ -33,6 +33,8 @@ public class HelpListener : MonoBehaviour,IPointerEnterHandler,IPointerExitHandl
                 break;
             case HelpShowClass.Technology:
                 IHelpTechology = GetComponentInParent<TechInterface>();
+                if (IHelpTechology == null)
+                    IHelpTechology = GetComponentInParent<RegimentTech>();
                 HelpElement = IHelpTechology != null;
 
                 break;
@@ -66,6 +68,11 @@ public class HelpListener : MonoBehaviour,IPointerEnterHandler,IPointerExitHandl
             Hide();
 
     }
+    private void OnTransformParentChanged()
+    {
+        if (LastHelper == this)
+            Hide();
+    }
     public void OnPointerExit(PointerEventData eventData)
     {
         LastAction = Time.time;
@@ -98,7 +105,7 @@ public class HelpListener : MonoBehaviour,IPointerEnterHandler,IPointerExitHandl
         switch (advance)
         {
             case HelpShowClass.BaseRegiment: return ((IHelpBaseRegiment)).BaseRegiment.ToString(); 
-            case HelpShowClass.Technology:  return ((IHelpTechology)).Technology.description;
+            case HelpShowClass.Technology:  return IHelpTechology.Technology.lvl != IHelpTechology.Technology.lvlmax ? IHelpTechology.Technology.getDescription() : "Исследовано";
             case HelpShowClass.Person:  return ((IHelpPerson)).Person.ToString();
              case HelpShowClass.Building: return ((IHelpBuilding)).BuildingDescribe();
             default: return Key;
@@ -117,6 +124,7 @@ public class HelpListener : MonoBehaviour,IPointerEnterHandler,IPointerExitHandl
         HelpManager.Hide();
         Helping = false;
         LastHelper = null;
+        Inside = false;
     }
 }
 public enum HelpPanelDirection

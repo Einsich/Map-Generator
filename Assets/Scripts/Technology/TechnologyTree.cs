@@ -46,8 +46,7 @@ public class TechnologyTree : ScriptableObject
             for (int i = 0; i < regiments.Length; i++)
                 if (regiments[i] != null)
                     state.regiments[i] = Instantiate(regiments[i]);
-
-        regiments = state.regiments;
+        regiments = new BaseRegiment[GameConst.MaxRegimentCount];
         openedPerson = new List<PersonType>();
         BuildTree();
     }
@@ -58,10 +57,13 @@ public class TechnologyTree : ScriptableObject
             technology[i] = Instantiate(technology[i]);
             technology[i].parent = parents[i] < 0 ? null : technology[parents[i]];
             technology[i].tree = this;
+            if (technology[i] is NewRegimentTechnology newRegiment)
+                regiments[newRegiment.regimentOffset] = newRegiment.regimentInstance;
         }
 
     }
     public void TechnologyResearched(Technology technology) { TechWasResearchedEvent?.Invoke(); }
+    public BaseRegiment GetRegimentInstance(int offset) => state.regiments[offset] ?? regiments[offset];
 }
 
 public class Technology : ScriptableObject
@@ -69,7 +71,6 @@ public class Technology : ScriptableObject
     [SerializeField] private float science, time;
     public int lvl = 0, lvlmax = 1;
     public new string name;
-    public string description;
     public Sprite Icon;
     public GameAction researchAction = null;
     public Action buttonEvent;
@@ -95,6 +96,8 @@ public class Technology : ScriptableObject
     {
 
     }
+    public virtual string getDescription() { return ""; }
+
     public void OnValidate()
     {
 #if UNITY_EDITOR

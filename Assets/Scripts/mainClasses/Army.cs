@@ -18,7 +18,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     public ArmyAI AI;
     public GameObject selectia,siegeModel;
     public ArmyBar bar;
-    public bool CanExchangeRegimentWith(Region region)=> navAgent.curCell == region?.Capital && owner == region.curOwner;
+    public bool CanExchangeRegimentWith(Region region)=> curReg == region && owner == region.curOwner;
     public bool Destoyed { get; set; } = false;
     public System.Action HitAction;
     //GameObject cube;

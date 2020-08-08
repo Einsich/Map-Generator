@@ -7,4 +7,9 @@ public class ActiveExpTechnology : Technology
 {
     public float[] activeExp;
     public override void LevelUp() => tree.activeExperienceBonus = activeExp[lvl - 1];
+
+    public override string getDescription()
+    {
+        return string.Format("Увеличивает получаемый опыт процентно на {0}.", activeExp[lvl].ToPercent());
+    }
 }

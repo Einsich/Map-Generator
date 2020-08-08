@@ -9,6 +9,16 @@ public class TechInterface : InitGO,IHelpTechology
     public Image icon;
     public Text nameTech, timeCost, scienceCost;
     public Technology Technology { get; set; }
+    private void Awake()
+    {
+        if(icon != null)
+        {
+            var listener = icon.gameObject.AddComponent<HelpListener>();
+            listener.direction = HelpPanelDirection.DownRight;
+            listener.size = HelpPanelSize.Medium200x200;
+            listener.advance = HelpShowClass.Technology;
+        }
+    }
     public void Init(Technology tech)
     {
         if (Technology != null)

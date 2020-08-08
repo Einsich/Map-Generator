@@ -21,7 +21,7 @@ public class Diplomacy {
     public bool canInsulting(Diplomacy dip) => relation[dip.state.ID] > 0;
     public bool canPatronage(Diplomacy dip) => !haveWar(dip);
     public bool canUniate(Diplomacy dip) => !haveWar(dip) && relation[dip.state.ID] >= 70;
-    public bool haveWar(Diplomacy dip) => war.Exists((x) => x.Contains(dip.state));
+    public bool haveWar(Diplomacy dip) => dip != this && war.Exists((x) => x.Contains(dip.state));
     public WarData getWar(Diplomacy dip) => war.Find((x) => x.Contains(dip.state));
     public bool haveAccess(Diplomacy dip) => forceAccess.Contains(dip);
     public bool haveDeal(Diplomacy dip) => tradeDeals.Exists((x) => x.State1 == dip.state  || x.State2 == dip.state );

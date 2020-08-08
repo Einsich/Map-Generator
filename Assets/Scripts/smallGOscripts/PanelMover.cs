@@ -55,8 +55,8 @@ public class PanelMover : MonoBehaviour
     {
         while(true)
         {
-            Rect.anchoredPosition = Vector2.Lerp(Rect.anchoredPosition, Target, 0.1f);
-            if(Vector2.Distance(Rect.anchoredPosition,Target) < 0.1)
+            Rect.anchoredPosition = Vector2.Lerp(Rect.anchoredPosition, Target, 0.4f);
+            if(Vector2.Distance(Rect.anchoredPosition,Target) < 5)
             {
                 Rect.anchoredPosition = Target;
                 Move = false;

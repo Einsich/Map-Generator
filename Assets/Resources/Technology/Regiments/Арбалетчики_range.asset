@@ -17,7 +17,6 @@ MonoBehaviour:
   lvl: 1
   lvlmax: 9
   name: 
-  description: 
   Icon: {fileID: 0}
   parent: {fileID: 0}
   tree: {fileID: 0}

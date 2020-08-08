@@ -110,7 +110,7 @@ public class Person
         die = Random.Range(0, 2) == 1;
         die = false;
 
-        GameTimer.OftenUpdate += () => exp += (1 + state.technologyTree.activeExperienceBonus) * state.technologyTree.activeExperienceBonus;
+        GameTimer.OftenUpdate += () => exp += (1 + state.technologyTree.passiveExperience) * state.technologyTree.activeExperienceBonus;
 
     }
     virtual public void NewLevel() { lvlPoint++;}

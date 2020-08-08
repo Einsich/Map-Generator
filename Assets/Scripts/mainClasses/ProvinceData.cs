@@ -15,15 +15,15 @@ public class ProvinceData {
         Treasury cost;
         switch(type)
         {
-            case BuildingType.Infrastructure:cost = new Treasury(50, 100, 50, 0, 0);break;
-            case BuildingType.Port:cost = new Treasury(50, 200, 20, 20, 0);break;
+            case BuildingType.Infrastructure:cost = new Treasury(50, 50, 50, 0, 0);break;
+            case BuildingType.Port:cost = new Treasury(50, 100, 20, 20, 0);break;
             case BuildingType.Trade:cost = new Treasury(200, 50, 0, 0, 0);break;
-            case BuildingType.Walls: cost = new Treasury(100, 500, 100, 100, 0) * tree.wallsCostReduce;break;
-            case BuildingType.Sawmill:cost = new Treasury(100, 200, 20, 20, 0);break;
-            case BuildingType.Military:cost = new Treasury(100, 200, 10, 10, 0);break;
-            case BuildingType.Pits:cost = new Treasury(100, 200, 20, 20, 0); break;
+            case BuildingType.Walls: cost = new Treasury(100, 200, 100, 100, 0) * tree.wallsCostReduce;break;
+            case BuildingType.Sawmill:cost = new Treasury(100, 100, 20, 20, 0);break;
+            case BuildingType.Military:cost = new Treasury(100, 100, 10, 10, 0);break;
+            case BuildingType.Pits:cost = new Treasury(100, 100, 20, 20, 0); break;
             case BuildingType.Farms:cost = new Treasury(100, 100, 10, 10, 0);break;
-            case BuildingType.University:cost = new Treasury(400, 100, 10, 10, 0);break;
+            case BuildingType.University:cost = new Treasury(400, 50, 10, 10, 0);break;
             default: throw new System.Exception("Bad Building type: "+ type.ToString()); break;
         }
 
@@ -39,8 +39,8 @@ public class ProvinceData {
         switch (type)
         {
 
-            case BuildingType.Infrastructure: income = new Treasury(10, 50, 0, 0, 2); break;
-            case BuildingType.Trade: income = new Treasury(20, 0, 5, 5, 2) * tree.portTradeBonus; break;
+            case BuildingType.Infrastructure: income = new Treasury(10, 70, 0, 0, 2); break;
+            case BuildingType.Trade: income = new Treasury(20, 0, 5, 5, 2) * (portBonus * tree.portTradeBonus); break;
             case BuildingType.Farms: income = new Treasury(50, 0, 0, 0, 0); break;
             case BuildingType.Military: income = new Treasury(0, 200, 0, 0, 0); break;
             case BuildingType.Sawmill: income = new Treasury(0, 0, 20, 0, 0); break;
@@ -63,11 +63,12 @@ public class ProvinceData {
     public float order = 1f;
     public Treasury income = new Treasury(), incomeclear;
     private Treasury pieceUpkeep;
-    static Treasury defaultTreasure = new Treasury(5, 20, 1, 1, 0);
+    static Treasury defaultTreasure = new Treasury(5, 60, 1, 1, 0);
     public List<RecruitAction> recruitQueue = new List<RecruitAction>();
     public int wallsLevel => buildings[(int)BuildingType.Walls];
     public int portLevel => buildings[(int)BuildingType.Port];
     public System.Action SomeChanges;
+    public float portBonus => 1 + buildings[(int)BuildingType.Port] * 0.25f;
     public void AddRecruit(RecruitAction act)
     {
         region.owner.SpendTreasure(act.regiment.cost, BudgetType.ArmyBudget);
@@ -244,7 +245,7 @@ public class ProvinceData {
         {
             case BuildingType.Infrastructure:s = "Инфраструктура города.\n Развитая инфраструктура позволяет собирать больше налогов.";break;
             case BuildingType.Port: s = "Порт.\n Увеличивает на некоторый процент доход от рынка за счет морской торговли, а также позволяет базироваться флоту. Позволяют строить флот.";
-                d = $"Текуший бонус {tree.portTradeBonus.ToPercent()}\n"; break;
+                d = $"Текуший бонус {portBonus.ToPercent()}\n"; break;
             case BuildingType.Trade: s = "Рынок.\n Усиливает внутреннюю торговлю, из-за чего город получает небольшое количество всех ресурсов."; break;
             case BuildingType.Walls: s = "Стены.\n Главная основа обороны города, дают обороняющейся армии большие преимущества."; break;
             case BuildingType.Farms: s = "Фермерские плантации. \nЕще больше золота."; break;

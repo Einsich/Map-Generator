@@ -59,7 +59,7 @@ public class TechnologyTreeUI : MonoBehaviour
                 Technology[] regTech = new Technology[4] { tree.technology[i], tree.technology[i + 1], tree.technology[i + 2], tree.technology[i + 3] };
                 i += 3;
                 if (baseRegiment == null)
-                    baseRegiment = tree.regiments[(regTech[0] as AttackTechnology).regimentOffset];
+                    baseRegiment = tree.state.regiments[(regTech[0] as AttackTechnology).regimentOffset];
                 regimentTeches.Init(baseRegiment, regTech, regimentTechnology);
             }
             else

@@ -18,9 +18,8 @@ MonoBehaviour:
   lvlmax: 1
   name: "\u042D\u043A\u043E\u043D\u043E\u043C\u0438\u0447\u0435\u0441\u043A\u0438\u0435
     \u0442\u0435\u0445\u043D\u043E\u043B\u043E\u0433\u0438\u0438"
-  description: 
   Icon: {fileID: 21300000, guid: 5f309a60462648a4c84f5a895d626d98, type: 3}
   parent: {fileID: 0}
   tree: {fileID: 0}
   NodeID: 19
-  unlockType: 080000000400000006000000
+  unlockType: 040000000600000007000000

@@ -3,12 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RegimentTech : MonoBehaviour
+public class RegimentTech : MonoBehaviour, IHelpTechology
 {
     public TechButton techButton;
     public Image level;
     public Text timeCost, scienceCost;
     public Technology Technology { get; set; }
+    private void Awake()
+    {
+
+        var icon = transform.Find("Icon");
+        if(icon)
+        {
+            var listener = icon.gameObject.AddComponent<HelpListener>();
+            listener.direction = HelpPanelDirection.DownRight;
+            listener.size = HelpPanelSize.Medium200x200;
+            listener.advance = HelpShowClass.Technology;
+        }
+    }
     public void Init(Technology tech)
     {
         if (Technology != null)
