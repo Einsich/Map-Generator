@@ -61,9 +61,10 @@ public class ArmyAI : MonoBehaviour
             if (!army.TryMoveToTarget(curTarget, curDamageType))
             {
                 if (!Main.isPossibleMove(army.curPosition, curTarget.curPosition, owner))
+                {
                     targets.Remove(curTarget);
-
-                Logic();
+                    Logic();
+                }
             }
         }
     }
