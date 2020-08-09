@@ -38,7 +38,7 @@ public class AutoTrader :AutoManager
 
     private void TryTrade()
     {
-        Treasury deficit = state.GetTreasure;
+        Treasury deficit = state.treasury;
         deficit.NormalizeToGold();
         sortList.Clear();
         for (int i = 0; i < (int)ResourcesType.Count; i++)

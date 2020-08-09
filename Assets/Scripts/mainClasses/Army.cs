@@ -196,7 +196,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     public void Selected(bool selected)
     {
         selectia.SetActive(selected);
-        navAgent.ShowPath(selected);
+       // navAgent.ShowPath(selected);
 
     }
     bool active;
@@ -257,6 +257,9 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
             remove = list; add = army; }
         else
         {
+            if (curReg.data.garnison.Count >= curReg.data.maxGarnison)
+                return;
+
             remove = army; add = list;
         }
         remove.Remove(regiment);
@@ -489,7 +492,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
                 else
                     break;
 
-            owner.SpendTreasure(new Treasury(0, dmp, 0, 0, 0), BudgetType.ArmyBudget);
+            owner.SpendTreasure(new Treasury(0, dmp, 0, 0, 0));
         }
         if(manpowerBonus <0 || bats != null)
         {

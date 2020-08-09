@@ -5,5 +5,15 @@ using UnityEngine;
 public interface AutoManager 
 {
      bool IsOn { get;  set; }
-    Treasury NeedTreasure { get; }
+}
+public interface AutoSpender
+{
+    bool IsOn { get; set; }
+    AutoSpenderResult TrySpend(StateAI state);
+}
+public enum AutoSpenderResult
+{
+    Success,
+    NeedMoreResources,
+    HasNotOrder
 }

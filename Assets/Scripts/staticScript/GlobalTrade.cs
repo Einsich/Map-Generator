@@ -36,7 +36,7 @@ public static class GlobalTrade
         Buffer[deal.BuyRes] -= deal.Buy;
         Buffer[deal.SellRes] += deal.Sell;
         deal.State.stateAI.IncomeResources(new Treasury(deal.BuyRes, deal.Buy));
-        deal.State.stateAI.SomeOneSpentResources(new Treasury(deal.SellRes, deal.Sell), BudgetType.OtherBudget);
+        deal.State.stateAI.SpentResources(new Treasury(deal.SellRes, deal.Sell));
         if (Buffer[deal.BuyRes] < 0.01f)
             Buffer[deal.BuyRes] = 0;
         deal.State.TreasureChange?.Invoke();

@@ -5,8 +5,7 @@ using UnityEngine.UI;
 
 public class EconomicPanel : MonoBehaviour
 {
-    [SerializeField] private Slider armyBudget, buildBudget, techBudget, otherBudget;
-    [SerializeField] private Text armyBudgetText, buildBudgetText, techBudgetText, otherBudgetText, allBudgetText;
+    [SerializeField] private Text allBudgetText;
     [SerializeField] private Toggle autoArmy, autoBuild, autoResearch;
 
     private State state;
@@ -16,29 +15,18 @@ public class EconomicPanel : MonoBehaviour
         this.state = state;
         state.IncomeChanges += UpdateInformation;
         state.TreasureChange += UpdateInformation;
-        armyBudget.onValueChanged.AddListener((x)=> SliderValueChange(x, BudgetType.ArmyBudget));
-        buildBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.BuildingBudget));
-        techBudget.onValueChanged.AddListener((x) => SliderValueChange(x, BudgetType.TechnologyBudget));
 
         autoArmy.onValueChanged.AddListener((x) => state.stateAI.autoRegimentBuilder.IsOn = x);
         autoBuild.onValueChanged.AddListener((x)=> state.stateAI.autoBuilder.IsOn = x);
         autoResearch.onValueChanged.AddListener((x)=>state.stateAI.autoReasercher.IsOn = x);
-        SliderUpdate();
         ToggleUpdate();
         UpdateInformation();
     }
     private void ToggleUpdate()
     {
-        autoArmy.isOn = false;
+        autoArmy.isOn = state.stateAI.autoRegimentBuilder.IsOn;
         autoBuild.isOn = state.stateAI.autoBuilder.IsOn;//вызывает подписанные события
         autoResearch.isOn = state.stateAI.autoReasercher.IsOn; 
-    }
-    private void SliderUpdate()
-    {
-        armyBudget.value = state.stateAI.armyBudget;
-        buildBudget.value = state.stateAI.buildingBudget;
-        techBudget.value = state.stateAI.technologyBudget;
-        otherBudget.value = 1 - state.stateAI.armyBudget - state.stateAI.buildingBudget;
     }
     private void UpdateInformation()
     {
@@ -46,17 +34,7 @@ public class EconomicPanel : MonoBehaviour
         //state.regions[i].data.CalculateIncome(); - Доход провинции 
         //state.army[i].GetUpkeep();
         StateAI ai = state.stateAI;
-        armyBudgetText.text = ai.GetArmyBudget.ToString();
-        buildBudgetText.text = ai.GetBuildingBudget.ToString();
-        techBudgetText.text = ai.GetTechnologyBudget.ToString();
-        otherBudgetText.text = ai.GetOtherBudget.ToString();
-        allBudgetText.text = ai.GetTreasure.ToString();
-    }
-    void SliderValueChange(float t, BudgetType budgetType)
-    {
-        state.stateAI.ChangeBudget(t, budgetType);
-        SliderUpdate();
-        UpdateInformation();
+        allBudgetText.text = ai.treasury.ToString();
     }
     private void OnDisable()
     {
@@ -66,9 +44,6 @@ public class EconomicPanel : MonoBehaviour
 
         state.IncomeChanges -= UpdateInformation;
         state.TreasureChange -= UpdateInformation;
-        armyBudget.onValueChanged.RemoveAllListeners();
-        buildBudget.onValueChanged.RemoveAllListeners();
-        techBudget.onValueChanged.RemoveAllListeners();
 
         autoArmy.onValueChanged.RemoveAllListeners();
         autoBuild.onValueChanged.RemoveAllListeners();

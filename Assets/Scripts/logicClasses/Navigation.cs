@@ -64,7 +64,7 @@ public static class Navigation
     public static GameObject GetWayPoint()
     {
         var p = WayPoints.Count > 0 ? WayPoints.Pop() : GameObject.Instantiate(Main.instance.WayPoint);
-        p.SetActive(true);
+        p.SetActive(false);
         return p;
     }
     public static void SetWayPoint(GameObject point)

@@ -176,12 +176,6 @@ public class Region :ITarget, IFightable
             if (n.owner == st) return false;
         return true;
     }
-    public void MonthUpdate()
-    {
-        if (iswater) return;
-        data.EconomyUpdate();
-        
-    }
     public void RebuildTown(bool newfraction = false)
     {
         int lvl = data.buildings[0];

@@ -20,12 +20,12 @@ public class State
     public Diplomacy diplomacy;
     public TechnologyTree technologyTree;
     public StateAI stateAI;
-    public Treasury Income;
-    public Treasury allRegimentsUpkeep;
+    public Treasury Income { get; private set; }
+    public Treasury allRegimentsUpkeep{ get; private set; }
     public System.Action TreasureChange, IncomeChanges;
-    public Treasury treasury => stateAI.GetTreasure;
-    public void SpendTreasure(Treasury treasury, BudgetType budgetType) {stateAI.SomeOneSpentResources(treasury, budgetType);TreasureChange?.Invoke(); }
-    public void IncomeTreasure(Treasury treasury, BudgetType budgetType) { stateAI.IncomeResources(treasury, budgetType); TreasureChange?.Invoke(); }
+    public Treasury treasury => stateAI.treasury;
+    public void SpendTreasure(Treasury treasury) {stateAI.SpentResources(treasury);TreasureChange?.Invoke(); }
+    public void IncomeTreasure(Treasury treasury) { stateAI.IncomeResources(treasury); TreasureChange?.Invoke(); }
     
     public Region Capital;
     public GameObject Text;
@@ -163,21 +163,24 @@ public class State
     }
     public void CalculateIncome()
     {
-        stateAI.IncomeResources(Income);
-        TreasureChange?.Invoke();
+        Income = new Treasury();
+        for (int i = 0; i < regions.Count; i++)
+            if (!regions[i].iswater)
+                Income += regions[i].data.EconomyUpdate();
+        
     }
     public void StateDecaSecondUpdate()
     {
-        Income = new Treasury();
-        for (int i = 0; i < regions.Count; i++)
-            regions[i].MonthUpdate();
+        
         GlobalTrade.AddIncome(Income);
 
         allRegimentsUpkeep = CountingUpkeep();
-        SpendTreasure(allRegimentsUpkeep, BudgetType.ArmyBudget);
-
+        SpendTreasure(allRegimentsUpkeep);
+        stateAI.ProcessOrders();
         stateAI.autoTrader.DealsUpdate();
         CalculateIncome();
+        stateAI.IncomeResources(Income);
+        TreasureChange?.Invoke();
         diplomacy.DiplomacyUpdate();
     }
 

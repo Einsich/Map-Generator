@@ -3,14 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AutoBuilder : AutoManager
+public class AutoBuilder : AutoManager, AutoSpender
 {
     private StateAI state;
     private List<Region> provinces;
 
     public PriorityQueue<BuildTask> queue = new PriorityQueue<BuildTask>();
-    private int updateQueue;
-    public Treasury NeedTreasure => queue.Count == 0 ? new Treasury() : queue.Peek().Prov.Cost(queue.Peek().Building);
+    private int updateQueue = 0;
 
     public AutoBuilder(StateAI state)
     {
@@ -26,17 +25,15 @@ public class AutoBuilder : AutoManager
 
             if (isOn == value)
                 return;
+            isOn = value;
             if (value)
             {
-                BestBuild();
-                GameTimer.AddListener(BestBuild, state.Data);
+                state.ProcessOnlyBuildAndRegimnts();
             }
             else
             {
-                GameTimer.RemoveListener(BestBuild, state.Data);
                 queue.Clear();
             }
-            isOn = value;
         }
     }
     public void IncludeBuildTask(ProvinceData prov, BuildingType building)
@@ -45,14 +42,13 @@ public class AutoBuilder : AutoManager
     }
 
 
-    void BestBuild()
+    public AutoSpenderResult TrySpend(StateAI state)
     {
-        if (updateQueue-- == 0)
+        if (updateQueue-- <= 0)
         {
             UpdateQueueAndResetCounter();
         }
-        bool success = true;
-        while (success && queue.Count > 0)
+        while (queue.Count > 0)
         {
             var buildTask = queue.Peek();
 
@@ -60,13 +56,13 @@ public class AutoBuilder : AutoManager
             BuildingType building = buildTask.Building;
 
             Treasury cost;
-            if ((cost = prov.Cost(building)) <= state.GetBuildingBudget)
+            if ((cost = prov.Cost(building)) <= state.treasury)
             {
                 if (prov.CanPhysicalyBuild(building))
                 {
                     queue.Dequeue();
                     prov.ForwardBuild(building);
-                    state.AutoManagersSpentResources(cost, BudgetType.BuildingBudget);
+                    state.SpentResources(cost);
                     state.Data.TreasureChange?.Invoke();
                     prov.SomeChanges?.Invoke();
 
@@ -75,6 +71,7 @@ public class AutoBuilder : AutoManager
                     {
                         queue.Enqueue(new BuildTask(tmpCortege.Item1, prov, tmpCortege.Item2.Value));
                     }
+                    return AutoSpenderResult.Success;
                 }
                 else
                 {
@@ -83,9 +80,10 @@ public class AutoBuilder : AutoManager
             }
             else
             {
-                success = false;
+                return AutoSpenderResult.NeedMoreResources;
             }
         }
+        return AutoSpenderResult.HasNotOrder;
     }
 
     private void UpdateQueueAndResetCounter()

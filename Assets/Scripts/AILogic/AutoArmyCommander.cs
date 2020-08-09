@@ -26,7 +26,6 @@ public class AutoArmyCommander : AutoManager
         }
     }
 
-    Treasury AutoManager.NeedTreasure => Treasury.zero;
 
     private StateAI stateAI;
     public AutoArmyCommander(StateAI stateAI)

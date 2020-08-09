@@ -40,13 +40,13 @@ public class TradeDeal
     public void DoDeal(bool state1) { if (state1) DoDeal1(); else DoDeal2(); }
     private void DoDeal1()
     {
-        State1.Income += new Treasury(ResType1, -Res1);
-        State1.Income += new Treasury(ResType2, Res2);
+        State1.IncomeTreasure(new Treasury(ResType1, -Res1));
+        State1.IncomeTreasure(new Treasury(ResType2, Res2));
     }
     private void DoDeal2()
     {
-        State2.Income += new Treasury(ResType2, -Res2);
-        State2.Income += new Treasury(ResType1, Res1);
+        State2.IncomeTreasure(new Treasury(ResType2, -Res2));
+        State2.IncomeTreasure(new Treasury(ResType1, Res1));
     }
     public bool WantTrade(bool state1)
     {

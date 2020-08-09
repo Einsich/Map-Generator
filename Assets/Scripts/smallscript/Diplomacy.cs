@@ -215,7 +215,7 @@ public class Diplomacy {
                 int i = x.Item1.state.ID;
                 if(state.treasury.Gold >= x.Item2)
                 {
-                    state.SpendTreasure(new Treasury(x.Item2,0,0,0,0), BudgetType.OtherBudget);
+                    state.SpendTreasure(new Treasury(x.Item2,0,0,0,0));
                     relation[i] -= x.Item2;
                 }
 

@@ -40,7 +40,7 @@ public class ProvinceData {
         {
 
             case BuildingType.Infrastructure: income = new Treasury(10, 70, 0, 0, 2); break;
-            case BuildingType.Trade: income = new Treasury(20, 0, 5, 5, 2) * (portBonus * tree.portTradeBonus); break;
+            case BuildingType.Trade: income = new Treasury(20, 0, 5, 5, 2) * (portBonus(0) * tree.portTradeBonus); break;
             case BuildingType.Farms: income = new Treasury(50, 0, 0, 0, 0); break;
             case BuildingType.Military: income = new Treasury(0, 200, 0, 0, 0); break;
             case BuildingType.Sawmill: income = new Treasury(0, 0, 20, 0, 0); break;
@@ -67,19 +67,19 @@ public class ProvinceData {
     public List<RecruitAction> recruitQueue = new List<RecruitAction>();
     public int wallsLevel => buildings[(int)BuildingType.Walls];
     public int portLevel => buildings[(int)BuildingType.Port];
+    public int maxGarnison => wallsLevel * 3 + 2;
     public System.Action SomeChanges;
-    public float portBonus => 1 + buildings[(int)BuildingType.Port] * 0.25f;
+    public float portBonus(int lvlup) => 1 + (buildings[(int)BuildingType.Port] + lvlup) * 0.25f;
     public void AddRecruit(RecruitAction act)
     {
-        region.owner.SpendTreasure(act.regiment.cost, BudgetType.ArmyBudget);
+        region.owner.SpendTreasure(act.regiment.cost);
         recruitQueue.Add(act);
     }
     public void RemoveRecruit(RecruitAction act)
     {
-        region.owner.IncomeTreasure(act.regiment.cost * 0.5f, BudgetType.ArmyBudget);
+        region.owner.IncomeTreasure(act.regiment.cost * 0.5f);
         recruitQueue.Remove(act);
     }
-   // public BuildAction action;
     public Region region;
     public TechnologyTree tree => region.owner.technologyTree;
     public ProvinceData(FractionType fraction, Region reg)
@@ -91,11 +91,13 @@ public class ProvinceData {
         buildings[(int)BuildingType.Infrastructure] = Random.Range(0, 2);
         buildings[(int)BuildingType.Trade] = Random.Range(0, 2);
         buildings[(int)BuildingType.Walls] = Random.Range(0, 2);
+        int n = maxGarnison / 2 + Random.Range(0, maxGarnison / 2);
+        int k = Random.Range(0, n);
         if (reg.owner.melee)
-            for (int i = 0, n = 1 + wallsLevel * (1 + Random.Range(0, 2)); i < n; i++)
+            for (int i = 0; i < k; i++)
                 garnison.Add(new Regiment(reg.owner.melee));
         if (reg.owner.ranger)
-            for (int i = 0, n = 1 + wallsLevel * (1 + Random.Range(0, 2)); i < n; i++)
+            for (int i = 0; i < n - k; i++)
                 garnison.Add(new Regiment(reg.owner.ranger));
     }
     static int Type(FractionType fraction)
@@ -121,13 +123,13 @@ public class ProvinceData {
         bool build = BuildingAction[ind] != null;
         if (build)
         {
-            region.owner.IncomeTreasure(Cost(building, lvl), BudgetType.BuildingBudget);
+            region.owner.IncomeTreasure(Cost(building, lvl));
             BuildingAction[ind].actually = false;
             BuildingAction[ind] = null;
         }
         else
         {
-            region.owner.SpendTreasure(Cost(building, lvl), BudgetType.BuildingBudget);
+            region.owner.SpendTreasure(Cost(building, lvl));
             BuildingAction[ind] = new GameAction(Time(building, lvl), () => BuildComplete(ind));
         }
         SomeChanges?.Invoke();
@@ -183,6 +185,30 @@ public class ProvinceData {
         return CanPhysicalyBuild(build) && (Cost(build, lvl) <= region.owner.treasury);
         
     }
+    string BuildingReport(BuildingType build)
+    {
+        int ind = (int)build;
+        int lvl = buildings[ind];
+        if (build == BuildingType.Port && region.portIdto < 0)
+            return "Эта провинция далека от моря";
+        if (build == BuildingType.Farms && !region.haveGrassland)
+            return "Здесь недостаточно пахотных полей";
+        if (build == BuildingType.Sawmill && !region.haveWood)
+            return "В провинции слишком мало лесов";
+        if (build == BuildingType.Pits && !region.haveIron)
+            return "Шахты можно строить только в горах";
+        if (tree.buildingsMaxLevel[ind] == 0)
+            return "Не исследовано";
+        if (lvl >= tree.buildingsMaxLevel[ind])
+            return "Максимальный уровень";
+
+        if (BuildingAction[ind] != null)
+            return "Уже строится";
+        
+        if (!(Cost(build, lvl) <= region.owner.treasury))
+            return "Не хватает ресурсов";
+        return "";
+    }
     public BuildState Stateof(BuildingType build)
     {
         if (BuildingAction[(int)build]!=null)
@@ -212,13 +238,12 @@ public class ProvinceData {
         return income;
 
     }
-    public void EconomyUpdate()
+    public Treasury EconomyUpdate()
     {
         if (region.ocptby != null)
-            return;
+            return Treasury.zero;
         CalculateIncome();
-        region.owner.Income += income;
-
+        return income;
     }
     public List<Regiment> garnison = new List<Regiment>();
 
@@ -245,7 +270,7 @@ public class ProvinceData {
         {
             case BuildingType.Infrastructure:s = "Инфраструктура города.\n Развитая инфраструктура позволяет собирать больше налогов.";break;
             case BuildingType.Port: s = "Порт.\n Увеличивает на некоторый процент доход от рынка за счет морской торговли, а также позволяет базироваться флоту. Позволяют строить флот.";
-                d = $"Текуший бонус {portBonus.ToPercent()}\n"; break;
+                d =portLevel != maxBuildingLevel ?  $"Будущий бонус {portBonus(1).ToPercent()}\n": ""; break;
             case BuildingType.Trade: s = "Рынок.\n Усиливает внутреннюю торговлю, из-за чего город получает небольшое количество всех ресурсов."; break;
             case BuildingType.Walls: s = "Стены.\n Главная основа обороны города, дают обороняющейся армии большие преимущества."; break;
             case BuildingType.Farms: s = "Фермерские плантации. \nЕще больше золота."; break;
@@ -254,8 +279,8 @@ public class ProvinceData {
             case BuildingType.Pits: s = "Шахты.\n Добывают железо."; break;
             case BuildingType.University: s = "Университет.\n Увеличивает очки науки."; break;
         }
-        return string.Format("{0}\n Стоимость улучшения {1}.\n{4} {2} {3}", s, cost.ToString(), income.isEmpty ? "" : $"Текущий доход от здания {income.ToString()}.\n",
-            incomenext.isEmpty?"":$"Доход после улучшения {incomenext.ToString()}.\n", d);
+        return string.Format("{0}\n Стоимость улучшения {1}.\n{4} {2} {3} {5}", s, cost.ToString(), income.isEmpty ? "" : $"Текущий доход от здания {income.ToString()}.\n",
+            incomenext.isEmpty?"":$"Доход после улучшения {incomenext.ToString()}.\n", d, BuildingReport(type));
 
     }
 
