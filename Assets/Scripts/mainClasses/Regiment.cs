@@ -20,6 +20,17 @@ public class Regiment
         count = t.maxcount;
         baseRegiment = t;
     }
+
+    public static float GetMediumCount(IEnumerable<Regiment> formation)
+    {
+        float count = 0, max = 0;
+        foreach (Regiment r in formation)
+        {
+            count += r.count;
+            max += r.baseRegiment.maxcount;
+        }
+        return max == 0 ? 0 : count / max;
+    }
 }
 
 public enum DamageType

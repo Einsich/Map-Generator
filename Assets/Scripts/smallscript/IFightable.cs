@@ -10,6 +10,7 @@ public interface IFightable
     float AttackRange { get;  set; }
     Vector2Int curPosition { get; }
     State curOwner { get; }
+    float curHP { get; }
     float LastAttack { get; set; }
     float AttackPeriod { get; set; }
     Vector2 position { get; }

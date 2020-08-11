@@ -34,7 +34,7 @@ public class AutoArmyCommander : AutoManager
     }
 
     private List<IFightable> enemyArmies = new List<IFightable>();
-    private IFightable enemyRegion;
+    private List<IFightable> enemyRegions = new List<IFightable>();
     private IFightable myRegionForDefend;
     public void DeclaredWar()
     {
@@ -56,7 +56,7 @@ public class AutoArmyCommander : AutoManager
                 var command = ai.targets;
                 command.enemyArmies.Clear();
                 command.enemyArmies.AddRange(enemyArmies);
-                command.enemyRegion = enemyRegion;
+                command.enemyRegion.AddRange(enemyRegions);
                 command.myRegionForDefend = myRegionForDefend;
             }
         }
@@ -73,7 +73,7 @@ public class AutoArmyCommander : AutoManager
             if (!a.Destoyed)
             {
                 var command = ai.targets;
-                command.enemyRegion = enemyRegion;
+                command.enemyRegion = enemyRegions;
                 command.myRegionForDefend = myRegionForDefend;
             }
         }
@@ -90,14 +90,17 @@ public class AutoArmyCommander : AutoManager
 
     private void CollectTargetRegion()
     {
+        enemyRegions.Clear();
         foreach (Region r in stateAI.Data.regions)
         {
             if (r.ocptby != null && r.ocptby.diplomacy.haveWar(stateAI.Data.diplomacy))
             {
-                enemyRegion = r;
-                return;
+                enemyRegions.Add(r);
             }
         }
+
+        if (enemyRegions.Count > 0)
+            return;
 
         foreach (var warDate in stateAI.Data.diplomacy.war)
         {
@@ -107,8 +110,7 @@ public class AutoArmyCommander : AutoManager
                 if (neibOwnOwner(r) &&
                     (r.ocptby == null || r.ocptby.diplomacy.haveWar(stateAI.Data.diplomacy)))
                 {
-                    enemyRegion = r;
-                    return;
+                    enemyRegions.Add(r);
                 }
             }
         }

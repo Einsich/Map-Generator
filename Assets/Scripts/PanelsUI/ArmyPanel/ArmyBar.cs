@@ -33,7 +33,7 @@ public class ArmyBar : MonoBehaviour,IPointerClickHandler
     float LastHit = 0;
     public void UpdateInformation()
     {
-        float hp = army.MediumCount();
+        float hp = army.curHP;
         if (hp >= Health)
             Health = Hit = hp;
         else

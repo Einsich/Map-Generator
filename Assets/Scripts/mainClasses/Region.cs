@@ -43,6 +43,7 @@ public class Region :ITarget, IFightable
     public bool Destoyed { get; set; } = false;
     public Vector2 position => pos;
     public Vector2Int curPosition => Capital;
+    public float curHP => Regiment.GetMediumCount(data.garnison);
 
     public bool HiddenBord
     {
@@ -346,7 +347,6 @@ public class Region :ITarget, IFightable
                 insider.ArmyListChange();
             }
         return GetDamage(DamageType.Melee);
-        
     }
 }
 

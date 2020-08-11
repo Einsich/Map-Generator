@@ -6,7 +6,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
 {
     public State owner;
     public State curOwner => owner;
-
+    public float curHP => Regiment.GetMediumCount(army);
     Region curReg_;
     public Region curReg => curReg_ != null ? curReg_ : MapMetrics.GetRegion(navAgent.curCell);
     public bool inTown;
@@ -404,17 +404,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
                 return a;
         return null;
     }
-   
-    public float MediumCount()
-    {
-        float count = 0, max=0;
-        foreach (Regiment r in army)
-        {
-            count += r.count;
-            max += r.baseRegiment.maxcount;
-        }
-        return max ==0? 0:count / max;
-    }
+
     public static void ProcessAllArmy()
     {
         AllArmy.RemoveAll(a => a.Destoyed);
@@ -609,23 +599,25 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         return info;
     }
 
+    public DamageStatistic GetDamageStatistic()
+    {
+        var stat = new DamageStatistic();
+
+        foreach (Regiment r in army)
+        {
+            int i = (int)r.baseRegiment.damageType;
+            stat.damager[i]++;
+            stat.damage[i] += RegimentDamage(r);
+        }
+
+        return stat;
+    }
+
     private float RegimentDamage(Regiment regiment)
     {
         return (regiment.NormalCount + 1) * 0.5f *
             (regiment.baseRegiment.damage(Person.DamageLvlBuff(regiment.baseRegiment.type, regiment.baseRegiment.damageType) + Person.DamageTypeBuff(regiment.baseRegiment.damageType)) +
             Person.DamageBuff(regiment.baseRegiment.type, regiment.baseRegiment.damageType));
-    }
-
-    public DamageInfo GetDamage()
-    {
-        var info = new DamageInfo();
-
-        foreach (Regiment regiment in army)
-        {
-            info.damage[(int)regiment.baseRegiment.damageType] += RegimentDamage(regiment);
-        }
-
-        return info;
     }
 
     public DamageInfo Hit(DamageInfo damage)
@@ -667,6 +659,22 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         return null;
     }
 }
+
+public class DamageStatistic
+{
+    public int[] damager = new int[(int)DamageType.Count];
+    public float[] damage = new float[(int)DamageType.Count];
+
+    public int rangeDamager => damager[(int)DamageType.Range];
+    public float rangeDamage => damage[(int)DamageType.Range];
+
+    public int meleeDamager => damager[(int)DamageType.Melee] + damager[(int)DamageType.Charge];
+    public float meleeDamage => damage[(int)DamageType.Melee] + damage[(int)DamageType.Charge];
+
+    public int siegeDamager => damager[(int)DamageType.Siege];
+    public float siegeDamage => damage[(int)DamageType.Siege];
+}
+
 public enum ActionType
 {
     Idle,
