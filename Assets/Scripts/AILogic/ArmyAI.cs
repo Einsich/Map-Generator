@@ -60,7 +60,7 @@ public class ArmyAI : MonoBehaviour
 
     private void RemoveStrongEnemy()
     {
-        if (deltaDamage.DeltaMeHP < deltaDamage.DeltaTargetHP)
+        if (deltaDamage.DeltaMeHP < 1.2f * deltaDamage.DeltaTargetHP && !army.inTown)
         {
             Debug.Log(deltaDamage.DeltaMeHP + " W " + deltaDamage.DeltaTargetHP);
             targets.Remove(army.navAgent.target);
@@ -136,21 +136,44 @@ public class ArmyAI : MonoBehaviour
 
         var backForHeal = new Behavior(SetMyRegion, UsefulMoveToHeal);
         var standForHeal = new Behavior(Idle, UsefulHealIdle);
-        var backRegion = new Behavior(AttackRegion, BackMyRegion);
         var rangeAttack = new Behavior(rangeAttackArmy, UsefulRangeAttack);
+        var decreaseDistance = new Behavior(MeleeAttackArmy, UsefulDecreaseDistance);
         var meleeAttack = new Behavior(MeleeAttackArmy, UsefulMeleeAttack);
         var attackRegion = new Behavior(AttackRegion, UsefulAttackRegion);
         var rangeAttackFromTown = new Behavior(rangeAttackArmy, UsefulRangeAttackFromTown);
         var meleeAttackFromTown = new Behavior(MeleeAttackArmy, UsefulMeleeAttackFromTown);
 
-        behaviors.Add(rangeAttackFromTown);
-        behaviors.Add(meleeAttackFromTown);
         behaviors.Add(backForHeal);
         behaviors.Add(standForHeal);
-        behaviors.Add(backRegion);
+        behaviors.Add(rangeAttackFromTown);
+        behaviors.Add(meleeAttackFromTown);
         behaviors.Add(rangeAttack);
+        behaviors.Add(decreaseDistance);
         behaviors.Add(meleeAttack);
         behaviors.Add(attackRegion);
+    }
+
+    private float UsefulDecreaseDistance()
+    {
+        int damager = damageStat.meleeDamager;
+        if (nearestEnemy != null && damager != 0)
+        {
+            float dist = (nearestEnemy.position - army.position).magnitude;
+            if (dist <= DamageInfo.AttackRange(DamageType.Range) &&
+                dist > DamageInfo.AttackRange(DamageType.Melee))
+            {
+                float curDmg = damageStat.meleeDamage;
+                if (deltaDamage.DeltaMeHP < deltaDamage.DeltaTargetHP ||
+                    (damageStat.rangeDamager == 0 && damager > 0) ||
+                    curDmg > 2 * damageStat.rangeDamage)
+                {
+                    float expectMaxDmg = army.Person.MaxRegiment * (curDmg / damager);
+                    
+                    return curDmg / expectMaxDmg;
+                }
+            }
+        }
+        return 0;
     }
 
     private float UsefulRangeAttackFromTown()
@@ -158,11 +181,9 @@ public class ArmyAI : MonoBehaviour
         if (nearestEnemy != null)
         {
             float dist = (nearestEnemy.position - army.position).magnitude;
-
             if (army.inTown &&
                 dist <= DamageInfo.AttackRange(DamageType.Range) && dist > DamageInfo.AttackRange(DamageType.Melee))
                 return 1;
-            return 0;
         }
         return 0;
     }
@@ -172,34 +193,34 @@ public class ArmyAI : MonoBehaviour
         if (nearestEnemy != null)
         {
             float dist = (nearestEnemy.position - army.position).magnitude;
-
             if (army.inTown && dist <= DamageInfo.AttackRange(DamageType.Melee))
                 return 1;
-            return 0;
         }
         return 0;
     }
 
     private float UsefulAttackRegion()
     {
-        if (nearestEnemyRegion != null)
-        {
-            float myMeleeAttack = army.GetDamage(DamageType.Melee).MeleeDamage;
-            float enemyMeleeAttack = nearestEnemyRegion.GetDamage(DamageType.Melee).MeleeDamage;
+        var region = (Region)nearestEnemyRegion;
 
-            if (myMeleeAttack > enemyMeleeAttack + enemyMeleeAttack * ((Region)nearestEnemyRegion).data.wallsLevel * 0.1f)
+        int meCount = army.army.Count;
+        if (nearestEnemyRegion != null && meCount > 0)
+        {
+            if (region.data.garnison.Count <= meCount * 2.5f)
             {
-                return 0.25f;
+                int walls = region.data.wallsLevel - army.GetDamage(DamageType.Siege).SiegeDamage;
+                walls = walls >= 1 ? walls : 1;
+
+                //return 1 - (region.data.garnison.Count * walls / (float)meCount * 2.5f);
+                return 0.5f;
             }
             else
             {
-                return 0;
+                targets.Remove(region);
             }
         }
-        else
-        {
-            return 0;
-        }
+
+        return 0;
     }
 
     private void MeleeAttackArmy()
@@ -209,19 +230,17 @@ public class ArmyAI : MonoBehaviour
     }
     private float UsefulMeleeAttack()
     {
-        if (nearestEnemy != null)
+        int damager = damageStat.meleeDamager;
+        if (nearestEnemy != null && damager != 0)
         {
             float dist = (nearestEnemy.position - army.position).magnitude;
-
-            if (dist <= DamageInfo.AttackRange(DamageType.Range))
+            if (dist <= DamageInfo.AttackRange(DamageType.Melee))
             {
                 float curDmg = damageStat.meleeDamage;
-                float expectMaxDmg = army.army.Count * (curDmg / damageStat.meleeDamager);
+                float expectMaxDmg = army.Person.MaxRegiment * (curDmg / damager);
 
                 return curDmg / expectMaxDmg;
             }
-
-            return 0;
         }
         return 0;
     }
@@ -233,20 +252,18 @@ public class ArmyAI : MonoBehaviour
     }
     private float UsefulRangeAttack()
     {
-        if (nearestEnemy != null)
+        int damager = damageStat.rangeDamager;
+        if (nearestEnemy != null && damager != 0)
         {
             float dist = (nearestEnemy.position - army.position).magnitude;
-            float maxDist = DamageInfo.AttackRange(DamageType.Range);
-
-            if (dist <= maxDist && dist > DamageInfo.AttackRange(DamageType.Melee))
+            if (dist <= DamageInfo.AttackRange(DamageType.Range) &&
+                dist > DamageInfo.AttackRange(DamageType.Melee))
             {
                 float curDmg = damageStat.rangeDamage;
-                float expectMaxDmg = army.army.Count * (curDmg / damageStat.rangeDamager);
+                float expectMaxDmg = army.Person.MaxRegiment * (curDmg / damager);
 
                 return curDmg / expectMaxDmg;
             }
-
-            return 0;
         }
         return 0;
     }
@@ -255,16 +272,6 @@ public class ArmyAI : MonoBehaviour
     {
         curTarget = nearestEnemyRegion;
         curDamageType = DamageType.Melee;
-    }
-    private float BackMyRegion()
-    {
-        if (nearestEnemyRegion != null)
-        {
-            var r = (Region)nearestEnemyRegion;
-            if (r.owner == owner && r.data.garnison.Count < army.army.Count)
-                return 0.9f;
-        }
-        return 0;
     }
 
     private void Idle() { }
