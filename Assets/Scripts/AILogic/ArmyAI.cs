@@ -324,7 +324,18 @@ public class ArmyAI : MonoBehaviour
         curDamageType = DamageType.Melee;
     }
 
-    private void Idle() { }
+    private void Idle()
+    {
+        Region reg = army.curReg;
+        if(reg?.curOwner == owner)
+        {
+            while(reg.data.garnison.Count > 1 && army.army.Count < army.Person.MaxRegiment )
+            {
+                int i = UnityEngine.Random.Range(0, reg.data.garnison.Count);
+                army.ExchangeRegiment(reg.data.garnison[i]);
+            }
+        }
+    }
     private float UsefulHealIdle()
     {
         if (army.inTown)

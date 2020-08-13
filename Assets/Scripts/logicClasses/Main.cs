@@ -375,8 +375,8 @@ public class Main : MonoBehaviour
     public static int[] dx = MapMetrics.Odx, dy = MapMetrics.Ody;
     public static PriorityQueue<Node> pq = new PriorityQueue<Node>();
     public static Queue<Vector2Int> used = new Queue<Vector2Int>();
-    private static List<Region> visitedRegions = new List<Region>();
-    private static PriorityQueue<Node> attended = new PriorityQueue<Node>();
+    private static HashSet<Region> visitedRegions = new HashSet<Region>();
+    private static Queue<Region> attended = new Queue<Region>();
 
     public static bool isPossibleMove(Vector2Int from, Vector2Int to, State goer)
     {
@@ -391,28 +391,25 @@ public class Main : MonoBehaviour
         attended.Clear();
         visitedRegions.Clear();
 
-        attended.Enqueue(new Node(0, from));
+        attended.Enqueue(startRegion);
+        visitedRegions.Add(startRegion);
 
         while (attended.Count != 0)
         {
-            Node invest = attended.Dequeue();
-            var investRegion = MapMetrics.GetRegion(invest.pos);
+            Region invest = attended.Dequeue();
 
-            visitedRegions.Add(investRegion);
-
-            foreach (var neib in investRegion.neib)
+            foreach (var neib in invest.neib)
             {
-                bool lastcell = neib == endRegion;
-
-                if (lastcell)
+                if (neib.iswater)
+                    continue;
+                if(neib == endRegion)
                 {
-                    return CanMoveTo(investRegion.curPosition, neib.curPosition, goer, lastcell);
+                    return (goer == neib.curOwner || goer.diplomacy.canMove(neib.curOwner.diplomacy));
                 }
-                if (!visitedRegions.Contains(neib) && !pq.Contains(invest) &&
-                    CanMoveTo(investRegion.curPosition, neib.curPosition, goer, lastcell))
+                if (!visitedRegions.Contains(neib) && (goer == neib.curOwner || goer.diplomacy.canMove(neib.curOwner.diplomacy)))
                 {
-                    var next = new Node(Heuristic(neib.curPosition, to), neib.curPosition);
-                    attended.Enqueue(next);
+                    attended.Enqueue(neib);
+                    visitedRegions.Add(neib);
                 }
             }
         }

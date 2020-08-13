@@ -29,7 +29,7 @@ public class Region :ITarget, IFightable
     public Region[] neib;
     public bool haveWood, haveIron, haveGrassland;
     public List<Vector2Int> territory;
-    public bool iswater,retreatused;
+    public bool iswater;
     public Vector2Int Capital;
     public float DistanceToCapital => (Capital - _owner.Capital.Capital).magnitude;
     public Vector2 pos;
