@@ -607,7 +607,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         {
             int i = (int)r.baseRegiment.damageType;
             stat.damager[i]++;
-            stat.damage[i] += RegimentDamage(r);
+            stat.damage[i] += r.baseRegiment.damage(0);
         }
 
         return stat;

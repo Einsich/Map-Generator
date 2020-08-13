@@ -18,6 +18,7 @@ public class ArmyAI : MonoBehaviour
     private List<Behavior> behaviors;
 
     private SortedDictionary<float, IFightable> comparator = new SortedDictionary<float, IFightable>();
+    private SortedDictionary<float, (IFightable, float)> comparator2 = new SortedDictionary<float, (IFightable, float)>();
     private SortedDictionary<float, Behavior> utilities = new SortedDictionary<float, Behavior>();
 
     public ArmyTargets targets = new ArmyTargets();
@@ -60,7 +61,7 @@ public class ArmyAI : MonoBehaviour
 
     private void RemoveStrongEnemy()
     {
-        if (deltaDamage.DeltaMeHP < 1.2f * deltaDamage.DeltaTargetHP && !army.inTown)
+        if (deltaDamage.DeltaMeHP < 1.15f * deltaDamage.DeltaTargetHP && !army.inTown)
         {
             Debug.Log(deltaDamage.DeltaMeHP + " W " + deltaDamage.DeltaTargetHP);
             targets.Remove(army.navAgent.target);
@@ -142,6 +143,7 @@ public class ArmyAI : MonoBehaviour
         var attackRegion = new Behavior(AttackRegion, UsefulAttackRegion);
         var rangeAttackFromTown = new Behavior(rangeAttackArmy, UsefulRangeAttackFromTown);
         var meleeAttackFromTown = new Behavior(MeleeAttackArmy, UsefulMeleeAttackFromTown);
+        var backRegion = new Behavior(AttackRegion, UsefulBackRegion);
 
         behaviors.Add(backForHeal);
         behaviors.Add(standForHeal);
@@ -151,6 +153,34 @@ public class ArmyAI : MonoBehaviour
         behaviors.Add(decreaseDistance);
         behaviors.Add(meleeAttack);
         behaviors.Add(attackRegion);
+        behaviors.Add(backRegion);
+    }
+
+    private float UsefulBackRegion()
+    {
+        comparator.Clear();
+
+        foreach (IFightable region in targets.enemyRegion)
+        {
+            Region r = (Region)region;
+
+            if (r.data.garnison.Count == 0 && r.owner == owner)
+            {
+                float dist = (region.position - army.position).magnitude;
+                if (!comparator.ContainsKey(dist))
+                    comparator.Add(dist, region);
+            }
+        }
+
+        IFightable target = comparator.FirstOrDefault().Value;
+
+        if (target != default(IFightable))
+        {
+            nearestEnemyRegion = target;
+            return 0.8f;
+        }
+
+        return 0;
     }
 
     private float UsefulDecreaseDistance()
@@ -163,7 +193,7 @@ public class ArmyAI : MonoBehaviour
                 dist > DamageInfo.AttackRange(DamageType.Melee))
             {
                 float curDmg = damageStat.meleeDamage;
-                if (deltaDamage.DeltaMeHP < deltaDamage.DeltaTargetHP ||
+                if (deltaDamage.DeltaMeHP < 0.95f * deltaDamage.DeltaTargetHP ||
                     (damageStat.rangeDamager == 0 && damager > 0) ||
                     curDmg > 2 * damageStat.rangeDamage)
                 {
@@ -201,23 +231,43 @@ public class ArmyAI : MonoBehaviour
 
     private float UsefulAttackRegion()
     {
-        var region = (Region)nearestEnemyRegion;
+        int meClearCount = damageStat.meleeDamager + damageStat.rangeDamager;
+        float meClearDmg = damageStat.meleeDamage + damageStat.rangeDamage;
+        float meAverClearDmg = meClearDmg / meClearCount;
 
-        int meCount = army.army.Count;
-        if (nearestEnemyRegion != null && meCount > 0)
+        var info = army.GetDamage(DamageType.Melee);
+        float meRealDamage = info.MeleeDamage + info.ChargeDamage + info.RangeDamage;
+
+        comparator2.Clear();
+
+        foreach (IFightable region in targets.enemyRegion)
         {
-            if (region.data.garnison.Count <= meCount * 2.5f)
-            {
-                int walls = region.data.wallsLevel - army.GetDamage(DamageType.Siege).SiegeDamage;
-                walls = walls >= 1 ? walls : 1;
+            Region r = (Region)region;
 
-                //return 1 - (region.data.garnison.Count * walls / (float)meCount * 2.5f);
-                return 0.5f;
-            }
-            else
+            int walls = r.data.wallsLevel;
+
+            float expDmgRegion = (1 + 0.5f * walls) * meAverClearDmg;
+
+            walls = (walls * walls + 3 * walls) / 2;//0, 2, 5, 9, 14
+            walls = Mathf.Clamp(walls - info.SiegeDamage, 0, 1000);
+
+            float armorReduction = DamageInfo.Armor(walls);
+
+            if (expDmgRegion < meRealDamage * armorReduction)
             {
-                targets.Remove(region);
+                float dist = (region.position - army.position).magnitude;
+                if (!comparator2.ContainsKey(dist))
+                    comparator2.Add(dist, (region, expDmgRegion / meRealDamage * armorReduction));
             }
+        }
+
+        var item = comparator2.FirstOrDefault().Value;
+        IFightable target = item.Item1;
+
+        if (target != default(IFightable))
+        {
+            nearestEnemyRegion = target;
+            return 1 - item.Item2;
         }
 
         return 0;
