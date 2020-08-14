@@ -61,7 +61,7 @@ public class ArmyAI : MonoBehaviour
 
     private void RemoveStrongEnemy()
     {
-        if (deltaDamage.DeltaMeHP < 1.15f * deltaDamage.DeltaTargetHP && !army.inTown)
+        if (deltaDamage.DeltaMeHP < 1.3f * deltaDamage.DeltaTargetHP && !army.inTown)
         {
             Debug.Log(deltaDamage.DeltaMeHP + " W " + deltaDamage.DeltaTargetHP);
             targets.Remove(army.navAgent.target);
@@ -145,10 +145,10 @@ public class ArmyAI : MonoBehaviour
         var meleeAttackFromTown = new Behavior(MeleeAttackArmy, UsefulMeleeAttackFromTown);
         var backRegion = new Behavior(AttackRegion, UsefulBackRegion);
 
-        behaviors.Add(backForHeal);
         behaviors.Add(standForHeal);
         behaviors.Add(rangeAttackFromTown);
         behaviors.Add(meleeAttackFromTown);
+        behaviors.Add(backForHeal);
         behaviors.Add(rangeAttack);
         behaviors.Add(decreaseDistance);
         behaviors.Add(meleeAttack);
@@ -186,7 +186,7 @@ public class ArmyAI : MonoBehaviour
     private float UsefulDecreaseDistance()
     {
         int damager = damageStat.meleeDamager;
-        if (nearestEnemy != null && damager != 0)
+        if (nearestEnemy != null && damager != 0 && !army.inTown)
         {
             float dist = (nearestEnemy.position - army.position).magnitude;
             if (dist <= DamageInfo.AttackRange(DamageType.Range) &&
@@ -208,7 +208,7 @@ public class ArmyAI : MonoBehaviour
 
     private float UsefulRangeAttackFromTown()
     {
-        if (nearestEnemy != null)
+        if (nearestEnemy != null && damageStat.rangeDamager > 0)
         {
             float dist = (nearestEnemy.position - army.position).magnitude;
             if (army.inTown &&
@@ -284,7 +284,7 @@ public class ArmyAI : MonoBehaviour
         if (nearestEnemy != null && damager != 0)
         {
             float dist = (nearestEnemy.position - army.position).magnitude;
-            if (dist <= DamageInfo.AttackRange(DamageType.Melee))
+            if (dist < DamageInfo.AttackRange(DamageType.Melee))
             {
                 float curDmg = damageStat.meleeDamage;
                 float expectMaxDmg = army.Person.MaxRegiment * (curDmg / damager);
@@ -306,8 +306,8 @@ public class ArmyAI : MonoBehaviour
         if (nearestEnemy != null && damager != 0)
         {
             float dist = (nearestEnemy.position - army.position).magnitude;
-            if (dist <= DamageInfo.AttackRange(DamageType.Range) &&
-                dist > DamageInfo.AttackRange(DamageType.Melee))
+            if (dist < DamageInfo.AttackRange(DamageType.Range) &&
+                dist >= DamageInfo.AttackRange(DamageType.Melee))
             {
                 float curDmg = damageStat.rangeDamage;
                 float expectMaxDmg = army.Person.MaxRegiment * (curDmg / damager);
@@ -335,6 +335,8 @@ public class ArmyAI : MonoBehaviour
                 army.ExchangeRegiment(reg.data.garnison[i]);
             }
         }
+
+        army.Stop();
     }
     private float UsefulHealIdle()
     {
