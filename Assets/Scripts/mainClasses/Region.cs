@@ -21,7 +21,6 @@ public class Region :ITarget, IFightable
                 flagrenderer.SetPropertyBlock(block);
             }
         } }
-    public SiegeAction siegeAction;
     public State ocptby;
     public State curOwner => ocptby == null ? owner : ocptby;
     public Siege CurrentSiege;

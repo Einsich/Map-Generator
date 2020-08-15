@@ -44,14 +44,6 @@ public enum TypeGameAction
     PersonAliveGameAction,
     SiegeGameAction
 }
-public class BuildAction:GameAction
-{
-    public BuildAction(ProvinceData reg, float dt):base(dt)
-    {
-        //type = TypeGameAction.BuildGameAction;
-        //onGameAction += () => reg.BuildComplete();
-    }
-}
 public class RecruitAction : GameAction
 {
     public BaseRegiment regiment;
@@ -60,29 +52,5 @@ public class RecruitAction : GameAction
         //type = TypeGameAction.RecruitGameAction;
         regiment = reg;
         onAction += () =>  prov.RecruitRegiment(this);
-    }
-}
-
-public class PersonAliveAction : GameAction
-{
-    public PersonAliveAction(Person person, float dt) : base(dt)
-    {
-        //type = TypeGameAction.PersonAliveGameAction;
-        onAction += () => person.Alive();
-    }
-}
-public class SiegeAction : GameAction
-{
-    public SiegeAction(Region region, float dt) : base(dt)
-    {
-        //type = TypeGameAction.SiegeGameAction;
-        onAction += () => region.WinSiege();
-    }
-}
-public class ResearchAction : GameAction
-{
-    public ResearchAction(Technology tech, float dt):base(dt)
-    {
-        onAction += () => tech.Research();
     }
 }

@@ -37,7 +37,7 @@ public class AutoPersonControl : AutoManager
         if (!isOn)
             return;
         foreach (var person in state.Data.persons)
-            if (!person.die)
+            if (!person.inTavern)
             {
                 if(person.lvlPoint > 0)
                 {
@@ -69,6 +69,13 @@ public class AutoPersonControl : AutoManager
                         skill.Cast();
                     }
                 }
+            } else
+            {
+                if (person.needAlive)
+                    person.LivenUp();
+                else
+                    if (person.cantoCapital)
+                    person.SetToCapital();
             }
     }
 }

@@ -29,6 +29,7 @@ public class State
     
     public Region Capital;
     public GameObject Text;
+    public List<(Treasury, Treasury)> statistica = new List<(Treasury, Treasury)>();
     public State() {
         regions = new List<Region>();
         army = new List<Army>();
@@ -171,17 +172,20 @@ public class State
     }
     public void StateDecaSecondUpdate()
     {
-        
-        GlobalTrade.AddIncome(Income);
 
         allRegimentsUpkeep = CountingUpkeep();
         SpendTreasure(allRegimentsUpkeep);
         stateAI.ProcessOrders();
         stateAI.autoTrader.DealsUpdate();
         CalculateIncome();
+        
+        GlobalTrade.AddIncome(Income);
         stateAI.IncomeResources(Income);
-        TreasureChange?.Invoke();
+
         diplomacy.DiplomacyUpdate();
+
+        statistica.Add((Income, treasury));
+        TreasureChange?.Invoke();
     }
 
     private Treasury CountingUpkeep()

@@ -10,7 +10,9 @@ public class Person
     public string name;
     public PersonType personType;
     public bool die, inTavern = true;
-    public PersonAliveAction alive = null;
+    public GameAction alive = null;
+    public bool needAlive => alive == null && die;
+    public bool cantoCapital => !die && inTavern && owner.Capital.curOwner == owner && !owner.Capital.isBusy();
     public Army curArmy;
     public State owner;
 
@@ -88,6 +90,10 @@ public class Person
         die = true;
         inTavern = true;
     }
+    public void LivenUp()
+    {
+        alive = new GameAction(GameConst.PersonAliveTime, Alive);
+    }
     public void Alive()
     {
         die = false;
@@ -133,7 +139,7 @@ public class Person
     }
     public System.Action ExpChanged, SkillCulldowned;
     public int lvl { get; private set; } = 1;
-    public int nextLvl => lvl * 100;
+    public int nextLvl => lvl * 150;
     public float expf => 1f * exp_ / nextLvl;
     public int DamageLvlBuff(RegimentType regimentType, DamageType damageType)
     {

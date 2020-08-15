@@ -49,7 +49,7 @@ public class AutoReasercher :AutoManager, AutoSpender
             if (tech.curScience <= state.treasury.Science)
             {
                 state.SpentResources(new Treasury(0, 0, 0, 0, tech.curScience));
-                tech.researchAction = new ResearchAction(tech, tech.curTime);
+                tech.researchAction = new GameAction(tech.curTime, ()=> tech.Research());
                 queue.Dequeue();
                 change = true;
             }

@@ -240,6 +240,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         Stop();
         selectia.SetActive(false);
         owner.IncomeChanges?.Invoke();
+        Destoyed = false;
         if (Player.curPlayer == curOwner)
         {
             MapMetrics.UpdateAgentVision(navAgent.curCell, navAgent.curCell, VisionRadius, 1);

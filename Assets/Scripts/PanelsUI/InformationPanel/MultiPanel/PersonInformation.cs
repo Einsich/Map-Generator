@@ -14,7 +14,6 @@ public class PersonInformation : InitGO,IHelpPerson
     public GameObject aliveProgress;
     public Person person;
     public Person Person { get => person; set { } }
-    bool cantoCapital => !person.die && person.inTavern  && person.owner.Capital.ocptby == null && !person.owner.Capital.isBusy();
     public override void Init(object initElement)
     {
         person = (Person)initElement;
@@ -28,14 +27,14 @@ public class PersonInformation : InitGO,IHelpPerson
         pips[3].sprite = SpriteHandler.GetPipsSprite(person.RangeBuffLvl);
 
         type.text = person.personType.ToString();
-        toAlive.gameObject.SetActive(person.die && person.alive == null);
-        toCapital.gameObject.SetActive(cantoCapital);
+        toAlive.gameObject.SetActive(person.needAlive);
+        toCapital.gameObject.SetActive(person.cantoCapital);
         aliveProgress.gameObject.SetActive(person.alive != null);
         wasdead = person.die;
     }
     public void DoAlive()
     {
-        person.alive = new PersonAliveAction(person, GameConst.PersonAliveTime);
+        person.LivenUp();
         wasdead = true;
         toAlive.gameObject.SetActive(false);
         aliveProgress.gameObject.SetActive(true);
@@ -56,7 +55,7 @@ public class PersonInformation : InitGO,IHelpPerson
         else if (wasdead)
         {
             wasdead = false;
-            toCapital.gameObject.SetActive(cantoCapital);
+            toCapital.gameObject.SetActive(person.cantoCapital);
             aliveProgress.gameObject.SetActive(false);
             icon.color = person.die ? new Color(0.1f, 0.1f, 0.1f) : Color.white;
         }
