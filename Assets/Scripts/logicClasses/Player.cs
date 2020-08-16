@@ -41,10 +41,12 @@ public class Player : MonoBehaviour {
         foreach (var agent in curPlayer.ships)
             MapMetrics.UpdateAgentVision(agent.curPosition, agent.curPosition, agent.VisionRadius, 1);
         annexator.SetName();
-        if(target.regions.Count == 0)
+        if (target.regions.Count == 0)
         {
             target.DestroyState();
         }
+        else
+            target.SetName();
         if (target.stateAI.autoArmyCommander.IsOn)
             target.stateAI.autoArmyCommander.RecalculateRegions();
         if (annexator.stateAI.autoArmyCommander.IsOn)
@@ -154,6 +156,8 @@ public class Player : MonoBehaviour {
         {
             MapMetrics.UpdateAgentVision(ship.curPosition, ship.curPosition, ship.VisionRadius, 1);
         }
+        CameraController.SetTarget(curPlayer.Capital.pos);
+        StateStatistic.ShowStates();
         Army.FoggedArmy();
         MapMetrics.UpdateSplatMap();
         MenuManager.HiddenProvinceMenu();
@@ -300,14 +304,14 @@ public class Player : MonoBehaviour {
     public static void StartCastSkill(Skill skill)
     {
         CastSkill = skill;
-        InputManager.Instance.SpaceAction += StopCastSkill;
+        InputManager.Instance[KeyCode.Space] += StopCastSkill;
         cursorType =  CursorType.CastSkill;
         CursorHandler.SetCursor(cursorType);
     }
     public static void StopCastSkill()
     {
         CastSkill = null;
-        InputManager.Instance.SpaceAction -= StopCastSkill;
+        InputManager.Instance[KeyCode.Space] -= StopCastSkill;
     }
     static CursorType cursorType = CursorType.Default;
     private void Start()

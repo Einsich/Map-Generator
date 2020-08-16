@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class State
 {
+    public bool destroyed;
     public int ID;
     public string name;
     public FractionType fraction;
@@ -29,7 +30,7 @@ public class State
     
     public Region Capital;
     public GameObject Text;
-    public List<(Treasury, Treasury)> statistica = new List<(Treasury, Treasury)>();
+    public List<ResourceData> statistica = new List<ResourceData>();
     public State() {
         regions = new List<Region>();
         army = new List<Army>();
@@ -43,6 +44,7 @@ public class State
     }
     public void DestroyState()
     {
+        destroyed = true;
         stateAI.autoArmyCommander.IsOn = false;
         stateAI.autoBuilder.IsOn = false;
         stateAI.autoReasercher.IsOn = false;
@@ -178,13 +180,15 @@ public class State
         stateAI.ProcessOrders();
         stateAI.autoTrader.DealsUpdate();
         CalculateIncome();
-        
-        GlobalTrade.AddIncome(Income);
+
+
         stateAI.IncomeResources(Income);
 
         diplomacy.DiplomacyUpdate();
 
-        statistica.Add((Income, treasury));
+        GlobalTrade.AddInformation(Income, treasury);
+
+        statistica.Add(new ResourceData(Income, treasury, GameTimer.time));
         TreasureChange?.Invoke();
     }
 

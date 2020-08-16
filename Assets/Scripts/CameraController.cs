@@ -12,6 +12,10 @@ public class CameraController : MonoBehaviour {
     public static float minV = 20;
     public static float maxV = 100;
     public static float Hshowstate = 40;
+    public static void SetTarget(Vector2 pos)
+    {
+        p0 = MapMetrics.GetPosition(pos);
+    }
     public static void SetPosition(Vector3 v)
     {
         t = 0.1f;

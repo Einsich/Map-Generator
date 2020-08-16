@@ -4,14 +4,14 @@ using UnityEngine;
 
 public static class GlobalTrade 
 {
-    public const float MaxSellPercent = 0.15f, StartBuffer = 0.1f;
-    static Treasury Income = new Treasury(1), PrevIncome = new Treasury();
-    static string s = "";static int p = 0;
+    public const float MaxSellPercent = 0.15f, StartBuffer = 0.1f, AddingBuffer = 0.03f;
+    static Treasury Income , Cource, Total;
+    static int p = 0;
     public static System.Action BufferChanged;
-    public static void DiscardCource() { Income -= PrevIncome; PrevIncome = Income; s +=Income.ToString()+"\n";if (p++==10) Debug.Log(s); }
-    public static void AddIncome(Treasury income) { Income += income; }
+    public static void DiscardCource() { Buffer += Income * AddingBuffer;Cource = Total; Total = Income = Treasury.zero; BufferChanged?.Invoke(); }
+    public static void AddInformation(Treasury income, Treasury total) { Income += income; Total += total; }
 
-    public static float GetCource(ResourcesType bye, ResourcesType sell) => Mathf.Min(Income[(int)bye] / Income[(int)sell], 1000);
+    public static float GetCource(ResourcesType bye, ResourcesType sell) => Mathf.Min(Cource[(int)bye] / Cource[(int)sell], 1000);
 
     static HashSet<StateAI>[] wantToBuy = new HashSet<StateAI>[(int)ResourcesType.Count] {new HashSet<StateAI>(), new HashSet<StateAI>() , new HashSet<StateAI>() ,
     new HashSet<StateAI>(),new HashSet<StateAI>()};

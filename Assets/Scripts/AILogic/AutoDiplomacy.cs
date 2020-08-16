@@ -41,6 +41,8 @@ public class AutoDiplomacy : AutoManager
     {
         State state = this.state.Data;
         Diplomacy diplomacy = state.diplomacy;
+        if (state.destroyed)
+            return;
         for(int i = 0;i < diplomacy.war.Count; i++)
         {
             var war = diplomacy.war[i];

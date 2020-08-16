@@ -12,7 +12,12 @@ public static class GameTimer
         foreach (var x in Main.states)
         {
             x.CalculateIncome();
-            GlobalTrade.AddIncome(x.Income);
+            GlobalTrade.AddInformation(x.Income, x.treasury);
+        }
+        GlobalTrade.DiscardCource();
+        foreach (var x in Main.states)
+        {
+            x.statistica.Add(new ResourceData(x.Income, x.treasury, time));
         }
         GlobalTrade.StartGlobalTrade();
     }
@@ -46,7 +51,6 @@ public static class GameTimer
     }
     public static void EveryDecaSecondUpdate()
     {
-        GlobalTrade.DiscardCource();
     }
 
     public static List<(UnityAction,State)> first = new List<(UnityAction, State)>(),

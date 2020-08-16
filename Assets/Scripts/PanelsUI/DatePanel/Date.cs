@@ -67,6 +67,8 @@ public class Date : MonoBehaviour {
             i += n;
             yield return new WaitForFixedUpdate();
         }
+        GlobalTrade.DiscardCource();
+        StateStatistic.ShowStates();
     }
     public void StartTimer()
     {

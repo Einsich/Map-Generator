@@ -44,12 +44,12 @@ public class DiplomacyMenu : MonoBehaviour
         choise.gameObject.SetActive(open);
         if (open)
         {
-            InputManager.Instance.EnterAction += Yes;
-            InputManager.Instance.EscAction += No;
+            InputManager.Instance[KeyCode.Return] += Yes;
+            InputManager.Instance[KeyCode.Escape] += No;
         } else
         {
-            InputManager.Instance.EnterAction -= Yes;
-            InputManager.Instance.EscAction -= No;
+            InputManager.Instance[KeyCode.Return] -= Yes;
+            InputManager.Instance[KeyCode.Escape] -= No;
         }
     }
     Deal deal;

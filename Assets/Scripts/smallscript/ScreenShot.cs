@@ -7,11 +7,11 @@ public class ScreenShot : MonoBehaviour
 
     void Start()
     {
-        InputManager.Instance.F12 += MakeScreenShot;
+        InputManager.Instance[KeyCode.F12] += MakeScreenShot;
     }
     private void OnDestroy()
     {
-        InputManager.Instance.F12 -= MakeScreenShot;
+        InputManager.Instance[KeyCode.F12] -= MakeScreenShot;
 
     }
     void MakeScreenShot()

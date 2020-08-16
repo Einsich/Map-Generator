@@ -6,12 +6,14 @@ using UnityEditor;
 
 public class Wizard : ScriptableWizard
 {
-    public Mesh Zebra;
     public Texture2D res;
     public Texture2D t;
     void OnWizardCreate()
     {
-        Debug.Log($"ZEbra have vertex {Zebra.vertices.Length}, normals {Zebra.normals.Length}, uv {Zebra.uv.Length}, tris {Zebra.triangles.Length}");
+        for (int i = 0; i < t.height; i++)
+            for (int j = 0; j < t.width; j++)
+                t.SetPixel(j, i, new Color(0, 0, 0, 1 - t.GetPixel(j, i).a));
+        t.Apply();
         return;
         if ( res==null|| res == null || t==null)
         {

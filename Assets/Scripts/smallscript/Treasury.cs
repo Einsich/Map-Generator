@@ -64,6 +64,14 @@ public struct Treasury
         Iron *= GlobalTrade.GetCource(ResourcesType.Gold, ResourcesType.Iron);
         Science *= GlobalTrade.GetCource(ResourcesType.Gold, ResourcesType.Science);
     }
+    public float NormalizedToGold => 
+        Gold + 
+        Manpower * GlobalTrade.GetCource(ResourcesType.Gold, ResourcesType.Manpower) +
+        Wood * GlobalTrade.GetCource(ResourcesType.Gold, ResourcesType.Wood) + 
+        Iron * GlobalTrade.GetCource(ResourcesType.Gold, ResourcesType.Iron) + 
+        Science * GlobalTrade.GetCource(ResourcesType.Gold, ResourcesType.Science);
+
+
     public float Sum => Gold + Manpower + Wood + Iron + Science;
     public string ToArmyCost()
     {

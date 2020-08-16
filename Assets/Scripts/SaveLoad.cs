@@ -158,6 +158,13 @@ public class SaveLoad : MonoBehaviour {
 
         }
     }
+    static List<int> colorHardcoded =new List<int> {
+        0x5d8aa8, 0xe32636, 0xe52b50, 0xffbf00, 0x9966cc, 0xa4c639, 0xcd9575, 0xfaebd7, 0xb8860b, 0x8db600, 0x4b5320, 0xe9d66b, 0xff9966, 0xa52a2a, 0x013220, 0xbdb76b,
+        0xfdee00, 0x007fff, 0xffe135, 0xfae7b5, 0xfe6f5e, 0x318ce7, 0x0d98ba, 0x8a2be2, 0xe3dac9, 0xcc0000, 0x006a4e, 0x873260, 0x0070ff, 0xb5a642, 0x1dacd6, 0x66ff00,
+        0xc32148, 0x08e8de, 0xd19fe8, 0x004225, 0xcd7f32, 0xa52a2a, 0xe7feff, 0x480607, 0x800020, 0xcc5500, 0xe97451, 0xbd33a4, 0x702963, 0x007aa5, 0xe03c31, 0x5f9ea0,
+        0x91a3b0, 0x006b3c, 0xed872d, 0xe30022, 0xfff600, 0x1e4d2b, 0x78866b, 0xffff99, 0xc41e3a, 0x00cc99, 0x99badd, 0xb31b1b, 0xed9121, 0xace1af, 0x4997d0, 0x007ba7,
+        0x2a52be, 0xfad6a5, 0xd2691e, 0xffa700, 0xe34234, 0x0047ab, 0x002e63, 0x893f45, 0xfbec5d, 0xb31b1b, 0x6495ed, 0xffbcd9, 0xdc143c, 0x990000, 0x5d3954, 0x08457e,
+        };
     public static void WriteColorList(List<Color> colors, string path)
     {
         int size = (int)Mathf.Sqrt(colors.Count) + 1;
@@ -172,11 +179,25 @@ public class SaveLoad : MonoBehaviour {
     public static List<Color> ReadColorList()
     {
         List<Color> colors = new List<Color>();
-        Texture2D map = SpriteHandler.StateColors;
-        Color[] c = map.GetPixels();
-        foreach (var a in c)
-            if (a != Color.white)
-                colors.Add(a);
+        if (true)
+        {
+            Texture2D map = SpriteHandler.StateColors;
+            Color[] c = map.GetPixels();
+            foreach (var a in c)
+                if (a != Color.white)
+                    colors.Add(a);
+        } else
+        {
+            foreach (var a in colorHardcoded)
+            {
+                int r = (a >> 16) & 0xff;
+                int g = (a >> 8) & 0xff;
+                int b = (a >> 0) & 0xff;
+                float k = 1f / 0xff;
+                colors.Add(new Color(r * k, g * k, b * k).gamma);
+            }
+        }
+        
         return colors;
     }
 }
