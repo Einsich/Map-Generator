@@ -421,9 +421,9 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     public static void ProcessAllArmyAI()
     {
         //return;
-        AllArmyAI.RemoveAll(a => a.army.Destoyed);
+        //AllArmyAI.RemoveAll(a => a.army.Destoyed);
         foreach (var ai in AllArmyAI)
-            if (ai.enabled)
+            if (ai.enabled && !ai.army.Destoyed)
                 ai.Logic();
     }
     public void Heal(float heal)
