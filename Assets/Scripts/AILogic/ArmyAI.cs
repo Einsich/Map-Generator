@@ -251,18 +251,36 @@ public class ArmyAI : MonoBehaviour
 
                 int walls = r.data.wallsLevel;
 
-                float expDmgRegion = (1 + 0.5f * walls) * meAverClearDmg;
+                var enemyDmg = r.GetDamage(DamageType.Melee);
 
-                walls = (walls * walls + 3 * walls) / 2;//0, 2, 5, 9, 14
+                float expDmgRegion = enemyDmg.MeleeDamage + enemyDmg.ChargeDamage + enemyDmg.RangeDamage;
+
+                walls = (walls * walls + 3 * walls) / 2;
                 walls = Mathf.Clamp(walls - info.SiegeDamage, 0, 1000);
 
                 float armorReduction = DamageInfo.Armor(walls);
+
+                armorReduction = 1;
 
                 if (expDmgRegion < meRealDamage * armorReduction)
                 {
                     float dist = (region.position - army.position).magnitude;
                     if (!comparator2.ContainsKey(dist))
-                        comparator2.Add(dist, (region, expDmgRegion / meRealDamage * armorReduction));
+                    {
+                        if (nearestEnemy != null)
+                        {
+                            float distEn = (nearestEnemy.position - army.position).magnitude;
+                            if (!comparator2.ContainsKey(dist))
+                            {
+                                if (distEn > dist)
+                                    comparator2.Add(dist, (region, expDmgRegion / meRealDamage * armorReduction));
+                            }
+                        }
+                        else
+                        {
+                            comparator2.Add(dist, (region, expDmgRegion / meRealDamage * armorReduction));
+                        }
+                    }
                 }
             }
 

@@ -178,7 +178,8 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
             return;
         foreach (State st in Main.states)
         {
-            if (Player.curPlayer != st)
+            if (false)
+            //if (Player.curPlayer != st)
             {
                 foreach (Army army in st.army)
                     if (!CameraController.showstate)

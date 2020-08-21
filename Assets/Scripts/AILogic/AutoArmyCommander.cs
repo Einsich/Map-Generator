@@ -56,6 +56,7 @@ public class AutoArmyCommander : AutoManager
                 var command = ai.targets;
                 command.enemyArmies.Clear();
                 command.enemyArmies.AddRange(enemyArmies);
+                command.enemyRegion.Clear();
                 command.enemyRegion.AddRange(enemyRegions);
                 command.myRegionForDefend = myRegionForDefend;
             }
@@ -73,7 +74,8 @@ public class AutoArmyCommander : AutoManager
             if (!a.Destoyed)
             {
                 var command = ai.targets;
-                command.enemyRegion = enemyRegions;
+                command.enemyRegion.Clear();
+                command.enemyRegion.AddRange(enemyRegions);
                 command.myRegionForDefend = myRegionForDefend;
             }
         }
@@ -93,7 +95,7 @@ public class AutoArmyCommander : AutoManager
         enemyRegions.Clear();
         foreach (Region r in stateAI.Data.regions)
         {
-            if (r.ocptby != null && r.ocptby.diplomacy.haveWar(stateAI.Data.diplomacy))
+            if (r.curOwner.diplomacy.haveWar(stateAI.Data.diplomacy))
             {
                 enemyRegions.Add(r);
             }
@@ -107,8 +109,7 @@ public class AutoArmyCommander : AutoManager
             State enemy = warDate.Enemy(stateAI.Data);
             foreach (Region r in enemy.regions)
             {
-                if (neibOwnOwner(r) &&
-                    (r.ocptby == null || r.ocptby.diplomacy.haveWar(stateAI.Data.diplomacy)))
+                if (neibOwnOwner(r) && r.curOwner.diplomacy.haveWar(stateAI.Data.diplomacy))
                 {
                     enemyRegions.Add(r);
                 }
