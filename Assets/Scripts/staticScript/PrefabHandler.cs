@@ -32,6 +32,7 @@ public static class PrefabHandler
     }
     public static GameObject GetSiegePrefab => PrefabData.SiegeBrefab;
     public static ArmyBar GethpBarPrefab => PrefabData.HPBarBrefab;
+    public static TownBar GethpTownBarPrefab => PrefabData.HPTownBarBrefab;
     public static Ship GetShip => PrefabData.ShipPrefab;
     public static Port GetPort(FractionType fraction) => PrefabData.Ports[(int)fraction];
     public static BaseRegiment GetSkeleton(int lvl) => PrefabData.Skelets[lvl];

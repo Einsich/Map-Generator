@@ -16,6 +16,7 @@ public class Player : MonoBehaviour {
     public static State curPlayer;
     public static Player instance;
     public static Skill CastSkill;
+    static Region highlightRegion;
     public static bool CastingSkill => CastSkill != null;
     private void Awake()
     {
@@ -424,6 +425,7 @@ public class Player : MonoBehaviour {
                 if (hit.transform.tag == "Town")
                 {
                     Region reg = MapMetrics.regions[int.Parse(hit.transform.name)];
+                    highlightRegion = reg;
                     if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
                     {
                         if (Input.GetMouseButtonDown(0))
@@ -440,6 +442,7 @@ public class Player : MonoBehaviour {
                             }
                         }
                     }
+                    reg.bar.Active = true;
                     other = reg.curOwner;
                     target = reg;
                     if (CastingSkill)
@@ -456,6 +459,10 @@ public class Player : MonoBehaviour {
                         if (other == curPlayer && reg != curRegion)
                             cursor = CursorType.Select;
                     }
+                } else
+                {
+                    if (highlightRegion != null)
+                        highlightRegion.bar.Active = false;
                 }
                 if (hit.transform.GetComponent<Port>())
                 {

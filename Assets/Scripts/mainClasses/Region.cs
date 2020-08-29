@@ -24,6 +24,7 @@ public class Region :ITarget, IFightable
     public State ocptby;
     public State curOwner => ocptby == null ? owner : ocptby;
     public Siege CurrentSiege;
+    public TownBar bar;
     public int id, portIdto = -1, Continent;
     public Region[] neib;
     public bool haveWood, haveIron, haveGrassland;
@@ -42,6 +43,7 @@ public class Region :ITarget, IFightable
     public bool Destoyed { get; set; } = false;
     public Vector2 position => pos;
     public Vector2Int curPosition => Capital;
+    public Vector3 worldPosition => Town.transform.position;
     public float curHP => Regiment.GetMediumCount(data.garnison);
 
     public bool HiddenBord
@@ -132,7 +134,7 @@ public class Region :ITarget, IFightable
         Text.GetComponent<CurvedText>().SetProperies(name+"("+id+")", l, r, fontSize);
         Text.GetComponent<Outline>().effectDistance = new Vector2(0.03f, -0.03f);
     }
-    private LandShowMode prevSplateMode = LandShowMode.Empty;
+    public LandShowMode prevSplateMode = LandShowMode.Empty;
     public void UpdateSplateState(State curPlayer)
     {
         LandShowMode curSplatMode;
@@ -332,6 +334,7 @@ public class Region :ITarget, IFightable
                 insider.army.RemoveAll(x => x.count <= 0);
                 insider.ArmyListChange();
             }
+        bar.UpdateInformation();
         return GetDamage(DamageType.Melee);
     }
 }

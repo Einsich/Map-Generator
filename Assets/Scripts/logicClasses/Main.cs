@@ -255,6 +255,10 @@ public class Main : MonoBehaviour
                     BuildPort(reg);
                 else
                     reg.data.buildings[(int)BuildingType.Port] = 0;
+
+                TownBar bar = Instantiate(PrefabHandler.GethpTownBarPrefab, instance.mainCanvas);
+                reg.bar = bar;
+                bar.currentRegion = reg;
                 reg.RebuildTown();
             }
     }

@@ -14,4 +14,5 @@ public class PrefabData : ScriptableObject
     [SerializeField] public TechInterface TechnologyPanel;
     [SerializeField] public RegimentTeches RegimentTechnologyPanel;
     [SerializeField] public TechnologyTree TechnologyTree;
+    [SerializeField] public TownBar HPTownBarBrefab;
 }
