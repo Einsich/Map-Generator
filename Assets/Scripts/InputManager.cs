@@ -25,7 +25,8 @@ public class InputManager : MonoBehaviour
         {
             return;
         }
-        for (KeyCode code = KeyCode.None; code < KeyCode.End; code++)
+        
+        for (KeyCode code = KeyCode.None; code <= KeyCode.CapsLock; code++)
         {
             if (Input.GetKeyDown(code) && actions.ContainsKey(code))
                     actions[code]?.Invoke();

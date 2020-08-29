@@ -10,7 +10,7 @@ public class DamageInfo
     public float RangeDamage { get => damage[(int)DamageType.Range]; set => damage[(int)DamageType.Range] = value; }
     public float ChargeDamage { get => damage[(int)DamageType.Charge]; set => damage[(int)DamageType.Charge] = value; }
     public int SiegeDamage { get => (int)damage[(int)DamageType.Siege]; set => damage[(int)DamageType.Siege] = value; }
-
+    public float TotalDamage => MeleeDamage + RangeDamage + ChargeDamage;
     public DamageInfo()
     {
         damage = new float[(int)DamageType.Count];

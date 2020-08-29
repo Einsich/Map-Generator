@@ -35,6 +35,8 @@ public class ArmyAI : MonoBehaviour
     private float curHP;
     private DamageStatistic damageStat;
 
+    public string curBehavior = "chel";
+
     public ArmyAI()
     {
         InitAI();
@@ -77,13 +79,9 @@ public class ArmyAI : MonoBehaviour
     {
         if (curTarget != null)
         {
-            if (!army.TryMoveToTarget(curTarget, curDamageType))
+            if (!Main.isPossibleMove(army.curPosition, curTarget.curPosition, owner) || !army.TryMoveToTarget(curTarget, curDamageType))
             {
-                if (!Main.isPossibleMove(army.curPosition, curTarget.curPosition, owner))
-                {
-                    targets.Remove(curTarget);
-                    Logic();
-                }   
+                targets.Remove(curTarget);                 
             }
         }
     }
@@ -112,6 +110,7 @@ public class ArmyAI : MonoBehaviour
         {
             maxUtility.action();
             lastBehavior = maxUtility;
+            curBehavior = maxUtility.action.Method.Name + " " + utilities.Last().Key;
         }
     }
 
@@ -137,6 +136,8 @@ public class ArmyAI : MonoBehaviour
 
         var backForHeal = new Behavior(SetMyRegion, UsefulMoveToHeal);
         var standForHeal = new Behavior(Idle, UsefulHealIdle);
+        var backToReinforcement = new Behavior(MoveToReinforcement, UsefulMoveToReinforcement);
+        var getReinforcement = new Behavior(GetReinforcement, UsefulGetReinforcement);
         var rangeAttack = new Behavior(rangeAttackArmy, UsefulRangeAttack);
         var decreaseDistance = new Behavior(MeleeAttackArmy, UsefulDecreaseDistance);
         var meleeAttack = new Behavior(MeleeAttackArmy, UsefulMeleeAttack);
@@ -145,6 +146,8 @@ public class ArmyAI : MonoBehaviour
         var meleeAttackFromTown = new Behavior(MeleeAttackArmy, UsefulMeleeAttackFromTown);
         var backRegion = new Behavior(AttackRegion, UsefulBackRegion);
 
+        behaviors.Add(backToReinforcement);
+        behaviors.Add(getReinforcement);
         behaviors.Add(rangeAttackFromTown);
         behaviors.Add(meleeAttackFromTown);
         behaviors.Add(standForHeal);
@@ -236,10 +239,7 @@ public class ArmyAI : MonoBehaviour
     {
         if (army.army.Count > 0)
         {
-            int meClearCount = damageStat.meleeDamager + damageStat.rangeDamager;
-            float meClearDmg = damageStat.meleeDamage + damageStat.rangeDamage;
-            float meAverClearDmg = meClearDmg / meClearCount;
-
+            
             var info = army.GetDamage(DamageType.Melee);
             float meRealDamage = info.MeleeDamage + info.ChargeDamage + info.RangeDamage;
 
@@ -267,19 +267,9 @@ public class ArmyAI : MonoBehaviour
                     float dist = (region.position - army.position).magnitude;
                     if (!comparator2.ContainsKey(dist))
                     {
-                        if (nearestEnemy != null)
-                        {
-                            float distEn = (nearestEnemy.position - army.position).magnitude;
-                            if (!comparator2.ContainsKey(dist))
-                            {
-                                if (distEn > dist)
-                                    comparator2.Add(dist, (region, expDmgRegion / meRealDamage * armorReduction));
-                            }
-                        }
-                        else
-                        {
-                            comparator2.Add(dist, (region, expDmgRegion / meRealDamage * armorReduction));
-                        }
+                        
+                        comparator2.Add(dist, (region, expDmgRegion / meRealDamage * armorReduction));
+                        
                     }
                 }
             }
@@ -289,6 +279,11 @@ public class ArmyAI : MonoBehaviour
 
             if (target != default(IFightable))
             {
+                if(target.curOwner == owner)
+                {
+                    targets.enemyRegion.Remove(target);
+                    return 0;
+                }
                 nearestEnemyRegion = target;
                 return 1 - item.Item2;
             }
@@ -304,16 +299,17 @@ public class ArmyAI : MonoBehaviour
     }
     private float UsefulMeleeAttack()
     {
-        int damager = damageStat.meleeDamager;
-        if (nearestEnemy != null && damager != 0)
+        if (nearestEnemy != null)
         {
+            
             float dist = (nearestEnemy.position - army.position).magnitude;
             if (dist < DamageInfo.AttackRange(DamageType.Melee))
             {
-                float curDmg = damageStat.meleeDamage;
-                float expectMaxDmg = army.Person.MaxRegiment * (curDmg / damager);
-
-                return curDmg / expectMaxDmg;
+                var myDamage = army.GetDamage(DamageType.Melee).TotalDamage;
+                var theirDamage = nearestEnemy.GetDamage(DamageType.Melee).TotalDamage;
+                if ((nearestEnemy as Army)?.army.Count == 0 || army.navAgent.lastCollidedAgent?.Movable == nearestEnemy)
+                    return 1;
+                return 1 - Mathf.Exp(-myDamage / theirDamage);
             }
         }
         return 0;
@@ -326,17 +322,15 @@ public class ArmyAI : MonoBehaviour
     }
     private float UsefulRangeAttack()
     {
-        int damager = damageStat.rangeDamager;
-        if (nearestEnemy != null && damager != 0)
+        if (nearestEnemy != null)
         {
             float dist = (nearestEnemy.position - army.position).magnitude;
             if (dist < DamageInfo.AttackRange(DamageType.Range) &&
                 dist >= DamageInfo.AttackRange(DamageType.Melee))
             {
-                float curDmg = damageStat.rangeDamage;
-                float expectMaxDmg = army.Person.MaxRegiment * (curDmg / damager);
-
-                return curDmg / expectMaxDmg;
+                var myDamage = army.GetDamage(DamageType.Range).TotalDamage;
+                var theirDamage = nearestEnemy.GetDamage(DamageType.Range).TotalDamage;
+                return 1 - Mathf.Exp(-myDamage / theirDamage);
             }
         }
         return 0;
@@ -350,21 +344,13 @@ public class ArmyAI : MonoBehaviour
 
     private void Idle()
     {
-        Region reg = army.curReg;
-        if(reg?.curOwner == owner)
-        {
-            while(reg.data.garnison.Count > 1 && army.army.Count < army.Person.MaxRegiment )
-            {
-                int i = UnityEngine.Random.Range(0, reg.data.garnison.Count);
-                army.ExchangeRegiment(reg.data.garnison[i]);
-            }
-        }
+        
 
         //army.Stop();
     }
     private float UsefulHealIdle()
     {
-        if (army.inTown)
+        if (army.inTown && army.army.Count > 0)
             return 1 - curHP;
         return 0;
     }
@@ -375,11 +361,66 @@ public class ArmyAI : MonoBehaviour
     }
     private float UsefulMoveToHeal()
     {
-        if (army.inTown || targets.myRegionForDefend == null)
+        if (army.inTown || army.army.Count == 0 || targets.myRegionForDefend == null)
             return 0;
         return 1 - curHP;
     }
-
+    private float UsefulMoveToReinforcement()
+    {
+        if (targets.regionWithReinforcement != null)
+            return 0;
+        return (float)army.army.Count / army.Person.MaxRegiment < 0.4f ? 1 : 0;
+    }
+    private void MoveToReinforcement()
+    {
+        int garnison = 0;
+        float minDist = 100000;
+        Region maxReg = null;
+        foreach (var reg in owner.regions)
+            if (reg.curOwner == owner)
+            {
+                float dist = (reg.pos - army.position).sqrMagnitude;
+                if (reg.data.garnison.Count > garnison)
+                {
+                    garnison = reg.data.garnison.Count;
+                    minDist = dist;
+                    maxReg = reg;
+                }
+                else
+                if (reg.data.garnison.Count == garnison && dist < minDist)
+                {
+                    minDist = dist;
+                    maxReg = reg;
+                }
+            }
+        targets.regionWithReinforcement = maxReg;
+        if (maxReg != null)
+            curTarget = maxReg;
+    }
+    private float UsefulGetReinforcement()
+    {
+        if (targets.regionWithReinforcement == army.curReg)
+        {
+            if (army.curReg.curOwner == owner)
+                return 1;
+            else
+                targets.regionWithReinforcement = null;
+        }
+        return 0;
+    }
+    private void GetReinforcement()
+    {
+        Region reg = army.curReg;
+        if (reg?.curOwner == owner)
+        {
+            while (reg.data.garnison.Count > 1 && army.army.Count < army.Person.MaxRegiment)
+            {
+                int i = UnityEngine.Random.Range(0, reg.data.garnison.Count);
+                army.ExchangeRegiment(reg.data.garnison[i]);
+            }
+        }
+        targets.regionWithReinforcement = null;
+    }
 
 
     private class Behavior
@@ -453,6 +494,7 @@ public class ArmyTargets
     public List<IFightable> enemyArmies;
     public List<IFightable> enemyRegion;
     public IFightable myRegionForDefend;
+    public Region regionWithReinforcement; 
 
     public ArmyTargets()
     {

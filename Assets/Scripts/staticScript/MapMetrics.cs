@@ -398,7 +398,7 @@ static class MapMetrics
 }
 public enum LandShowMode
 {
-    ForOfWar,TerraIncognito,Visible
+    ForOfWar,TerraIncognito,Visible, Empty
 }
 public enum Direction
 {

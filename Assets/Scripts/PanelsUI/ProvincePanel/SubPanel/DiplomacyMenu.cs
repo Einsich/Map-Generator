@@ -15,7 +15,7 @@ public class DiplomacyMenu : MonoBehaviour
     public GameObject tradepanel;
     void Start()
     {
-        warbut.onClick.AddListener(War);
+        warbut.onClick.AddListener(() => War(true));
         tradebut.onClick.AddListener(Trade);
         accessbut.onClick.AddListener(Access);
         casusbut.onClick.AddListener(FabricateCB);
@@ -31,12 +31,12 @@ public class DiplomacyMenu : MonoBehaviour
     private void OnEnable()
     {
         GameTimer.OftenUpdate += UpdateCasusBelliStatistic;
-        GameTimer.OftenUpdate += War;
+        GameTimer.OftenUpdate += WarOftenUpdate;
     }
     private void OnDisable()
     {
         GameTimer.OftenUpdate -= UpdateCasusBelliStatistic;
-        GameTimer.OftenUpdate -= War;
+        GameTimer.OftenUpdate -= WarOftenUpdate;
 
     }
     void OpenYesNo(bool open)
@@ -103,8 +103,11 @@ public class DiplomacyMenu : MonoBehaviour
 
     }
     public static int dipstate;
-    public void War()
+    public void WarOftenUpdate() => War(false);
+    public void War(bool forceUpdate = true)
     {
+        if (!forceUpdate && !choise.gameObject.activeSelf)
+            return;
         actions.SetActive(false);
         OpenYesNo(true);
         dipstate = 0;

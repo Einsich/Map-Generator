@@ -26,7 +26,7 @@ public class StateAI
         autoArmyCommander = new AutoArmyCommander(this);
         autoPersonControl = new AutoPersonControl(this);
         autoDiplomacy = new AutoDiplomacy(this);
-        buildAndregimentsManager = new AutoSpenderManager((autoBuilder, 5), (autoRegimentBuilder, 3));
+        buildAndregimentsManager = new AutoSpenderManager((autoBuilder, 20), (autoRegimentBuilder, 12));
         scienceManager = new AutoSpenderManager((autoReasercher, 1));
     }
 

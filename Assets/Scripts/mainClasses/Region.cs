@@ -132,19 +132,23 @@ public class Region :ITarget, IFightable
         Text.GetComponent<CurvedText>().SetProperies(name+"("+id+")", l, r, fontSize);
         Text.GetComponent<Outline>().effectDistance = new Vector2(0.03f, -0.03f);
     }
+    private LandShowMode prevSplateMode = LandShowMode.Empty;
     public void UpdateSplateState(State curPlayer)
     {
-        if(curPlayer==null)
-            MapMetrics.SetRegionSplatState(territory, LandShowMode.Visible);
+        LandShowMode curSplatMode;
+        if (curPlayer == null)
+            curSplatMode = LandShowMode.Visible;
         else
         if (HiddenFrom(curPlayer))
-            MapMetrics.SetRegionSplatState(territory, LandShowMode.TerraIncognito);
+            curSplatMode = LandShowMode.TerraIncognito;
         else
-        if(InFogFrom(curPlayer))
-            MapMetrics.SetRegionSplatState(territory, LandShowMode.ForOfWar);
+        if (InFogFrom(curPlayer))
+            curSplatMode = LandShowMode.ForOfWar;
         else
-        MapMetrics.SetRegionSplatState(territory, LandShowMode.Visible);
-
+            curSplatMode = LandShowMode.Visible;
+        if (curSplatMode != prevSplateMode)
+            MapMetrics.SetRegionSplatState(territory, curSplatMode);
+        prevSplateMode = curSplatMode;
     }
 
     public bool HiddenFrom(State state)
@@ -152,26 +156,9 @@ public class Region :ITarget, IFightable
         if (state == null) return false;
         return Vector2.Distance(Capital, state.Capital.Capital) > 75;
     }
-    public bool InFogFrom(State state)
-    {
-        if (state == null) return false;
-        if (!(NotNeib(state) && ocptby != state && owner != state))
-            return false;
-        return true;
-        foreach (Army army in state.army)
-        {
-            if (army.curReg == this)
-                return false;
-            foreach (Region neib in neib)
-                if (army.curReg == neib)
-                    return false;
-        }
-        return true;
-
-    }
+    public bool InFogFrom(State state)=> state != null && curOwner != state && NotNeib(state);
     public bool NotNeib(State st)
     {
-
         foreach (Region n in neib)
             if (n.owner == st) return false;
         return true;

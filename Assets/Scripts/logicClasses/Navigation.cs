@@ -113,6 +113,7 @@ public static class Navigation
     {
         Vector2 p = agent.pos;
         Vector2Int cell = navIndex(p);
+        agent.lastCollidedAgent = null;
         void Collide(NavAgent other)
         {
             if (other == agent || !other.isActiveAndEnabled)
@@ -121,6 +122,7 @@ public static class Navigation
             {
                 Vector2 n = (p - other.pos);
                 agent.CollideForce += n.normalized * (1f - n.sqrMagnitude / armyRadiusSqr);
+                agent.lastCollidedAgent = other;
             }
         }
         bool InsideNavList(int x, int y) => 0 <= x && x < navListM && 0 <= y && y < navListN;

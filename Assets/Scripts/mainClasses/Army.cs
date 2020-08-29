@@ -390,6 +390,8 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
         Person.Die();
         gameObject.SetActive(false);
         bar.gameObject.SetActive(false);
+        if (owner == Player.curPlayer)
+        { MapMetrics.UpdateAgentVision(navAgent.curCell, navAgent.curCell, VisionRadius, -1); MapMetrics.UpdateSplatMap(); }
         navAgent.ResetNavAgent();
     }
     public void Fight(IFightable enemy)

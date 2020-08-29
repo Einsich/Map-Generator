@@ -29,6 +29,7 @@ public class NavAgent : MonoBehaviour
     public bool InTown { get => Movable is Army a ? a.inTown : false; set { if (Movable is Army a) a.inTown = value; } }
     float needAngle, dAngle = 2.5f;
     public Region lastCollidedTown;
+    public NavAgent lastCollidedAgent;
     public void SetToMovable(IMovable movable)
     {
         Movable = movable;

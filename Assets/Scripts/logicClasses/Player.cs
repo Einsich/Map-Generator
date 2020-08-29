@@ -36,10 +36,10 @@ public class Player : MonoBehaviour {
         }
         foreach (var reg in regions)
             reg.UpdateSplateState(curPlayer);
-        foreach (var agent in curPlayer.army)
+        /*foreach (var agent in curPlayer.army)
             MapMetrics.UpdateAgentVision(agent.curPosition, agent.curPosition, agent.VisionRadius, 1);
         foreach (var agent in curPlayer.ships)
-            MapMetrics.UpdateAgentVision(agent.curPosition, agent.curPosition, agent.VisionRadius, 1);
+            MapMetrics.UpdateAgentVision(agent.curPosition, agent.curPosition, agent.VisionRadius, 1);*/
         annexator.SetName();
         if (target.regions.Count == 0)
         {
@@ -199,7 +199,7 @@ public class Player : MonoBehaviour {
             if (army == tap)
                 DeselectArmy();
             else
-            if (curPlayer == null || tap.owner == curPlayer)
+            if (curPlayer == null || true)
                 SelectArmy(tap);
         }
         else
