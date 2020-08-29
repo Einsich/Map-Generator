@@ -36,20 +36,31 @@ public class AutoPersonControl : AutoManager
     {
         if (!isOn)
             return;
+        if(state.Data.technologyTree.maxPerson > state.Data.persons.Count)
+        {
+            int k = state.Data.technologyTree.openedPerson.Count;
+            if (k > 0)
+            {
+                k = Random.Range(0, k);
+                var type = state.Data.technologyTree.openedPerson[k];
+                if(state.Data.persons.Find((p)=>p.personType == type) == null)
+                {
+                    var person = state.Data.AddPerson(type);
+                    if (person.cantoCapital)
+                        person.SetToCapital();
+                }
+            }
+        }
         foreach (var person in state.Data.persons)
             if (!person.inTavern)
             {
                 if(person.lvlPoint > 0)
                 {
-                    if(Random.value > 0.3f)
-                    {
-                        person.LearnProperty((PropertyType)Random.Range(0, 5));
-                    } else
-                    {
-                        int i = Random.Range(0, person.Skills.Length);
-                        if (person.Skills[i].GetLevel != person.Skills[i].GetMaxLevel)
-                            person.LearnSkill(i);
-                    }
+                    
+                    int i = Random.Range(0, person.Skills.Length);
+                    if (person.Skills[i].GetLevel != person.Skills[i].GetMaxLevel)
+                        person.LearnSkill(i);
+                    
                 }
                 foreach(var skill in person.Skills)
                 {
@@ -66,6 +77,7 @@ public class AutoPersonControl : AutoManager
                     {
                         if (skill is SacrificeSkill)
                             continue;
+                        if(!skill.CanUse)
                         skill.Cast();
                     }
                 }

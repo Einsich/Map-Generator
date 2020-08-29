@@ -185,8 +185,8 @@ public class ChargeSkill:Skill
         Person.curArmy.UpdateSpeed();
     }
     public override string ToString()
-    {
-        return string.Format("Таранный удар.\nУвеличивает скорость передвижения армии и урон от наскока кавалерии, при атаке оглушает противника.  Ускорение {0}.\n Улучшение уровня наскока {1}.\n" +
+    { 
+        return string.Format("Таранный удар.\nУвеличивает скорость передвижения армии и урон от наскока кавалерии.  Ускорение {0}.\n Улучшение уровня наскока {1}.\n" +
             " Время действия {2} сек., перезарядка {3} сек.\n Активная способность.",
             FormatArray(Charge.Speed,true), FormatArray(Charge.ChargeBuff), ActionTime, CullDown);
     }
@@ -598,18 +598,31 @@ public class FearSkill : Skill
         type = SkillType.Fear;
         EffectType = EffectType.Fear;
         MaxLevel = Fear.MaxLevel;
+        ActionTime = 0.5f;
     }
     public override Effect GetEffect()
     {
-        PassiveEffect =  new Fear(Level);
-        return PassiveEffect;
+        return new Fear(Level);
+    }
+    public override void UseSkill(Person who)
+    {
+        Effect effect;
+        if(who.HaveEffect(EffectType.Fear, out effect))
+        {
+            effect.EffectAction.actually = false;
+            who.StopUseSkillOnHim(effect);
+        }
+        effect = GetEffect();
+        effect.EffectAction = new GameAction(Fear.Time[Level], () => who.StopUseSkillOnHim(effect));
+        who.UseSkillOnHim(effect);
     }
     public override string ToString()
     {
-        return string.Format("Ужас.\nВид армии нежити настолько отвратителен, что вражеский герой может оцепенеть из-за атаки героя.\n" +
-            "Шанс оцепенения {0}.\n" +
+        return string.Format("Гнойные раны.\nАрмия нежити опасна не только в сражении, но и после, поскольку раны и болезни оставленные мертвыми так же хорошо выкашивают живых, как и сами мертвецы. При атаке накладывает эффект чума.\n" +
+            "Потери от общего числа {0}.\n" +
+            "Время действия чумы {1}.\n" +
             "Пассивная способность.",
-            FormatArray(Fear.Stun, true));
+            FormatArray(Fear.Plague, true), FormatArray(Fear.Time));
     }
 }
 public class DeadMarchSkill : Skill
@@ -679,8 +692,7 @@ public class SacrificeSkill : Skill
         type = SkillType.Sacrifice;
         EffectType = EffectType.Sacrifice;
         Active = true;
-        ActionTime = 0;
-        CullDown = 5;
+        CullDown = 15;
         MaxLevel = Sacrifice.MaxLevel;
     }
     public override void Cast()

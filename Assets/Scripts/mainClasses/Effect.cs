@@ -18,8 +18,8 @@ public class Effect
 }
 public class BraveSpeech:Effect
 {
-    public static int[] DamBuff = { 0, 1, 2, 4, 6 };
-    public static int[] ArmBuff = { 0, 1, 3, 5, 7 };
+    public static int[] DamBuff = { 0, 2, 4, 6, 8 };
+    public static int[] ArmBuff = { 0, 2, 5, 8, 11 };
     public BraveSpeech(int Level):base(Level)
     {
         type = EffectType.BraveSpeech;
@@ -41,8 +41,8 @@ public class Siege : Effect
 }
 public class Discipline : Effect
 {
-    public static int[] DamBuff = { 0, 1, 2, 3 };
-    public static int[] ArmBuff = { 0, 1, 2, 3 };
+    public static int[] DamBuff = { 0, 1, 3, 6 };
+    public static int[] ArmBuff = { 0, 1, 3, 6 };
     public Discipline(int Level) : base(Level)
     {
         type = EffectType.Discipline;
@@ -58,7 +58,7 @@ public class Charge:Effect
     {
         type = EffectType.Charge;
     }
-    public static float[] Speed = new float[] { 1f, 1.8f, 2.45f, 2.99f };
+    public static float[] Speed = new float[] { 1f, 1.3f, 1.6f, 2f };
     public static int[] ChargeBuff = new int[] { 0, 3, 6, 9 };
     public static int MaxLevel => Speed.Length - 1;
     public float SpeedBonus => Speed[Level];
@@ -82,8 +82,8 @@ public class HeavyArmor : Effect
     {
         type = EffectType.HeavyArmor;
     }
-    public static float[] SpeedReduction = new float[] { 1, 0.9f, 0.75f, 0.65f };
-    public static int[] RangeArm = new int[] { 0, 2, 4, 6 };
+    public static float[] SpeedReduction = new float[] { 1, 0.9f, 0.8f, 0.7f };
+    public static int[] RangeArm = new int[] { 0, 4, 8, 10 };
     public static int MaxLevel => SpeedReduction.Length - 1;
 
     public float ReductionSpeed(RegimentType type) => type == RegimentType.Artillery? 1f:SpeedReduction[Level];
@@ -95,8 +95,8 @@ public class ForestTrails : Effect
     {
         type = EffectType.ForestTrails;
     }
-    public static float[] Speed = new float[] { 1, 1.5f, 2f, 3f };
-    public static float[] AttackSpeed = new float[] { 1, 1.2f, 1.5f, 1.8f };
+    public static float[] Speed = new float[] { 1, 1.2f, 1.4f, 1.6f };
+    public static float[] AttackSpeed = new float[] { 1, 1.25f, 1.5f, 1.8f };
     public static int MaxLevel => Speed.Length - 1;
     public float SpeedBonus => Speed[Level];
     public float AttackSpeedBonus => AttackSpeed[Level];
@@ -109,11 +109,11 @@ public class Sabotage : Effect
     }
 
 
-    public static float[] SabotageTime_ = new float[] { 0, 5, 7, 10,15 };
+    public static float[] SabotageTime_ = new float[] { 0, 5, 6, 7, 8 };
     public static float SabotageTime(int Level) => SabotageTime_[Level];
 
     public static float[] Speed = new float[] { 1, 0.9f, 0.8f, 0.7f, 0.6f };
-    public static int[] Depletions = new int[] { 0, 10, 15, 25, 40 };
+    public static int[] Depletions = new int[] { 0, 50, 150, 250, 400 };
     public static int MaxLevel => Speed.Length - 1;
     public float SpeedDebuff => Speed[Level];
     public int Deplention => Depletions[Level];
@@ -124,7 +124,7 @@ public class ForestBrothers : Effect
     {
         type = EffectType.ForestBrothers;
     }
-    public static int[] InfGrow = new int[] { 0, 15, 20, 30, 50 };
+    public static int[] InfGrow = new int[] { 0, 8, 12, 17, 20 };
     public static int MaxLevel => InfGrow.Length - 1;
     public int ManpowerIncrease => InfGrow[Level];
 }
@@ -134,7 +134,7 @@ public class Accuracy : Effect
     {
         type = EffectType.Accuracy;
     }
-    public static int[] Rangers = { 0, 2, 4, 6, 8 };
+    public static int[] Rangers = { 0, 4, 7, 10, 15 };
     public static int MaxLevel => Rangers.Length - 1;
     public int RangeBuff => Rangers[Level];
 }
@@ -144,7 +144,7 @@ public class FireArrows : Effect
     {
         type = EffectType.FireArrows;
     }
-    public static int[] Damage = { 0, 100, 150, 200, 250 };
+    public static int[] Damage = { 0, 100, 200, 300, 400 };
     public static int MaxLevel => Damage.Length - 1;
 
     public int BonusRangeDamage => Damage[Level];
@@ -208,7 +208,7 @@ public class TheBats : Effect
         type = EffectType.TheBats;
         Vampir = vampire;
     }
-    public static int[] BaseVampirism = { 0, 20, 40, 60, 100 };
+    public static int[] BaseVampirism = { 0, 80, 160, 300, 500 };
     public static float[] Quality = { 0, 0.4f, 0.7f, 0.9f, 1f };
     public static float[] Radius = { 0, 5, 6, 7, 8 };
     public static float BatsRadius(int lvl) => Radius[lvl];
@@ -223,15 +223,8 @@ public class SkeletonArmy : Effect
     {
         type = EffectType.SkeletonArmy;
     }
-    /*static BaseRegiment[] Skelets =
-    {
-        null,
-        new BaseRegiment(null,RegimentName.Skeletons, RegimentType.Infantry, DamageType.Melee, 2,0,10,0,2,500,default,default,0),
-        new BaseRegiment(null,RegimentName.Skeletons, RegimentType.Infantry, DamageType.Melee, 4,2,10,0,5,700,default,default,0),
-        new BaseRegiment(null,RegimentName.Skeletons, RegimentType.Infantry, DamageType.Melee, 7,4,15,0,8,900,default,default,0)
-    };*/
     public static int MaxLevel => PrefabHandler.SkeletCount;//3
-    public static int[] Count = { 0, 2, 4, 5 };
+    public static int[] Count = { 0, 2, 4, 8 };
     public static int SkeletCount(int Level) => Count[Level];
     public static Regiment GetSkelet(int Level) => new Regiment(PrefabHandler.GetSkeleton(Level - 1));
 
@@ -242,9 +235,10 @@ public class Fear : Effect
     {
         type = EffectType.Fear;
     }
-    public static float[] Stun = { 0, 0.05f, 0.10f, 0.2f, 0.3f };
-    public static int MaxLevel => Stun.Length - 1;
-    public float StunPropability(DamageType type) => type == DamageType.Melee || type == DamageType.Charge ? Stun[Level] : 0;
+    public static float[] Plague = { 0, 0.05f, 0.1f, 0.15f, 0.2f };
+    public static float[] Time = { 0, 5f, 6f, 7f, 8f };
+    public static int MaxLevel => Plague.Length - 1;
+    public float plaguePercent => Plague[Level];
 }
 public class DeadMarch : Effect
 {
@@ -252,7 +246,7 @@ public class DeadMarch : Effect
     {
         type = EffectType.DeadMarch;
     }
-    public static float[] Speed = { 1f, 1.5f, 2f, 2.5f };
+    public static float[] Speed = { 1f, 1.2f, 1.4f, 1.6f };
     public static int[] Regen = { 0, 10, 20, 30 };
     public static int MaxLevel => Regen.Length - 1;
     public float SpeedBonus => Speed[Level];

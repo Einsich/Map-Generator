@@ -10,8 +10,6 @@ public class ArmyPanel : MonoBehaviour, IHelpPerson
     public ListFiller army;
     public Image exchangeImage;
     public Image icon;
-    public Image[] pips;
-    public Button[] pipsUpButton;
     public SkillButton[] skillsButton;
    // public Button[] skillsUpButton;
     public Image expFill;
@@ -81,14 +79,6 @@ public class ArmyPanel : MonoBehaviour, IHelpPerson
         }
         for (; i < skillsButton.Length; i++)
             skillsButton[i].gameObject.SetActive(false);
-        for ( i = 0; i < pipsUpButton.Length; i++)
-        {
-            Button button = pipsUpButton[i];
-            button.onClick.RemoveAllListeners();
-            PropertyType j = (PropertyType)i;
-            button.onClick.AddListener(() => person.LearnProperty(j));
-            button.onClick.AddListener(() => UpdatePropertyAndSkills());
-        }
         name.text = person.name;
         UpdatePropertyAndSkills();
     }
@@ -102,15 +92,8 @@ public class ArmyPanel : MonoBehaviour, IHelpPerson
 #else
         exp.text =  $"{person.lvl} ур. {(int)person.exp} / {person.nextLvl}";
 #endif
-        pips[0].sprite = SpriteHandler.GetPipsSprite(person.LeadershipLvl);
-        pips[1].sprite = SpriteHandler.GetPipsSprite(person.AttackSpeedLvl);
-        pips[2].sprite = SpriteHandler.GetPipsSprite(person.MeleeBuffLvl);
-        pips[3].sprite = SpriteHandler.GetPipsSprite(person.RangeBuffLvl);
         
-        int i = 0;
-        for (; i < pipsUpButton.Length; i++)
-            pipsUpButton[i].gameObject.SetActive(person.lvlPoint > 0);
-        for (i = 0; i < person.Skills.Length; i++)
+        for (int i = 0; i < person.Skills.Length; i++)
         {
             skillsButton[i].UpdateLevelUp();
         }

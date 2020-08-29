@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GameAction: IComparable<GameAction> {
-    public float time,startTime;
+    readonly public float time,startTime;
     protected float T;
     public bool actually;
     //protected delegate void Method();

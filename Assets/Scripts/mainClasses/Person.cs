@@ -1,12 +1,20 @@
-﻿using System.Collections;
+﻿
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Person
 {
     public Sprite icon => SpriteHandler.GetPersonIcon(personType);
-    static string[] names = {  "Yan", "Yanis", "Yanka", "Yanchik", "Yanushka", "Yandex" };
+    static Dictionary<System.Type, string[]> names = new Dictionary<System.Type, string[]>(){
+        { typeof(Warrior),new string[] {"Bron", "Gartas", "Michael", "Torus", "Rectar" } },
+        { typeof(Archer),new string[] {"Lucius", "Kil-asol", "Mithrantil", "Pretus", "Angelus" } },
+        { typeof(Knight),new string[] {"Astolf", "Eduard", "Jake-de-Mole", "Gotfrid", "Ulrich" } },
+        { typeof(Jaeger),new string[] {"Shaden", "Fortas", "Julius", "Nyxus", "Pipich" } },
+        { typeof(DeathKnight),new string[] {"Nightmare prince", "Fear-Lord", "King of death", "Lord of pain", "Knight of terror" } },
+        { typeof(Necromancer),new string[] {"Vladimirus", "Bloodyslav", "Necropolk", "Skelebor", "Bonezar" } }
 
+
+    };
     public string name;
     public PersonType personType;
     public bool die, inTavern = true;
@@ -16,22 +24,9 @@ public class Person
     public Army curArmy;
     public State owner;
 
-    public int LeadershipLvl = 0;
-    public int AttackSpeedLvl = 0;
-    public int RangeBuffLvl = 0;
-    public int MeleeBuffLvl = 0;
-    public int MaxRegiment => LeadershipLvl * 2 + 4;
-    public float AttackSpeed => 1f / (0.1f * (lvl+ AttackSpeedLvl) + 1f);
-
-    public int DamageTypeBuff(DamageType type) => (type == DamageType.Melee || type == DamageType.Charge) ? MeleeBuffLvl : (type == DamageType.Range ? RangeBuffLvl: 0);
-    /*
-     сл. хар-ки имееют целую величину = lvl от 0 до какого-то предельного значения.
-     Лидерство(макс. кол-во отрядов = lvl * 2 + 2)
-    Скорость атаки = 1/(0.1f*lvl+1)
-Баф на дальную атаку +lvl к damageLvl всех с Range атакой
-Баф на ближнюю атаку +lvl к damageLvl всех с Melee|Charge атакой
-Уменьшение урона
-         */
+    public int MaxRegiment => lvl + 4;
+    public float AttackSpeed => 1f / (0.1f * (lvl) + 1f);
+    
     public List<Effect> Effects = new List<Effect>();
     public Skill[] Skills;
     
@@ -74,17 +69,6 @@ public class Person
         }
         lvlPoint--;
     }
-    public void LearnProperty(PropertyType type)
-    {
-        switch(type)
-        {
-            case PropertyType.Leadership:LeadershipLvl++;break;
-            case PropertyType.AttackSpeed:AttackSpeedLvl++;break;
-            case PropertyType.MeleeBuff:MeleeBuffLvl++;break;
-            case PropertyType.RangeBuff:RangeBuffLvl++;break;
-        }
-        lvlPoint--;
-    }
     public void Die()
     {
         die = true;
@@ -112,9 +96,8 @@ public class Person
     {
         owner = state;
         owner.persons.Add(this);
-        name = names[Random.Range(0, names.Length)];
-        die = Random.Range(0, 2) == 1;
-        die = false;
+        var array = names[GetType()];
+        name = array[Random.Range(0, array.Length)];
 
         GameTimer.OftenUpdate += () => exp += (1 + state.technologyTree.passiveExperience) * state.technologyTree.activeExperienceBonus;
 
@@ -139,7 +122,7 @@ public class Person
     }
     public System.Action ExpChanged, SkillCulldowned;
     public int lvl { get; private set; } = 1;
-    public int nextLvl => lvl * 150;
+    public int nextLvl => lvl * lvl* 120;
     public float expf => 1f * exp_ / nextLvl;
     public int DamageLvlBuff(RegimentType regimentType, DamageType damageType)
     {

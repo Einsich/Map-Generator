@@ -95,15 +95,9 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
                                 Player.instance.Occupated(region, owner);
                             }
                         } else
-                        if(target is Army enemy)
                         {
-                            if(Person.HaveEffect(EffectType.Fear, out effect))
-                            {
-                                if(Random.value < (effect as Fear).StunPropability(damageType))
-                                {
-                                    //todo stun
-                                }
-                            }
+                            if (Person.HaveSkill(SkillType.Fear, out skill) && target is Army a)
+                                skill.UseSkill(a.Person);
                         }
                     }
                     navAgent.RotateTo(target.position);
@@ -447,7 +441,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     public void UpdateManpower()
     {
         Region region = curReg;
-        int manpowerBonus = 0;
+        float manpowerBonus = 0;
         Effect effect;
         if((navAgent.TerrainType == TerrainType.ForestLeaf || navAgent.TerrainType == TerrainType.ForestSpire) && Person.HaveEffect(EffectType.ForestBrothers,out effect))
         {
@@ -462,13 +456,18 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
             manpowerBonus += (effect as DeadMarch).RegenBonus;
         }
         TheBats bats = null;
+        Fear plague = null;
         float vamrirism = 0;
-        if(Person.HaveEffect(EffectType.TheBats, out effect))
+        if (Person.HaveEffect(EffectType.TheBats, out effect))
         {
             bats = effect as TheBats;
         }
+        if (Person.HaveEffect(EffectType.Fear, out effect))
+        {
+            plague = effect as Fear;
+        }
         if (curReg.curOwner == owner && inTown)
-            manpowerBonus += GameConst.RecruitInTown;
+            manpowerBonus += owner.technologyTree.recruitInTown;
         if (manpowerBonus != 0)
         {
             float mp = owner.treasury.Manpower,dmp = 0;
@@ -477,11 +476,12 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
                 if (mp >= manpowerBonus || manpowerBonus < 0 || bats !=null)
                 {
                     float d = regiment.count + manpowerBonus > regiment.baseRegiment.maxcount ? regiment.baseRegiment.maxcount - regiment.count : manpowerBonus;
-                    float v = bats != null ? bats.ArmoredVampirism(regiment.baseRegiment.ArmorLvl(DamageType.Melee)) : 0; 
-                    d -= v;
+                    float v = bats != null ? bats.ArmoredVampirism(regiment.baseRegiment.ArmorLvl(DamageType.Melee)) : 0;
+                    v += plague != null ? plague.plaguePercent * regiment.baseRegiment.maxcount : 0;
                     vamrirism += v;
                     dmp += d > 0 ? d : 0;
                     mp -= dmp;
+                    d -= v;
                     regiment.count += d;
                 }
                 else
@@ -621,7 +621,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
     private float RegimentDamage(Regiment regiment)
     {
         return (regiment.NormalCount + 1) * 0.5f *
-            (regiment.baseRegiment.damage(Person.DamageLvlBuff(regiment.baseRegiment.type, regiment.baseRegiment.damageType) + Person.DamageTypeBuff(regiment.baseRegiment.damageType)) +
+            (regiment.baseRegiment.damage(Person.DamageLvlBuff(regiment.baseRegiment.type, regiment.baseRegiment.damageType)) +
             Person.DamageBuff(regiment.baseRegiment.type, regiment.baseRegiment.damageType));
     }
 

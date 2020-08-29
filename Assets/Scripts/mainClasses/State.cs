@@ -141,7 +141,7 @@ public class State
 
     public Person defaultLeader()
     {
-        switch(Random.Range(0,(int)PersonType.Count))
+        switch (Random.Range(0,(int)PersonType.Count - 2))
         {
             case 0: return new Warrior(this);
             case 1: return new Knight(this);
@@ -149,21 +149,24 @@ public class State
             case 3: return new Archer(this);
            // case 4: return new Wizard(this);
            // case 5: return new Engineer(this);
-            case 6: return new Necromancer(this);
-            case 7: return new DeathKnight(this);
+            case 4: return new Necromancer(this);
+            case 5: return new DeathKnight(this);
             default:return new Knight(this);
         }
     }
-    public void AddAllPerson()
+
+    public Person AddPerson(PersonType type)
     {
-        new Warrior(this);
-        new Knight(this);
-        new Jaeger(this);
-        new Archer(this);
-       // new Wizard(this);
-       // new Engineer(this);
-        new Necromancer(this);
-        new DeathKnight(this);
+        switch (type)
+        {
+            case PersonType.Warrior: return new Warrior(this);
+            case PersonType.Knight: return new Knight(this);
+            case PersonType.Jaeger: return new Jaeger(this);
+            case PersonType.Archer: return new Archer(this);
+            case PersonType.Necromancer: return new Necromancer(this);
+            case PersonType.DeathKnight: return new DeathKnight(this);
+            default: return null;
+        }
     }
     public void CalculateIncome()
     {
