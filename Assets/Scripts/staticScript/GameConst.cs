@@ -1,6 +1,4 @@
 ﻿
-//#define DEVELOP
-
 static class GameConst 
 {
    public const int PersonAliveTime = 10;

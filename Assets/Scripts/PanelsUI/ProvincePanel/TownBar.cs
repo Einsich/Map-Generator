@@ -24,7 +24,9 @@ public class TownBar : MonoBehaviour, IPointerClickHandler
     {
         set
         {
+#if !DEVELOP
             value &= MapMetrics.Visionable(region.Capital);
+#endif
             if(gameObject.activeSelf != value)
             {
                 gameObject.SetActive(value);

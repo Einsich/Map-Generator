@@ -9,14 +9,15 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
     private StateAI stateAI;
     public HashSet<RegionProxi> RiskI, RiskII, RiskIII;
 
-    private Dictionary<int, Dictionary<RegimentIdentifier, float>> templates;
+    //private Dictionary<int, Dictionary<RegimentIdentifier, float>> templates;
     private static int ID_PROV_TEMPLATE;
 
     private float FIRST_LINE_PIECE = 4;
     private float TWO_LINE_PIECE = 2;
 
-    private Dictionary<RegimentIdentifier, float> needRegiment = new Dictionary<RegimentIdentifier, float>();
-    private Dictionary<RegimentIdentifier, BaseRegiment> stateRegiments = new Dictionary<RegimentIdentifier, BaseRegiment>();
+    //private Dictionary<RegimentIdentifier, float> needRegiment = new Dictionary<RegimentIdentifier, float>();
+    //private Dictionary<RegimentIdentifier, BaseRegiment> stateRegiments = new Dictionary<RegimentIdentifier, BaseRegiment>();
+    private List<BaseRegiment> stateRegiments = new List<BaseRegiment>();
     private PriorityQueue<RegimentBuildTask> priorityQueue = new PriorityQueue<RegimentBuildTask>();
     private bool isPeace => stateAI.Data.diplomacy.war.Count == 0;
     private Treasury dirtyIncome=>stateAI.Data.Income - stateAI.Data.allRegimentsUpkeep;
@@ -30,10 +31,10 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
     public AutoRegimentBuilder(StateAI aI)
     {
         (stateAI, RiskI, RiskII, RiskIII) = (aI,new HashSet<RegionProxi>(), new HashSet<RegionProxi>(), new HashSet<RegionProxi>());
-        CreateTemplates();
+        //CreateTemplates();
     }
 
-    private void CreateTemplates()
+   /* private void CreateTemplates()
     {
         templates = new Dictionary<int, Dictionary<RegimentIdentifier, float>>();
 
@@ -50,7 +51,7 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
         templates[ID_PROV_TEMPLATE].Add(new RegimentIdentifier(RegimentType.Infantry, DamageType.Range), 1);
         templates[ID_PROV_TEMPLATE].Add(new RegimentIdentifier(RegimentType.Infantry, DamageType.Melee), 1);
     }
-
+    */
     private bool isOn = false;
     public bool IsOn
     {
@@ -78,17 +79,17 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
             if (isPeace)
             {
                 AnalizeRegions();
-                CompleteArmy();
+                //CompleteArmy();
                 CompletingProv(RiskI, 2, 3);
-                CompletingProv(RiskII, 5, 1);
+                CompletingProv(RiskII, 2.7f, 1);
                 CompletingProv(RiskIII, 5, 0);
             }
             else
             {
                 AnalizeRegions();
-                CompleteArmy();
+                //CompleteArmy();
                 CompletingProv(RiskI, 1, 3);
-                CompletingProv(RiskII, 5, 1);
+                CompletingProv(RiskII, 1.7f, 1);
                 CompletingProv(RiskIII, 5, 0);
             }
         }
@@ -128,12 +129,13 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
         {
             if (baseRegiment == null)
                 continue;
-            var key = new RegimentIdentifier(baseRegiment.type, baseRegiment.damageType);
-            if (!stateRegiments.ContainsKey(key))
-                stateRegiments.Add(key, baseRegiment);
+            stateRegiments.Add(baseRegiment);
+            //var key = new RegimentIdentifier(baseRegiment.type, baseRegiment.damageType);
+            //if (!stateRegiments.ContainsKey(key))
+            //    stateRegiments.Add(key, baseRegiment);
         }
     }
-
+    /*
     private void CompleteArmy()
     {
         foreach (Army a in stateAI.Data.army)
@@ -184,7 +186,6 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
             }
         }
     }
-
 
     private Dictionary<RegimentIdentifier, float> CompletionRegimentList(List<Regiment> regiments, Dictionary<RegimentIdentifier, float> template)
     {
@@ -247,7 +248,7 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
             return needRegiment;
         }
     }
-  
+  */
 
     private void CompletingProv(HashSet<RegionProxi> risk, float Priority, int wallsLvl)
     {
@@ -263,18 +264,20 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
                 builder.IncludeBuildTask(prov, BuildingType.Walls);
             }
             int need = prov.maxGarnison - prov.garnison.Count;
-            foreach (var nr in CompletionRegimentList(prov.garnison, templates[ID_PROV_TEMPLATE]))
+            //foreach (var nr in CompletionRegimentList(prov.garnison, templates[ID_PROV_TEMPLATE]))
+            for(int i = need; i >= 0; i--)
             {
-                BaseRegiment regiment = stateRegiments[nr.Key];
-                Treasury cost = regiment.cost;
-                Treasury upkeep = regiment.upkeep;
+                //BaseRegiment regiment = stateRegiments[nr.Key];
+                BaseRegiment regiment = stateRegiments[UnityEngine.Random.Range(0, stateRegiments.Count)];
+                priorityQueue.Enqueue(new RegimentBuildTask(prov, regiment, Priority + UnityEngine.Random.Range(0f, 1f)));
+                /*
                 for (float i = 0; i < nr.Value; i++)
                 {
                     if (need-- > 0)
                         priorityQueue.Enqueue(new RegimentBuildTask(prov, regiment, Priority + UnityEngine.Random.Range(0f, 1f)));
                     else
                         break;
-                }
+                }*/
             }
         }
     }

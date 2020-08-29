@@ -52,7 +52,8 @@ public class State
         stateAI.autoTrader.IsOn = false;
         foreach (var army in army)
             army.DestroyArmy();
-        Capital.Corona.SetActive(false);
+        GameObject.Destroy(Capital.Corona);
+        Capital.Corona = null;
         Text.SetActive(false);
         GameTimer.RemoveListener(StateDecaSecondUpdate, this);
     }

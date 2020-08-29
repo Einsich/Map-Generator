@@ -461,7 +461,7 @@ public class Player : MonoBehaviour {
                     }
                 } else
                 {
-                    if (highlightRegion != null)
+                    if(highlightRegion != null)
                         highlightRegion.bar.Active = false;
                 }
                 if (hit.transform.GetComponent<Port>())
