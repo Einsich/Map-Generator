@@ -32,35 +32,49 @@ public class GarnisonIcon : InitGO,IPointerClickHandler,IHelpBaseRegiment
     }
     public void OnPointerClick(PointerEventData eventData)
     {
+
         if (eventData.pointerId == -1)
         {
-            if (canExchange)
+            if (Player.PlayerCheckArmy())
             {
-                Player.army.ExchangeRegiment(garnison);
-                MenuManager.UpdateArmyList();
-                MenuManager.UpdateGarnisonList();
+                if (canExchange)
+                {
+                    Player.army.ExchangeRegiment(garnison);
+                    MenuManager.UpdateArmyList();
+                    MenuManager.UpdateGarnisonList();
+                }
+                Delete(false);
             }
-            Delete(false);
         }
         else if (eventData.pointerId == -2)
         {
-            if(delete)
+            if (Player.army && Player.army.army.Contains(garnison))
             {
-                if (Player.army && Player.army.army.Remove(garnison))
+                if (Player.PlayerCheckArmy())
                 {
-                    Player.army.ArmyListChange();
-                    MenuManager.UpdateArmyList();
-
-                }
-                else
-                {
-                    if (Player.curRegion != null && Player.curRegion.data.garnison.Remove(garnison))
-                        MenuManager.UpdateGarnisonList();
+                    if (delete)
+                    {
+                        Player.army.army.Remove(garnison);
+                        Player.army.ArmyListChange();
+                        MenuManager.UpdateArmyList();
+                    }
+                    else
+                        Delete(true);
                 }
             }
-            else
+            if (Player.curRegion != null && Player.curRegion.data.garnison.Contains(garnison))
             {
-                Delete(true);
+                if (Player.PlayerCheckRegion())
+                {
+                    if (delete)
+                    {
+                        Player.curRegion.data.garnison.Remove(garnison);
+                        MenuManager.UpdateGarnisonList();
+
+                    }
+                    else
+                        Delete(true);
+                }
             }
         }
     }

@@ -81,9 +81,12 @@ public class BuildingButton : MonoBehaviour, IHelpBuilding
     }
     public void PressButton()
     {
-        data.ClickBuilding(BuildIndex);
-        CurBuildAction = data.BuildingAction[BuildIndex];
-        UpdateState();
+        if (Player.PlayerCheckRegion())
+        {
+            data.ClickBuilding(BuildIndex);
+            CurBuildAction = data.BuildingAction[BuildIndex];
+            UpdateState();
+        }
     }
 
     public string BuildingDescribe()

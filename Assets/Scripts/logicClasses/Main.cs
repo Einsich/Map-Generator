@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
 public class Main : MonoBehaviour
 {
     public GameObject Text, worldborder, CoronaPrefab, flagPrefab, WayPoint;

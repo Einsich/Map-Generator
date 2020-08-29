@@ -97,8 +97,11 @@ public class ArmyPanel : MonoBehaviour, IHelpPerson
 
         Person person = curArmy.Person;
         expFill.fillAmount = person.expf;
-        exp.text = curArmy.AI.curBehavior;// $"{person.lvl} ур. {(int)person.exp} / {person.nextLvl}";
-
+#if DEVELOP
+        exp.text = curArmy.AI.curBehavior;
+#else
+        exp.text =  $"{person.lvl} ур. {(int)person.exp} / {person.nextLvl}";
+#endif
         pips[0].sprite = SpriteHandler.GetPipsSprite(person.LeadershipLvl);
         pips[1].sprite = SpriteHandler.GetPipsSprite(person.AttackSpeedLvl);
         pips[2].sprite = SpriteHandler.GetPipsSprite(person.MeleeBuffLvl);

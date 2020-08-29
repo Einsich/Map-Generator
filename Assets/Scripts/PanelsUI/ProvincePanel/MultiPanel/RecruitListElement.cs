@@ -26,12 +26,13 @@ public class RecruitListElement : InitGO,IHelpBaseRegiment
         name.text = BaseRegiment.type.ToString();
         descr.text = $"Стоимость {BaseRegiment.cost.ToArmyCost()}\nСодержание {BaseRegiment.upkeep.ToArmyCost()}\nВремя {BaseRegiment.time}";
         bye.onClick.RemoveAllListeners();
-        bye.onClick.AddListener(()=>RecruitMenu.AddToQueue(BaseRegiment));
+        if (Player.PlayerCheckRegion())
+            bye.onClick.AddListener(() => RecruitMenu.AddToQueue(BaseRegiment));
         CheckCost();
     }
     public void CheckCost()
     {
-        bye.interactable = BaseRegiment.cost <= Player.curPlayer.treasury;
+        bye.interactable = Player.PlayerCheckRegion() && BaseRegiment.cost <= Player.curPlayer.treasury;
     }
     private void Update()
     {

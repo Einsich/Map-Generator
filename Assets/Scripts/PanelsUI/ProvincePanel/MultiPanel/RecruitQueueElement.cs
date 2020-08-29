@@ -19,7 +19,8 @@ public class RecruitQueueElement : InitGO,IHelpBaseRegiment
     }
     public void DeRecruit()
     {
-        RecruitMenu.RemoveFromQueue(action);
+        if (Player.PlayerCheckRegion())
+            RecruitMenu.RemoveFromQueue(action);
     }
     private void Update()
     {

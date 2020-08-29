@@ -21,6 +21,22 @@ public class Player : MonoBehaviour {
     {
         instance = this;
     }
+    public static bool PlayerCheckArmy()
+    {
+#if !DEVELOP
+        return army && army.owner == curPlayer;
+#else
+            return true;
+#endif
+    }
+    public static bool PlayerCheckRegion()
+    {
+#if !DEVELOP
+        return curRegion != null && curRegion.curOwner == curPlayer;
+#else
+            return true;
+#endif
+    }
     public void Annexation(State annexator, State target, List<Region> land)
     {
         foreach (var war in target.diplomacy.war)
@@ -199,8 +215,13 @@ public class Player : MonoBehaviour {
             if (army == tap)
                 DeselectArmy();
             else
-            if (curPlayer == null || true)
+#if DEVELOP
                 SelectArmy(tap);
+#else
+            if (curPlayer == null || tap.owner == curPlayer)
+                SelectArmy(tap);
+#endif
+
         }
         else
         if (army && army!= tap)

@@ -178,8 +178,8 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
             return;
         foreach (State st in Main.states)
         {
-            if (false)
-            //if (Player.curPlayer != st)
+#if !DEVELOP
+            if (Player.curPlayer != st)
             {
                 foreach (Army army in st.army)
                     if (!CameraController.showstate)
@@ -187,6 +187,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
                         army.Active = !army.Fogged;
                     }
             } else
+#endif
             {
                 foreach (Army army in st.army)
                     army.Active = true;
