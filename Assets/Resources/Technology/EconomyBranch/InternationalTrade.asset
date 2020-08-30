@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fd42cade0db2234e94015a2f619a3e1, type: 3}
   m_Name: InternationalTrade
   m_EditorClassIdentifier: 
-  science: 30
+  science: 45
   time: 20
   lvl: 0
   lvlmax: 3

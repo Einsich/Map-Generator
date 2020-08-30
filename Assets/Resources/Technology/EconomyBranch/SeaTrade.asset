@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ce3f7cc53cc1dd4daa00fed8fb29aa6, type: 3}
   m_Name: SeaTrade
   m_EditorClassIdentifier: 
-  science: 50
+  science: 60
   time: 60
   lvl: 0
   lvlmax: 1

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c852ff5da3fe6e4387cbfd3281a4965, type: 3}
   m_Name: PassiveExp
   m_EditorClassIdentifier: 
-  science: 30
-  time: 20
+  science: 100
+  time: 80
   lvl: 0
   lvlmax: 3
   name: "\u041F\u0430\u0441\u0441\u0438\u0432\u043D\u044B\u0439 \u043E\u043F\u044B\u0442"

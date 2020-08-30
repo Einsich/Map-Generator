@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Jeger
   m_EditorClassIdentifier: 
   science: 15
-  time: 15
+  time: 1
   lvl: 0
   lvlmax: 1
   name: "\u041E\u0445\u043E\u0442\u043D\u0438\u043A"

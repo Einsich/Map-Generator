@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1759af1f3cfc874fb4b34a32d922cf3, type: 3}
   m_Name: "\u0410\u0440\u0431\u0430\u043B\u0435\u0442\u0447\u0438\u043A\u0438_attack"
   m_EditorClassIdentifier: 
-  science: 5
-  time: 5
+  science: 12
+  time: 20
   lvl: 4
   lvlmax: 9
   name: 

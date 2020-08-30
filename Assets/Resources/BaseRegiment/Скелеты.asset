@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   damageType: 0
-  nameRegiment: "\u0417\u043E\u043C\u0431\u0438"
+  nameRegiment: "\u0421\u043A\u0435\u043B\u0435\u0442\u044B"
   description: 
   Icon: {fileID: 1401410060940604245, guid: a02278be5af8e754492249a8effc8e8c, type: 3}
   maxcount: 1000

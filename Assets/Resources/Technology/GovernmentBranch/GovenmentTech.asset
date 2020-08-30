@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ce3f7cc53cc1dd4daa00fed8fb29aa6, type: 3}
   m_Name: GovenmentTech
   m_EditorClassIdentifier: 
-  science: 6
-  time: 10
+  science: 20
+  time: 20
   lvl: 0
   lvlmax: 1
   name: "\u0413\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u0435\u043D\u043D\u044B\u0435

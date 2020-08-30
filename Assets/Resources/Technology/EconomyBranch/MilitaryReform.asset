@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9ec7a1e0f1d0ec46a8014ba5346bc22, type: 3}
   m_Name: MilitaryReform
   m_EditorClassIdentifier: 
-  science: 25
+  science: 30
   time: 30
   lvl: 0
   lvlmax: 2

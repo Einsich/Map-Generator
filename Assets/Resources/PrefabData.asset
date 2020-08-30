@@ -29,8 +29,12 @@ MonoBehaviour:
     type: 3}
   Skelets:
   - {fileID: 11400000, guid: 5012eb61134206846bcf2c4850ca0791, type: 2}
+  - {fileID: 11400000, guid: 12c78ebcf5f41ec45a26fd32ef3ec9f9, type: 2}
+  - {fileID: 11400000, guid: 23b901ec4d2908e4998f9a9d2b58f571, type: 2}
   TechnologyPanel: {fileID: 5680992134984719745, guid: 451e93d9fc6bb5c44819e8c5efbdf4d5,
     type: 3}
   RegimentTechnologyPanel: {fileID: 2595585941586640336, guid: 082cf0542ab60b6428fa70a7573ef617,
     type: 3}
   TechnologyTree: {fileID: 11400000, guid: 0f687b508a40c6f4d84c1419e6768eb5, type: 2}
+  HPTownBarBrefab: {fileID: 3267796588777173183, guid: f4717d8cb82180745a27fdec4746a88a,
+    type: 3}

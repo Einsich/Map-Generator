@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   damageType: 0
-  nameRegiment: 
+  nameRegiment: "\u0412\u043E\u0438\u043D\u044B-\u0441\u043A\u0435\u043B\u0435\u0442\u044B"
   description: 
-  Icon: {fileID: 0}
+  Icon: {fileID: 1401410060940604245, guid: a02278be5af8e754492249a8effc8e8c, type: 3}
   maxcount: 1000
-  MeleeArmor: 0
-  ChargeArmor: 0
-  RangeArmor: 0
-  damageLvl: 0
+  MeleeArmor: 3
+  ChargeArmor: 3
+  RangeArmor: 3
+  damageLvl: 5
