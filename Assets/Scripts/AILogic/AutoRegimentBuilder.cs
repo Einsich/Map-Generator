@@ -78,7 +78,7 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
             AddBase();
             if (isPeace)
             {
-                AnalizeRegions();
+                AnalizeRegions((r, neib) => neib.curOwner != stateAI.Data);
                 //CompleteArmy();
                 CompletingProv(RiskI, 2, 3);
                 CompletingProv(RiskII, 2.7f, 1);
@@ -86,7 +86,7 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
             }
             else
             {
-                AnalizeRegions();
+                AnalizeRegions((r, neib) => neib.owner != null && neib.owner.diplomacy.haveWar(stateAI.Data.diplomacy));
                 //CompleteArmy();
                 CompletingProv(RiskI, 1, 3);
                 CompletingProv(RiskII, 1.7f, 1);
@@ -96,7 +96,7 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
     }
 
 
-    public void AnalizeRegions()
+    public void AnalizeRegions(System.Func<Region, Region, bool> constructRiskI)
     {
         RiskI.Clear();
         RiskII.Clear();
@@ -115,7 +115,7 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
                     }
         }
 
-        Func(RiskI, (r, neib) => neib.curOwner != stateAI.Data);
+        Func(RiskI, constructRiskI);
         Func(RiskII, (r, neib) => RiskI.Contains(new RegionProxi(neib.data)) && !RiskI.Contains(new RegionProxi(r.data)));
         Func(RiskIII, (r, neib) => !RiskI.Contains(new RegionProxi(r.data)) && !RiskII.Contains(new RegionProxi(r.data)));
 
@@ -288,7 +288,7 @@ public class AutoRegimentBuilder : AutoManager, AutoSpender
         if (priorityQueue.Count > 0)
         {
             var task = priorityQueue.Peek();
-            if (!(dirtyIncome >= task.baseRegiment.upkeep && task.province.region.curOwner == state.Data))
+            if (!(dirtyIncome.NormalizedToGold >= task.baseRegiment.upkeep.NormalizedToGold && task.province.region.curOwner == state.Data))
                 return AutoSpenderResult.HasNotOrder;
             if (state.treasury >= task.baseRegiment.cost)
             {
