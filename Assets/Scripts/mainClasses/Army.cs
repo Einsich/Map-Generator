@@ -321,7 +321,7 @@ public class Army:MonoBehaviour,ITarget,IFightable, IMovable
                 }
                 Fight(target);
                 navAgent.target = target;
-                return false;
+                return true;
             }
             else
             {

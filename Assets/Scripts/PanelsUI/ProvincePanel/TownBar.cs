@@ -80,6 +80,6 @@ public class TownBar : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        Player.RegionTap(region);
+        Player.TownTap(region, eventData.button == PointerEventData.InputButton.Left, eventData.button == PointerEventData.InputButton.Right);
     }
 }

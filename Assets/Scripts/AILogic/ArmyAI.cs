@@ -85,7 +85,10 @@ public class ArmyAI : MonoBehaviour
             }
         }
     }
-
+    private float DistantionFactor(float usefull, float dist, float min, float max)
+    {
+        return Mathf.Clamp(usefull * (1 + Mathf.Clamp((1 - (dist - min) / (max - min)) * 4, 0, 4)), 0, 1);//
+    }
     private void ApplyMaxUtility()
     {
         if (army.ActionState == ActionType.Idle)
@@ -182,7 +185,7 @@ public class ArmyAI : MonoBehaviour
             if (target != default(IFightable))
             {
                 nearestEnemyRegion = target;
-                return 0.8f;
+                return 0.8f; 
             }
         }
 
@@ -216,7 +219,7 @@ public class ArmyAI : MonoBehaviour
     {
         if (nearestEnemy != null && damageStat.rangeDamager > 0)
         {
-            float dist = (nearestEnemy.position - army.position).magnitude;
+            float dist = (nearestEnemy.position - army.position).magnitude - Navigation.townRadius;
             if (army.inTown &&
                 dist <= DamageInfo.AttackRange(DamageType.Range) && dist > DamageInfo.AttackRange(DamageType.Melee))
                 return 1;
@@ -228,7 +231,7 @@ public class ArmyAI : MonoBehaviour
     {
         if (nearestEnemy != null && damageStat.meleeDamager > 0)
         {
-            float dist = (nearestEnemy.position - army.position).magnitude;
+            float dist = (nearestEnemy.position - army.position).magnitude - Navigation.townRadius;
             if (army.inTown && dist <= DamageInfo.AttackRange(DamageType.Melee))
                 return 1;
         }
@@ -285,7 +288,7 @@ public class ArmyAI : MonoBehaviour
                     return 0;
                 }
                 nearestEnemyRegion = target;
-                return 1 - item.Item2;
+                return Mathf.Clamp01(1 - item.Item2)-0.1f;
             }
         }
 
@@ -309,7 +312,7 @@ public class ArmyAI : MonoBehaviour
                 var theirDamage = nearestEnemy.GetDamage(DamageType.Melee).TotalDamage;
                 if ((nearestEnemy as Army)?.army.Count == 0 || army.navAgent.lastCollidedAgent?.Movable == nearestEnemy)
                     return 1;
-                return 1 - Mathf.Exp(-myDamage / theirDamage);
+                return  DistantionFactor(1 - Mathf.Exp(-myDamage / theirDamage), dist, DamageInfo.AttackRange(DamageType.Melee) * 0.25f, DamageInfo.AttackRange(DamageType.Melee));
             }
         }
         return 0;
@@ -330,7 +333,7 @@ public class ArmyAI : MonoBehaviour
             {
                 var myDamage = army.GetDamage(DamageType.Range).TotalDamage;
                 var theirDamage = nearestEnemy.GetDamage(DamageType.Range).TotalDamage;
-                return 1 - Mathf.Exp(-myDamage / theirDamage);
+                return DistantionFactor(1 - Mathf.Exp(-myDamage / theirDamage), dist, DamageInfo.AttackRange(DamageType.Melee), DamageInfo.AttackRange(DamageType.Range));
             }
         }
         return 0;

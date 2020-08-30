@@ -26,8 +26,8 @@ public class StateAI
         autoArmyCommander = new AutoArmyCommander(this);
         autoPersonControl = new AutoPersonControl(this);
         autoDiplomacy = new AutoDiplomacy(this);
-        buildAndregimentsManager = new AutoSpenderManager((autoBuilder, 20), (autoRegimentBuilder, 12));
-        scienceManager = new AutoSpenderManager((autoReasercher, 1));
+        buildAndregimentsManager = new AutoSpenderManager((autoBuilder, 50), (autoRegimentBuilder, 35));
+        scienceManager = new AutoSpenderManager((autoReasercher, 10));
     }
 
     public void IncomeResources(Treasury treasury)

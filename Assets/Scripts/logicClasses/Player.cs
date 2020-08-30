@@ -276,6 +276,25 @@ public class Player : MonoBehaviour {
             }
         }
     }
+    public static void TownTap(Region reg, bool left, bool right)
+    {
+        if (left || right)
+        {
+            if (left)
+                RegionTap(reg);
+            if (army && right)
+            {
+
+                if (reg.curOwner == army.owner)
+                    army.TryMoveTo(reg.Capital);
+                else
+                {
+                    if (army.besiege != reg && TargetType == DamageType.Melee)
+                        army.TryMoveToTarget(reg, TargetType);
+                }
+            }
+        }
+    }
     public static void RegionTap(Region tap)
     {
         if (curRegion != tap && !tap.HiddenFrom(curPlayer))
@@ -426,22 +445,7 @@ public class Player : MonoBehaviour {
                 {
                     Region reg = MapMetrics.regions[int.Parse(hit.transform.name)];
                     highlightRegion = reg;
-                    if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
-                    {
-                        if (Input.GetMouseButtonDown(0))
-                            RegionTap(reg);
-                        if (army && Input.GetMouseButtonDown(1))
-                        {
-
-                            if (reg.curOwner == army.owner)
-                                army.TryMoveTo(reg.Capital);
-                            else
-                            {
-                                if (army.besiege != reg && TargetType == DamageType.Melee)
-                                    army.TryMoveToTarget(reg, TargetType);
-                            }
-                        }
-                    }
+                    TownTap(reg, Input.GetMouseButtonDown(0), Input.GetMouseButtonDown(1));
                     reg.bar.Active = true;
                     other = reg.curOwner;
                     target = reg;

@@ -53,7 +53,7 @@ public class AutoDiplomacy : AutoManager
                 i--;
             }
         }
-        var dip = diplomacy.uniqueCB.Count > 0 ? diplomacy.uniqueCB[0] : (null, 0);
+        var dip = diplomacy.war.Count == 0 && diplomacy.uniqueCB.Count > 0 ? diplomacy.uniqueCB[0] : (null, 0);
 
         if (dip.Item1 != null)
         {

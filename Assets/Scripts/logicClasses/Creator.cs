@@ -34,7 +34,7 @@ static class Creator {
         }
         CreateMap();
         CreateTerrein();
-        CreateProvinces(10, 15);
+        CreateProvinces(15, 20);
         CreateState(4, 5);
         CreateProvincesData();
         CreateDiplomacy();
