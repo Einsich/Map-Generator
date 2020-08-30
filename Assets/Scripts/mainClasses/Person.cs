@@ -90,6 +90,7 @@ public class Person
             curArmy = Army.CreateArmy(owner.Capital, owner.defaultArmy(), this);
         else
             curArmy.InitArmy(new List<Regiment>(), owner.Capital, this);
+        curArmy.AI.enabled = owner != Player.curPlayer;
         inTavern = false;
     }
     public Person(State state)

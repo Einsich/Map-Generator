@@ -36,19 +36,15 @@ public class AutoPersonControl : AutoManager
     {
         if (!isOn)
             return;
-        if(state.Data.technologyTree.maxPerson > state.Data.persons.Count)
+        if(state.Data.technologyTree.maxPerson > state.Data.unlockPersons())
         {
-            int k = state.Data.technologyTree.openedPerson.Count;
+            int k = state.Data.persons.Count;
             if (k > 0)
             {
                 k = Random.Range(0, k);
-                var type = state.Data.technologyTree.openedPerson[k];
-                if(state.Data.persons.Find((p)=>p.personType == type) == null)
-                {
-                    var person = state.Data.AddPerson(type);
-                    if (person.cantoCapital)
-                        person.SetToCapital();
-                }
+                var person = state.Data.persons[k];
+                if (person.cantoCapital)
+                    person.SetToCapital();
             }
         }
         foreach (var person in state.Data.persons)
@@ -86,7 +82,7 @@ public class AutoPersonControl : AutoManager
                 if (person.needAlive)
                     person.LivenUp();
                 else
-                    if (person.cantoCapital)
+                    if (person.curArmy != null && person.cantoCapital)
                     person.SetToCapital();
             }
     }

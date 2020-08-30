@@ -28,7 +28,6 @@ public class TechnologyTree : ScriptableObject
     public float inquisitionBonus = 0;
     public int maxPerson = 1;
     public float burnedLandEffect = 0;
-    public List<PersonType> openedPerson;
 
 
     //other parametrs//
@@ -47,7 +46,6 @@ public class TechnologyTree : ScriptableObject
                 if (regiments[i] != null)
                     state.regiments[i] = Instantiate(regiments[i]);
         regiments = new BaseRegiment[GameConst.MaxRegimentCount];
-        openedPerson = new List<PersonType>();
         BuildTree();
     }
     private void BuildTree()

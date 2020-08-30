@@ -17,6 +17,13 @@ public class State
     public List<Army> army;
     public List<Ship> ships;
     public List<Person> persons;
+    public int unlockPersons() {
+        int n = 0;
+        foreach (var person in persons)
+            if(person.curArmy == null)
+            n++;
+        return n;
+    }
     public Color mainColor;
     public Diplomacy diplomacy;
     public TechnologyTree technologyTree;

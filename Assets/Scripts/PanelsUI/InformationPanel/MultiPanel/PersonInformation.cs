@@ -23,7 +23,7 @@ public class PersonInformation : InitGO,IHelpPerson
 
         type.text = person.personType.ToString();
         toAlive.gameObject.SetActive(person.needAlive);
-        toCapital.gameObject.SetActive(person.cantoCapital);
+        toCapital.gameObject.SetActive(person.curArmy != null && person.cantoCapital);
         aliveProgress.gameObject.SetActive(person.alive != null);
         wasdead = person.die;
     }
@@ -43,16 +43,27 @@ public class PersonInformation : InitGO,IHelpPerson
     bool wasdead;
     void Update()
     {
-        if (person.alive != null)
+        if (person.curArmy != null)
         {
-            progress.fillAmount = person.alive.progress;
-        }
-        else if (wasdead)
+            if (person.alive != null)
+            {
+                progress.fillAmount = person.alive.progress;
+            }
+            else if (wasdead)
+            {
+                wasdead = false;
+                toCapital.gameObject.SetActive(person.cantoCapital);
+                aliveProgress.gameObject.SetActive(false);
+                icon.color = person.die ? new Color(0.1f, 0.1f, 0.1f) : Color.white;
+            }
+        } else
         {
-            wasdead = false;
-            toCapital.gameObject.SetActive(person.cantoCapital);
-            aliveProgress.gameObject.SetActive(false);
-            icon.color = person.die ? new Color(0.1f, 0.1f, 0.1f) : Color.white;
+            if(person.owner.unlockPersons() < person.owner.technologyTree.maxPerson)
+            {
+                toCapital.gameObject.SetActive(person.cantoCapital);
+                aliveProgress.gameObject.SetActive(false);
+                icon.color = Color.white;
+            }
         }
     }
 }
