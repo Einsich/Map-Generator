@@ -9,6 +9,7 @@ public static class GameTimer
     public static float time, timeScale = 1;
     public static void Start()
     {
+        time = 0;
         foreach (var x in Main.states)
         {
             x.CalculateIncome();

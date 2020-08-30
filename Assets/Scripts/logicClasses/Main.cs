@@ -84,7 +84,7 @@ public class Main : MonoBehaviour
         CreateTerrain();
         CreateArmy();
         SetMapMode(MapMode.Politic);
-        CameraController.SetPosition(new Vector3(st[0].Capital.position.x, seaLevelf, st[0].Capital.position.y));
+        CameraController.SetTarget(st[0].Capital.position);
         MenuManager.StartTimer();
         Player.SetState(st[0]);
     }

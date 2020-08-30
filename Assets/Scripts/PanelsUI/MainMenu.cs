@@ -60,10 +60,17 @@ public class MainMenu : MonoBehaviour {
         w = MapMetrics.Tile * (int)Wei.value;
         
     }
-    NoiseType noiseType;
+    NoiseType noiseType = NoiseType.ContinentAlgorithm;
     public void GenerationMode(Dropdown dropdown)
     {
-        NoiseType type = (NoiseType)dropdown.value;
+        NoiseType type;
+        switch(dropdown.options[dropdown.value].text)
+        {
+            case "Материковый алгоритм": type = NoiseType.ContinentAlgorithm;break;
+            case "Фрактальный алгоритм": type = NoiseType.SquareAndDiamond;break;
+            default: type = NoiseType.PerlinNoise;break;
+        }
+
         if(type != noiseType)
         {
             noiseType = type;
@@ -74,7 +81,7 @@ public class MainMenu : MonoBehaviour {
     public void PreGeneratedMap()
     {
         GetSettings();
-        hm = MyNoise.GetMap(h, w, seed, Sea.value / Sea.maxValue, noiseType);
+        hm = MyNoise.GetMap(h, w, seed, 0.5f, noiseType);
         ShowHeightMap();
     }
 
@@ -82,7 +89,7 @@ public class MainMenu : MonoBehaviour {
     public void ShowHeightMap()
     {
         if (noiseType == NoiseType.ContinentAlgorithm)
-            hm = MyNoise.GetMap(h, w, seed, Sea.value / Sea.maxValue, noiseType);
+            hm = MyNoise.GetMap(h, w, seed, 0.5f, noiseType);
         switch (noiseType)
         {
             case NoiseType.ContinentAlgorithm: sealvl = 127; break;

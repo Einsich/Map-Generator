@@ -34,7 +34,7 @@ public class AutoDiplomacy : AutoManager
 
     public void DiplomacyUpdate()
     {
-        new GameAction(Random.Range(0, 10), RealUpdate); 
+        new GameAction(Random.Range(1, 10), RealUpdate); 
 
     }
     private void RealUpdate()

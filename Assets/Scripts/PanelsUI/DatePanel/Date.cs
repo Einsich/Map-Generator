@@ -14,20 +14,19 @@ public class Date : MonoBehaviour {
     private bool firstUpdate = true;
     int speed;
     static float LastDeciUpdate,LastSecondUpdate, LastDecaUpdate;
-    void Update() {
-        if (Input.GetKeyDown(KeyCode.Space) && !cheat)
-            Pause();
-
+    private void Start()
+    {
+        InputManager.Instance[KeyCode.Space] += () => { if (!cheat) Pause(); };
+    }
+    private void FixedUpdate()
+    {
         if (firstUpdate)
         {
             firstUpdate = false;
             Pause();
             return;
         }
-    }
-    private void FixedUpdate()
-    {
-		if(play)
+        if (play)
         {
             GameTimer.time += speed * 0.2f * Time.fixedDeltaTime;
             GameTimer.RealTimeUpdate();

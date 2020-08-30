@@ -15,6 +15,7 @@ public class CameraController : MonoBehaviour {
     public static void SetTarget(Vector2 pos)
     {
         p0 = MapMetrics.GetPosition(pos);
+        ChangeShowState();
     }
     public static void SetPosition(Vector3 v)
     {
@@ -63,7 +64,7 @@ public class CameraController : MonoBehaviour {
     }
     public static Vector3 p0;
     public static Vector3 target;
-    public static float t;
+    public static float t= 0.5f;
     public static bool showstate,cheat=false;
     private void FixedUpdate()
     {
